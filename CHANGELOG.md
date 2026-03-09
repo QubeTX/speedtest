@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.6] — 2026-03-09
+
+### Fixed
+
+- **Mobile viewport overflow** — Page was slightly taller than mobile browsers could display with native navbar. Fixed the TapeMechanism layout-box mismatch (CSS `transform: scale(0.65)` shrank it visually but not in layout, wasting ~112px), reduced mobile padding/margins throughout, and switched from `100dvh` to `100svh` (small viewport height) which accounts for all browser chrome. Content now fits within the viewport on all tested mobile sizes (iPhone SE through iPhone 14+).
+
+---
+
 ## [1.1.5] — 2026-03-09
 
 ### Fixed

@@ -50,10 +50,10 @@ export default function TapeMechanism({ phase, currentSpeed = 0, onPress, disabl
     flexDirection: 'column',
     justifyContent: 'space-between',
     padding: '10px',
-    marginBottom: '2rem',
     cursor: disabled ? 'default' : 'pointer',
     transition: 'transform 0.1s ease',
     transform: `scale(${scale}${pressed ? ' * 0.98' : ''})`,
+    transformOrigin: 'top center',
     background: isError
       ? 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,59,48,0.05) 10px, rgba(255,59,48,0.05) 20px)'
       : 'transparent',
@@ -71,7 +71,7 @@ export default function TapeMechanism({ phase, currentSpeed = 0, onPress, disabl
   const handleDown = () => { if (!disabled) setPressed(true); };
   const handleUp = () => setPressed(false);
 
-  return (
+  const core = (
     <div
       style={coreStyle}
       onClick={() => { if (!disabled) onPress(); }}
@@ -154,4 +154,19 @@ export default function TapeMechanism({ phase, currentSpeed = 0, onPress, disabl
       <TapeReel spinning={bottomSpinning} spinDuration={bottomDuration} />
     </div>
   );
+
+  if (scale < 1) {
+    return (
+      <div style={{
+        height: `${320 * scale}px`,
+        display: 'flex',
+        justifyContent: 'center',
+        overflow: 'visible',
+      }}>
+        {core}
+      </div>
+    );
+  }
+
+  return core;
 }

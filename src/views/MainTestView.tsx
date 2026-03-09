@@ -95,7 +95,7 @@ export default function MainTestView() {
         )}
       </div>
 
-      <div style={{ position: 'relative' }}>
+      <div style={{ position: 'relative', marginBottom: isMobile ? '0.75rem' : '2rem' }}>
         <div style={{
           filter: showSwitchOverlay ? 'blur(4px)' : 'none',
           opacity: showSwitchOverlay ? 0.5 : 1,
@@ -167,7 +167,7 @@ export default function MainTestView() {
         )}
       </div>
 
-      <div style={{ marginBottom: '1.5rem' }}>
+      <div style={{ marginBottom: isMobile ? '0.75rem' : '1.5rem' }}>
         {isComplete && (
           <ActionButton onClick={() => { resetTest(); startTest(); }}>
             <svg width="20" height="20" viewBox="0 0 32 32" fill="currentColor">
@@ -185,7 +185,7 @@ export default function MainTestView() {
       </div>
 
       <div style={{ marginTop: 'auto', width: '100%' }}>
-        <SpeakerGrill height={isMobile ? 48 : 72} />
+        <SpeakerGrill height={isMobile ? 36 : 72} />
         <SysInfo
           serverName={progress.serverName}
           isp={result?.isp}

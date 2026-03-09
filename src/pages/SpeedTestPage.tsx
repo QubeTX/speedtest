@@ -7,8 +7,7 @@ export default function SpeedTestPage() {
   return (
     <div
       style={{
-        height: isMobile ? 'auto' : '100dvh',
-        minHeight: isMobile ? '100dvh' : undefined,
+        height: '100svh',
         display: 'flex',
         alignItems: isMobile ? 'flex-start' : 'center',
         justifyContent: 'center',
