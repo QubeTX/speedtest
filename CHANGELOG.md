@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.7] — 2026-03-09
+
+### Fixed
+
+- **Tape reel compression on mobile** — Reduced reel size from 154px to 142px to eliminate 14px overflow within the mechanism container that caused the bottom reel to blend into the border. Bumped hub ratio (26% → 28%) and spoke width (2px → 3px) so the spoke lines render consistently at 0.65× mobile scale instead of flickering between 1px and 2px.
+
+---
+
 ## [1.1.6] — 2026-03-09
 
 ### Fixed

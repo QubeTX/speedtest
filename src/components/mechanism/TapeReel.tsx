@@ -7,8 +7,8 @@ interface TapeReelProps {
   size?: number;
 }
 
-export default function TapeReel({ spinning, spinDuration = 0.4, size = 154 }: TapeReelProps) {
-  const hubSize = Math.round(size * 0.26);
+export default function TapeReel({ spinning, spinDuration = 0.4, size = 142 }: TapeReelProps) {
+  const hubSize = Math.round(size * 0.28);
 
   const reelStyle: CSSProperties = {
     width: `${size}px`,
@@ -38,7 +38,7 @@ export default function TapeReel({ spinning, spinDuration = 0.4, size = 154 }: T
     position: 'absolute',
     top: '50%',
     left: '50%',
-    width: '2px',
+    width: '3px',
     height: `${hubSize - 8}px`,
     backgroundColor: colors.bgScreen,
     transform: `translate(-50%, -50%) rotate(${deg}deg)`,
