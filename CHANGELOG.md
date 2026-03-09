@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.3] — 2026-03-09
+
+### Changed
+
+- **Default test duration** — Changed from `auto` to `30` seconds per provider for more consistent results
+
+---
+
 ## [1.1.2] — 2026-03-09
 
 ### Improved

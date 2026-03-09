@@ -52,7 +52,7 @@ export interface Settings {
 
 export const DEFAULT_SETTINGS: Settings = {
   providerMode: 'both',
-  testDuration: 'auto',
+  testDuration: 30,
   dataPolicyAccepted: false,
   speedUnit: 'auto',
   autoCopyResults: false,
