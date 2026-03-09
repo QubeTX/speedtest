@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
-- **Mobile viewport overflow** — Page was slightly taller than mobile browsers could display with native navbar. Fixed the TapeMechanism layout-box mismatch (CSS `transform: scale(0.65)` shrank it visually but not in layout, wasting ~112px), reduced mobile padding/margins throughout, and switched from `100dvh` to `100svh` (small viewport height) which accounts for all browser chrome. Content now fits within the viewport on all tested mobile sizes (iPhone SE through iPhone 14+).
+- **Mobile viewport overflow** — Page was slightly taller than mobile browsers could display with native navbar. Fixed the TapeMechanism layout-box mismatch (CSS `transform: scale(0.65)` shrank it visually but not in layout, wasting ~112px), reduced mobile padding/margins throughout, and switched from `100dvh` to `100svh` (small viewport height) which accounts for all browser chrome. Verified zero overflow on Pixel 9 Pro, Pixel 9 Pro XL, iPhone 16/Pro/Pro Max, iPhone 17/Pro/Pro Max, iPhone SE, and small Android (360x640).
 
 ---
 
