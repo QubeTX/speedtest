@@ -18,7 +18,7 @@ export const responsive = {
     numberMedium: '2.5rem',
     unit: '1rem',
     panelPadding: '1.5rem',
-    dataRowPadding: '1rem 1.5rem',
+    dataRowPadding: '0.75rem 1.5rem',
   },
   tablet: {
     mechanismScale: 0.85,

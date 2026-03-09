@@ -100,7 +100,7 @@ export default function SettingsView() {
   );
 
   const rightPanel = (
-    <div style={{ overflowY: 'auto', maxHeight: isMobile ? '400px' : '100%' }}>
+    <div style={{ overflowY: 'auto' }}>
       {/* Provider Selection */}
       <div style={sectionLabel}>PROVIDER</div>
       {PROVIDER_OPTIONS.map(opt => (

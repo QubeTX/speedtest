@@ -57,7 +57,7 @@ export default function DataPanel({ phase, progress, result, speedUnit }: DataPa
   const breakdownStyle = {
     fontSize: '0.7rem',
     opacity: 0.5,
-    marginTop: '0.5rem',
+    marginTop: '0.25rem',
     letterSpacing: '0.05em',
   };
 

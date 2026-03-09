@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.9] — 2026-03-09
+
+### Fixed
+
+- **12-hour time format** — Clock now displays 12-hour time with AM/PM instead of 24-hour format
+- **Settings page mobile layout** — Removed 400px maxHeight scroll box, allowed Apparatus overflow on mobile, and aligned settings page to top so all sections are naturally scrollable
+- **Cloudflare zero results** — Final breakdown no longer shows 0 for download/upload; tracks last known good values from progress callbacks as fallback when `getSummary()` returns undefined
+- **Complete state mobile overflow** — Reclaimed ~60px on mobile by tightening breakdown margins, split-row gap, data-row padding, and action-button spacing
+- **Settings gear on error state** — Settings button now visible during error state in addition to idle and complete
+
+---
+
 ## [1.1.8] — 2026-03-09
 
 ### Fixed

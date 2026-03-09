@@ -19,7 +19,7 @@ export default function SplitRow({ isActive, children }: SplitRowProps) {
     padding: r.dataRowPadding,
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
-    gap: '2rem',
+    gap: breakpoint === 'mobile' ? '1rem' : '2rem',
     position: 'relative',
     alignItems: 'center',
     transition: 'background-color 0.3s ease',

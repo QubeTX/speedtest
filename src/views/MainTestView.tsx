@@ -167,7 +167,7 @@ export default function MainTestView() {
         )}
       </div>
 
-      <div style={{ marginBottom: isMobile ? '0.75rem' : '1.5rem' }}>
+      <div style={{ marginBottom: isMobile ? '0.5rem' : '1.5rem' }}>
         {isComplete && (
           <ActionButton onClick={() => { resetTest(); startTest(); }}>
             <svg width="20" height="20" viewBox="0 0 32 32" fill="currentColor">
@@ -210,7 +210,7 @@ export default function MainTestView() {
           opacity: 0.4,
           transition: 'opacity 0.2s',
           padding: '4px',
-          display: isIdle || isComplete ? 'block' : 'none',
+          display: isIdle || isComplete || isError ? 'block' : 'none',
           zIndex: 20,
         }}
         onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.8'; }}

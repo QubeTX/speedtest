@@ -19,7 +19,7 @@ export default function Apparatus({ left, right }: ApparatusProps) {
     borderRadius: borders.radiusBox,
     display: 'grid',
     gridTemplateColumns: isDesktop ? '1fr 1fr' : '1fr',
-    overflow: 'hidden',
+    overflow: isDesktop ? 'hidden' : 'visible',
     position: 'relative',
     boxShadow: '0 20px 40px rgba(0,0,0,0.05)',
   };

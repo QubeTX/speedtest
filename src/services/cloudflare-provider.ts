@@ -50,6 +50,13 @@ export class CloudflareProvider implements SpeedTestProvider {
       let ulCount = 0;
       let currentPhase = 'discovering';
 
+      // Track last known good values from progress callbacks as fallback
+      let lastPing: number | null = null;
+      let lastJitter: number | null = null;
+      let lastDlMbps: number | null = null;
+      let lastUlMbps: number | null = null;
+      let lastPacketLoss: number | null = null;
+
       this.engine = new SpeedTestEngine({
         autoStart: false,
         measurements,
@@ -76,6 +83,13 @@ export class CloudflareProvider implements SpeedTestProvider {
         const ulBps = results.getUploadBandwidth();
         const packetLoss = results.getPacketLoss();
 
+        // Capture last known good values for fallback in onFinish
+        if (ping !== undefined) lastPing = ping;
+        if (jitter !== undefined) lastJitter = jitter;
+        if (dlBps !== undefined) lastDlMbps = dlBps / 1e6;
+        if (ulBps !== undefined) lastUlMbps = ulBps / 1e6;
+        if (packetLoss !== undefined) lastPacketLoss = packetLoss;
+
         onProgress({
           phase: currentPhase as SpeedTestProgress['phase'],
           currentProvider: 'Cloudflare',
@@ -93,13 +107,17 @@ export class CloudflareProvider implements SpeedTestProvider {
 
       engine.onFinish = (results) => {
         const summary = results.getSummary();
+        const summaryDl = summary.download ?? 0;
+        const summaryUl = summary.upload ?? 0;
+        const dlMbps = summaryDl > 0 ? summaryDl / 1e6 : (lastDlMbps ?? 0);
+        const ulMbps = summaryUl > 0 ? summaryUl / 1e6 : (lastUlMbps ?? 0);
         resolve({
           provider: 'cloudflare',
-          ping: summary.latency ?? 0,
-          jitter: summary.jitter ?? 0,
-          downloadSpeed: (summary.download ?? 0) / 1e6,
-          uploadSpeed: (summary.upload ?? 0) / 1e6,
-          packetLoss: summary.packetLoss ?? null,
+          ping: summary.latency ?? lastPing ?? 0,
+          jitter: summary.jitter ?? lastJitter ?? 0,
+          downloadSpeed: dlMbps,
+          uploadSpeed: ulMbps,
+          packetLoss: summary.packetLoss ?? lastPacketLoss ?? null,
           serverName: 'Cloudflare Edge',
           timestamp: Date.now(),
         });
