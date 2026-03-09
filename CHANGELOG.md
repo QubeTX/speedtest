@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.0] — 2026-03-09
+
+### Removed
+
+- **Test history section** from settings — results are session-only, no persistent localStorage history needed
+- **`useTestHistory` hook** and all localStorage persistence for test results
+
+### Fixed
+
+- **Settings layout shift** when switching providers — Data Policy section now smoothly animates in/out instead of causing content to jump
+
+---
+
 ## [1.2.0] — 2026-03-09
 
 ### Added

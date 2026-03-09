@@ -11,7 +11,8 @@ A dual-provider internet speed test with a retro cassette tape UI, built with Re
 - **Tape reel animation** — Spin speed linked to real-time throughput
 - **Responsive** — Desktop, tablet, and mobile with portrait/landscape support
 - **Configurable** — Test duration (auto to 10 min), speed units, provider selection
-- **Test history** — Last 50 results stored locally
+- **Network info** — Connection type, bandwidth estimate, and RTT from browser APIs
+- **Auto-copy** — Optionally copy results to clipboard on completion
 
 ## Tech Stack
 
@@ -44,7 +45,7 @@ src/
 │   ├── layout/       # Apparatus, TopBar, SpeakerGrill, SysInfo
 │   ├── mechanism/    # TapeReel, TapeMechanism
 │   └── ui/           # ActionButton, ConsentModal, NetworkBadge
-├── hooks/            # useClock, useResponsive, useSpeedTest, useSettings, etc.
+├── hooks/            # useClock, useResponsive, useSpeedTest, useSettings, useNetworkInfo
 ├── services/         # Provider adapters (Cloudflare, NDT7, Aggregated)
 ├── store/            # SpeedTestContext (React Context)
 ├── theme/            # Design tokens and responsive breakpoints
@@ -68,7 +69,7 @@ In aggregated mode (default), each metric is averaged independently between prov
 | Setting | Default | Options |
 |---------|---------|---------|
 | Provider | Both (Aggregated) | Both, Cloudflare, M-Lab NDT7 |
-| Duration | Auto | Auto, 15s, 30s, 1m, 2m, 5m, 10m |
+| Duration | 30s | Auto, 15s, 30s, 1m, 2m, 5m, 10m |
 | Units | Auto | Auto, Mbps, Kbps, Gbps |
 | Auto-copy | Off | On/Off |
 | Sound effects | Off | On/Off |

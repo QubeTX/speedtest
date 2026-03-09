@@ -4,7 +4,7 @@ import { initialProgress } from '../types/speedtest';
 import { createProvider } from '../services/provider-factory';
 import type { SpeedTestProvider as IProvider } from '../types/speedtest';
 
-export function useSpeedTest(settings: Settings, onComplete: (result: SpeedTestResult) => void) {
+export function useSpeedTest(settings: Settings, onComplete?: (result: SpeedTestResult) => void) {
   const [phase, setPhase] = useState<TestPhase>('idle');
   const [progress, setProgress] = useState<SpeedTestProgress>(initialProgress());
   const [result, setResult] = useState<SpeedTestResult | null>(null);
@@ -44,7 +44,7 @@ export function useSpeedTest(settings: Settings, onComplete: (result: SpeedTestR
         navigator.clipboard?.writeText(summary).catch(() => {});
       }
 
-      onComplete(testResult);
+      onComplete?.(testResult);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown error';
       setPhase('error');

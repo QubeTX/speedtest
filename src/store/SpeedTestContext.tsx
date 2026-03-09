@@ -1,6 +1,5 @@
-import { createContext, useContext, useCallback, type ReactNode } from 'react';
+import { createContext, useContext, type ReactNode } from 'react';
 import { useSettings } from '../hooks/useSettings';
-import { useTestHistory } from '../hooks/useTestHistory';
 import { useSpeedTest } from '../hooks/useSpeedTest';
 import type { TestPhase, SpeedTestProgress, SpeedTestResult, Settings } from '../types/speedtest';
 
@@ -18,23 +17,13 @@ interface SpeedTestContextValue {
   // Settings
   settings: Settings;
   updateSettings: (patch: Partial<Settings>) => void;
-
-  // History
-  history: SpeedTestResult[];
-  clearHistory: () => void;
 }
 
 const Ctx = createContext<SpeedTestContextValue | null>(null);
 
 export function SpeedTestProvider({ children }: { children: ReactNode }) {
   const { settings, updateSettings } = useSettings();
-  const { history, addResult, clearHistory } = useTestHistory();
-
-  const onComplete = useCallback((result: SpeedTestResult) => {
-    addResult(result);
-  }, [addResult]);
-
-  const { phase, progress, result, startTest, stopTest, resetTest } = useSpeedTest(settings, onComplete);
+  const { phase, progress, result, startTest, stopTest, resetTest } = useSpeedTest(settings);
 
   const value: SpeedTestContextValue = {
     phase,
@@ -45,8 +34,6 @@ export function SpeedTestProvider({ children }: { children: ReactNode }) {
     resetTest,
     settings,
     updateSettings,
-    history,
-    clearHistory,
   };
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

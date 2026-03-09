@@ -33,7 +33,7 @@ const UNIT_OPTIONS: { value: SpeedUnit; label: string }[] = [
 ];
 
 export default function SettingsView() {
-  const { settings, updateSettings, history, clearHistory } = useSpeedTestContext();
+  const { settings, updateSettings } = useSpeedTestContext();
   const navigate = useNavigate();
   const network = useNetworkInfo();
   const { isMobile } = useResponsive();
@@ -120,40 +120,43 @@ export default function SettingsView() {
         </div>
       ))}
 
-      {/* M-Lab Consent */}
-      {needsConsent && (
-        <>
-          <div style={sectionLabel}>DATA POLICY</div>
-          <div
-            style={{
-              ...rowStyle(false),
-              cursor: 'pointer',
-              gap: '1rem',
-            }}
-            onClick={() => updateSettings({ dataPolicyAccepted: !settings.dataPolicyAccepted })}
-          >
-            <div style={{
-              width: '20px',
-              height: '20px',
-              border: '2px solid #111',
-              borderRadius: '3px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: 0,
-              backgroundColor: settings.dataPolicyAccepted ? '#111' : 'transparent',
-              color: '#fff',
-              fontSize: '0.75rem',
-              fontWeight: 700,
-            }}>
-              {settings.dataPolicyAccepted ? '✓' : ''}
-            </div>
-            <div style={{ fontSize: '0.65rem', lineHeight: 1.5, opacity: 0.7, flex: 1 }}>
-              I accept M-Lab's data collection policy. Test data including IP address is collected and published as open data.
-            </div>
+      {/* M-Lab Consent — always rendered to avoid layout shift; collapsed when not needed */}
+      <div data-testid="data-policy-wrapper" style={{
+        maxHeight: needsConsent ? '200px' : '0',
+        overflow: 'hidden',
+        opacity: needsConsent ? 1 : 0,
+        transition: 'max-height 0.3s ease, opacity 0.3s ease',
+      }}>
+        <div style={sectionLabel}>DATA POLICY</div>
+        <div
+          style={{
+            ...rowStyle(false),
+            cursor: 'pointer',
+            gap: '1rem',
+          }}
+          onClick={() => updateSettings({ dataPolicyAccepted: !settings.dataPolicyAccepted })}
+        >
+          <div style={{
+            width: '20px',
+            height: '20px',
+            border: '2px solid #111',
+            borderRadius: '3px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+            backgroundColor: settings.dataPolicyAccepted ? '#111' : 'transparent',
+            color: '#fff',
+            fontSize: '0.75rem',
+            fontWeight: 700,
+          }}>
+            {settings.dataPolicyAccepted ? '✓' : ''}
           </div>
-        </>
-      )}
+          <div style={{ fontSize: '0.65rem', lineHeight: 1.5, opacity: 0.7, flex: 1 }}>
+            I accept M-Lab's data collection policy. Test data including IP address is collected and published as open data.
+          </div>
+        </div>
+      </div>
 
       {/* Duration */}
       <div style={sectionLabel}>TEST DURATION</div>
@@ -276,32 +279,6 @@ export default function SettingsView() {
         </>
       )}
 
-      {/* History */}
-      <div style={sectionLabel}>HISTORY ({history.length})</div>
-      {history.length > 0 ? (
-        <>
-          {history.slice(0, 10).map((h, i) => (
-            <div key={i} style={{ ...rowStyle(false), cursor: 'default', flexDirection: 'column', alignItems: 'flex-start', gap: '0.15rem' }}>
-              <div style={{ fontSize: '0.65rem', opacity: 0.4 }}>
-                {new Date(h.timestamp).toLocaleString()} • {h.provider.toUpperCase()}
-              </div>
-              <div style={{ fontSize: '0.8rem', fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>
-                ↓ {h.downloadSpeed.toFixed(0)} Mbps &nbsp; ↑ {h.uploadSpeed.toFixed(0)} Mbps &nbsp; {h.ping.toFixed(0)} ms
-              </div>
-            </div>
-          ))}
-          <div
-            style={{ ...rowStyle(false), justifyContent: 'center', cursor: 'pointer' }}
-            onClick={clearHistory}
-          >
-            <span style={{ fontSize: '0.7rem', fontWeight: 600, color: '#ff3b30', letterSpacing: '0.1em' }}>CLEAR HISTORY</span>
-          </div>
-        </>
-      ) : (
-        <div style={{ ...rowStyle(false), cursor: 'default', justifyContent: 'center' }}>
-          <span style={{ fontSize: '0.7rem', opacity: 0.4 }}>NO TESTS YET</span>
-        </div>
-      )}
     </div>
   );
 
