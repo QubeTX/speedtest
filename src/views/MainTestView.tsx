@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import { useSpeedTestContext } from '../store/SpeedTestContext';
 import { useNavigate } from 'react-router-dom';
 import Apparatus from '../components/layout/Apparatus';
@@ -50,15 +49,9 @@ export default function MainTestView() {
     ? (isTransitioning ? progress.currentProvider.toUpperCase() : `VIA ${progress.currentProvider.toUpperCase()}`)
     : null;
 
-  // Provider-switch overlay: show briefly when transitioning
-  const [showSwitchOverlay, setShowSwitchOverlay] = useState(false);
-  useEffect(() => {
-    if (isTransitioning) {
-      setShowSwitchOverlay(true);
-      const timer = setTimeout(() => setShowSwitchOverlay(false), 3200);
-      return () => clearTimeout(timer);
-    }
-  }, [isTransitioning]);
+  // Overlay shown directly from provider state — the 3-second delay
+  // in aggregated-provider.ts keeps isTransitioning true for the duration
+  const showSwitchOverlay = isTransitioning;
 
   // Current speed for reel animation
   const currentSpeed = phase === 'download'

@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.4] — 2026-03-09
+
+### Fixed
+
+- **Provider transition overlay not appearing** — Simplified overlay logic to derive visibility directly from provider state instead of a `useState`/`useEffect` timer pattern that had a timing bug; the overlay now reliably appears for the full 3-second transition
+
+---
+
 ## [1.1.3] — 2026-03-09
 
 ### Changed
