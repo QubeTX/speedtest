@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.1] — 2026-03-09
+
+### Fixed
+
+- SpeakerGrill now has `pointerEvents: 'none'` so it doesn't block clicks on buttons beneath it
+- BACK button on settings page has proper z-index for reliable tap/click on all viewports
+
+### Removed
+
+- Conversation transcript file (prep for public repo)
+
+### Added
+
+- README with full project documentation, tech stack, structure, and settings reference
+- CHANGELOG
+
+---
+
 ## [1.0.0] — 2026-03-09
 
 ### Added
