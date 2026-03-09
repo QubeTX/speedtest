@@ -42,7 +42,7 @@ export default function Apparatus({ left, right }: ApparatusProps) {
       )}
       <div
         style={{
-          padding: isMobile ? '1.5rem' : isDesktop ? '3rem' : '2rem',
+          padding: isMobile ? '1rem 1.5rem' : isDesktop ? '3rem' : '2rem',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',

@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.5] — 2026-03-09
+
+### Fixed
+
+- **Mobile layout clipping** — Mobile now uses `minHeight: 100dvh` with `overflow: auto` instead of fixed `height: 100dvh` + `overflow: hidden`, so all content (status text, tape mechanism, data panel) is fully visible and scrollable. Desktop/tablet remain viewport-locked.
+
+---
+
 ## [1.1.4] — 2026-03-09
 
 ### Fixed
