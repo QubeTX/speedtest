@@ -32,6 +32,7 @@ export class AggregatedProvider implements SpeedTestProvider {
         });
       }, perProviderDuration);
     } catch (err) {
+      console.warn('[Aggregated] Cloudflare failed:', err);
       // If Cloudflare fails, still try NDT7
       cfResult = {
         provider: 'cloudflare',
@@ -44,6 +45,10 @@ export class AggregatedProvider implements SpeedTestProvider {
         timestamp: Date.now(),
       };
     }
+
+    console.log('[Aggregated] Cloudflare result:', { dl: cfResult.downloadSpeed, ul: cfResult.uploadSpeed, ping: cfResult.ping, jitter: cfResult.jitter });
+    // Release CF connections before NDT7 starts
+    this.cf.stop();
 
     if (this.stopped) throw new Error('Test stopped');
 
@@ -81,6 +86,7 @@ export class AggregatedProvider implements SpeedTestProvider {
         });
       }, perProviderDuration);
     } catch (err) {
+      console.warn('[Aggregated] NDT7 failed:', err);
       ndtResult = {
         provider: 'ndt7',
         ping: 0,
@@ -92,6 +98,8 @@ export class AggregatedProvider implements SpeedTestProvider {
         timestamp: Date.now(),
       };
     }
+
+    console.log('[Aggregated] NDT7 result:', { dl: ndtResult.downloadSpeed, ul: ndtResult.uploadSpeed, ping: ndtResult.ping, jitter: ndtResult.jitter });
 
     // Average results — compute per-metric to handle partial failures
     function avg(a: number, b: number): number {

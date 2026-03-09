@@ -107,6 +107,7 @@ export class CloudflareProvider implements SpeedTestProvider {
 
       engine.onFinish = (results) => {
         const summary = results.getSummary();
+        console.log('[Cloudflare] Summary:', summary);
         const summaryDl = summary.download ?? 0;
         const summaryUl = summary.upload ?? 0;
         const dlMbps = summaryDl > 0 ? summaryDl / 1e6 : (lastDlMbps ?? 0);
@@ -124,6 +125,7 @@ export class CloudflareProvider implements SpeedTestProvider {
       };
 
       engine.onError = (error: string) => {
+        console.warn('[Cloudflare] Error:', error);
         reject(new Error(error));
       };
 

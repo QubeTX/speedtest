@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.1] — 2026-03-09
+
+### Fixed
+
+- **NDT7 zero download/ping in aggregated mode** — `downloadComplete` and `uploadComplete` callbacks now extract `LastClientMeasurement` / `LastServerMeasurement` data as fallbacks when streaming measurements are missed (e.g. worker timeout)
+- **NDT7 server-source download fallback** — Computes download throughput from server-reported `NumBytes`/`ElapsedTime` when client measurements are unavailable
+- **Silent Cloudflare failures in aggregated mode** — Catch blocks no longer swallow errors silently; failures are logged to console with `[Cloudflare]`/`[Aggregated]` prefixes
+- **Cloudflare connection interference** — CF engine is now explicitly stopped after completion before NDT7 starts, preventing potential connection conflicts
+
+### Added
+
+- **Diagnostic console logging** — All three providers (`[Cloudflare]`, `[NDT7]`, `[Aggregated]`) now log key events: server selection, phase completions, final results, and errors to the browser console for debugging
+
+---
+
 ## [1.3.0] — 2026-03-09
 
 ### Removed

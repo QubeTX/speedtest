@@ -47,6 +47,7 @@ export class NDT7Provider implements SpeedTestProvider {
           {
             serverChosen: (server: { machine: string }) => {
               serverName = server.machine || 'M-Lab Server';
+              console.log('[NDT7] Server:', serverName);
               onProgress({
                 phase: 'discovering',
                 currentProvider: 'M-Lab NDT7',
@@ -66,6 +67,7 @@ export class NDT7Provider implements SpeedTestProvider {
               Source: string;
               Data: {
                 MeanClientMbps?: number;
+                NumBytes?: number;
                 TCPInfo?: { MinRTT?: number; SmoothedRTT?: number };
                 ElapsedTime?: number;
               };
@@ -76,10 +78,17 @@ export class NDT7Provider implements SpeedTestProvider {
                 lastDlSpeed = data.Data.MeanClientMbps;
               }
 
-              if (data.Source === 'server' && data.Data.TCPInfo?.MinRTT) {
-                const rttMs = data.Data.TCPInfo.MinRTT / 1000; // µs → ms
-                lastPing = rttMs;
-                rttSamples.push(rttMs);
+              // Server-source: capture ping from TCPInfo, and throughput as secondary fallback
+              if (data.Source === 'server') {
+                if (data.Data.TCPInfo?.MinRTT) {
+                  const rttMs = data.Data.TCPInfo.MinRTT / 1000; // µs → ms
+                  lastPing = rttMs;
+                  rttSamples.push(rttMs);
+                }
+                // Secondary fallback: compute download throughput from server-reported bytes
+                if (lastDlSpeed === null && data.Data.NumBytes && data.Data.ElapsedTime && data.Data.ElapsedTime > 0) {
+                  lastDlSpeed = (data.Data.NumBytes * 8) / data.Data.ElapsedTime; // bits/µs = Mbps
+                }
               }
 
               const elapsed = Date.now() - dlStartTime;
@@ -100,9 +109,19 @@ export class NDT7Provider implements SpeedTestProvider {
               });
             },
 
-            downloadComplete: () => {
+            downloadComplete: (data: any) => {
+              // Fallback: use LastClientMeasurement if streaming measurements missed
+              if (lastDlSpeed === null && data?.LastClientMeasurement?.MeanClientMbps !== undefined) {
+                lastDlSpeed = data.LastClientMeasurement.MeanClientMbps;
+              }
+              // Fallback: use LastServerMeasurement for ping
+              if (lastPing === null && data?.LastServerMeasurement?.TCPInfo?.MinRTT) {
+                lastPing = data.LastServerMeasurement.TCPInfo.MinRTT / 1000;
+                rttSamples.push(lastPing);
+              }
               if (lastDlSpeed !== null) allDlSpeeds.push(lastDlSpeed);
               if (lastPing !== null) allPings.push(lastPing);
+              console.log('[NDT7] Download complete:', { download: lastDlSpeed, ping: lastPing });
               ulStartTime = Date.now();
               onProgress({
                 phase: 'upload',
@@ -150,13 +169,19 @@ export class NDT7Provider implements SpeedTestProvider {
               });
             },
 
-            uploadComplete: () => {
+            uploadComplete: (data: any) => {
+              // Fallback: use LastClientMeasurement if streaming measurements missed
+              if (lastUlSpeed === null && data?.LastClientMeasurement?.MeanClientMbps !== undefined) {
+                lastUlSpeed = data.LastClientMeasurement.MeanClientMbps;
+              }
               if (lastUlSpeed !== null) allUlSpeeds.push(lastUlSpeed);
+              console.log('[NDT7] Upload complete:', { upload: lastUlSpeed });
               resolve();
             },
 
             error: (err: string | Error) => {
               const msg = typeof err === 'string' ? err : err.message;
+              console.warn('[NDT7] Error:', msg);
               reject(new Error(msg));
             },
           },
@@ -167,6 +192,8 @@ export class NDT7Provider implements SpeedTestProvider {
     const avgDl = allDlSpeeds.length > 0 ? allDlSpeeds.reduce((a, b) => a + b, 0) / allDlSpeeds.length : (lastDlSpeed ?? 0);
     const avgUl = allUlSpeeds.length > 0 ? allUlSpeeds.reduce((a, b) => a + b, 0) / allUlSpeeds.length : (lastUlSpeed ?? 0);
     const avgPing = allPings.length > 0 ? allPings.reduce((a, b) => a + b, 0) / allPings.length : (lastPing ?? 0);
+
+    console.log('[NDT7] Final:', { download: avgDl, upload: avgUl, ping: avgPing, jitter: computeJitter(rttSamples) });
 
     return {
       provider: 'ndt7',
