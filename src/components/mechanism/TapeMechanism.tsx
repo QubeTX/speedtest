@@ -42,7 +42,7 @@ export default function TapeMechanism({ phase, currentSpeed = 0, onPress, disabl
 
   const coreStyle: CSSProperties = {
     width: '180px',
-    height: '380px',
+    height: '320px',
     border: borders.stroke,
     borderRadius: borders.radiusPill,
     position: 'relative',

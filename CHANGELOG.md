@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0] — 2026-03-09
+
+### Added
+
+- **M-Lab consent modal** — Full-screen popup on first visit when provider is `both` or `ndt7` and data policy hasn't been accepted. Accept enables M-Lab; Decline falls back to Cloudflare-only.
+
+### Fixed
+
+- **"No signal" on every device** — Default provider `both` no longer errors when M-Lab consent isn't given; falls back to Cloudflare-only instead of showing error state
+- **SysInfo/SpeakerGrill text overlap** — Removed absolute positioning from SysInfo; both components now flow in a bottom-anchored flex container
+- **Desktop/tablet scroll overflow** — Changed page layout from `minHeight: 100dvh` to `height: 100dvh` with `overflow: hidden`; reduced desktop number sizes, padding, and tape mechanism height to fit within one viewport
+
+---
+
 ## [1.0.1] — 2026-03-09
 
 ### Fixed

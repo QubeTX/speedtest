@@ -13,6 +13,7 @@ export default function Apparatus({ left, right }: ApparatusProps) {
   const style: CSSProperties = {
     width: '100%',
     maxWidth: isDesktop ? '1200px' : '600px',
+    maxHeight: isDesktop ? 'calc(100dvh - 2rem)' : undefined,
     backgroundColor: colors.bgDevice,
     border: borders.stroke,
     borderRadius: borders.radiusBox,

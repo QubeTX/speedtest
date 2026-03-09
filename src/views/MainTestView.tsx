@@ -8,15 +8,18 @@ import TapeMechanism from '../components/mechanism/TapeMechanism';
 import DataPanel from '../components/data/DataPanel';
 import ResultsStamp from '../components/effects/ResultsStamp';
 import ActionButton from '../components/ui/ActionButton';
+import ConsentModal from '../components/ui/ConsentModal';
 import { useResponsive } from '../hooks/useResponsive';
 
 export default function MainTestView() {
   const {
     phase, progress, result, settings,
-    startTest, resetTest,
+    startTest, resetTest, updateSettings,
   } = useSpeedTestContext();
   const navigate = useNavigate();
   const { isMobile } = useResponsive();
+
+  const needsConsent = (settings.providerMode === 'both' || settings.providerMode === 'ndt7') && !settings.dataPolicyAccepted;
 
   const isIdle = phase === 'idle';
   const isComplete = phase === 'complete';
@@ -93,17 +96,18 @@ export default function MainTestView() {
         </ActionButton>
       )}
 
-      <SpeakerGrill height={isMobile ? 60 : 100} />
-
-      <SysInfo
-        serverName={progress.serverName}
-        isp={result?.isp}
-        isError={isError}
-        errorDetails={isError ? [
-          'GATEWAY: UNREACHABLE',
-          progress.error || 'UNKNOWN_ERROR',
-        ] : undefined}
-      />
+      <div style={{ marginTop: 'auto', width: '100%' }}>
+        <SpeakerGrill height={isMobile ? 48 : 72} />
+        <SysInfo
+          serverName={progress.serverName}
+          isp={result?.isp}
+          isError={isError}
+          errorDetails={isError ? [
+            'GATEWAY: UNREACHABLE',
+            progress.error || 'UNKNOWN_ERROR',
+          ] : undefined}
+        />
+      </div>
 
       {/* Settings gear icon - positioned bottom right */}
       <button
@@ -140,5 +144,15 @@ export default function MainTestView() {
     />
   );
 
-  return <Apparatus left={leftPanel} right={rightPanel} />;
+  return (
+    <>
+      {needsConsent && (
+        <ConsentModal
+          onAccept={() => updateSettings({ dataPolicyAccepted: true })}
+          onDecline={() => updateSettings({ providerMode: 'cloudflare' })}
+        />
+      )}
+      <Apparatus left={leftPanel} right={rightPanel} />
+    </>
+  );
 }

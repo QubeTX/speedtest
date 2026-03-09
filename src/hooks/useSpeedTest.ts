@@ -11,18 +11,16 @@ export function useSpeedTest(settings: Settings, onComplete: (result: SpeedTestR
   const providerRef = useRef<IProvider | null>(null);
 
   const startTest = useCallback(async () => {
-    // Check NDT7 consent
-    if ((settings.providerMode === 'ndt7' || settings.providerMode === 'both') && !settings.dataPolicyAccepted) {
-      setPhase('error');
-      setProgress(prev => ({ ...prev, phase: 'error', error: 'M-Lab data policy consent required. Go to Settings to accept.' }));
-      return;
-    }
+    // If NDT7 consent not given, fall back to cloudflare-only
+    const effectiveMode = (settings.providerMode === 'ndt7' || settings.providerMode === 'both') && !settings.dataPolicyAccepted
+      ? 'cloudflare'
+      : settings.providerMode;
 
     setPhase('discovering');
     setResult(null);
     setProgress({ ...initialProgress(), phase: 'discovering' });
 
-    const provider = createProvider(settings.providerMode);
+    const provider = createProvider(effectiveMode);
     providerRef.current = provider;
 
     try {

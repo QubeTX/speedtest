@@ -4,11 +4,12 @@ export default function SpeedTestPage() {
   return (
     <div
       style={{
-        minHeight: '100dvh',
+        height: '100dvh',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         padding: '1rem',
+        overflow: 'hidden',
       }}
     >
       <MainTestView />

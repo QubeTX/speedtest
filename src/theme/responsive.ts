@@ -30,10 +30,10 @@ export const responsive = {
   },
   desktop: {
     mechanismScale: 1,
-    numberLarge: '7rem',
-    numberMedium: '4rem',
+    numberLarge: '5rem',
+    numberMedium: '3.5rem',
     unit: '1.5rem',
-    panelPadding: '3rem',
-    dataRowPadding: '2rem 3rem',
+    panelPadding: '2rem',
+    dataRowPadding: '1.5rem 3rem',
   },
 } as const;

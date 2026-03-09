@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react';
 
-export default function SpeakerGrill({ height = 100 }: { height?: number }) {
+export default function SpeakerGrill({ height = 80 }: { height?: number }) {
   const style: CSSProperties = {
     width: '100%',
     height: `${height}px`,
@@ -8,8 +8,9 @@ export default function SpeakerGrill({ height = 100 }: { height?: number }) {
     backgroundSize: '16px 16px',
     backgroundPosition: 'center',
     opacity: 0.9,
-    marginTop: 'auto',
     pointerEvents: 'none',
+    flexShrink: 1,
+    minHeight: '32px',
   };
   return <div style={style} />;
 }

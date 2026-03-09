@@ -14,14 +14,13 @@ export default function SysInfo({ serverName, isp, isError, errorDetails }: SysI
   const { isMobile } = useResponsive();
 
   const style: CSSProperties = {
-    position: 'absolute',
-    bottom: isMobile ? '1rem' : '1.5rem',
-    left: isMobile ? '1.5rem' : '2rem',
+    width: '100%',
     fontSize: '0.65rem',
     textTransform: 'uppercase',
     letterSpacing: '0.1em',
     opacity: 0.6,
     lineHeight: 1.6,
+    paddingTop: '0.5rem',
   };
 
   if (isError && errorDetails) {
