@@ -49,6 +49,7 @@ export default function TapeMechanism({ phase, currentSpeed = 0, onPress, disabl
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
+    alignItems: 'center',
     padding: '10px',
     cursor: disabled ? 'default' : 'pointer',
     transition: 'transform 0.1s ease',

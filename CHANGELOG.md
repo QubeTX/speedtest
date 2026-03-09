@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.8] — 2026-03-09
+
+### Fixed
+
+- **Asymmetric tape mechanism rails** — Centered reels horizontally within the mechanism container so the vertical rail lines have equal spacing on both sides. The 142px reels no longer left-align in the 154px content area.
+
+---
+
 ## [1.1.7] — 2026-03-09
 
 ### Fixed
