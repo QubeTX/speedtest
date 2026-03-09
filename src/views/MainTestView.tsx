@@ -186,40 +186,40 @@ export default function MainTestView() {
 
       <div style={{ marginTop: 'auto', width: '100%' }}>
         <SpeakerGrill height={isMobile ? 36 : 72} />
-        <SysInfo
-          serverName={progress.serverName}
-          isp={result?.isp}
-          isError={isError}
-          errorDetails={isError ? [
-            'GATEWAY: UNREACHABLE',
-            progress.error || 'UNKNOWN_ERROR',
-          ] : undefined}
-        />
+        <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0.5rem' }}>
+          <div style={{ flex: 1 }}>
+            <SysInfo
+              serverName={progress.serverName}
+              isp={result?.isp}
+              isError={isError}
+              errorDetails={isError ? [
+                'GATEWAY: UNREACHABLE',
+                progress.error || 'UNKNOWN_ERROR',
+              ] : undefined}
+            />
+          </div>
+          {/* Settings gear icon - inline next to SysInfo */}
+          <button
+            onClick={() => navigate('/settings')}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              opacity: 0.4,
+              transition: 'opacity 0.2s',
+              padding: '4px',
+              display: isIdle || isComplete || isError ? 'block' : 'none',
+              flexShrink: 0,
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.8'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.opacity = '0.4'; }}
+          >
+            <svg width="18" height="18" viewBox="0 0 256 256" fill="#111">
+              <path d="m252.2 144.9v-34.06l-34.54-5.92c-2.4-9.02-5.47-16.34-9.65-23.4l20.65-29.11-25.92-24.92-28.23 20.72c-7.94-4.72-15.52-8.05-24.27-10.18l-4.98-33.71h-34.5l-5.37 33.66c-9.65 2.54-15.16 5.1-24.1 10.06l-28.93-20.55-25.21 24.65 20.49 28.99c-4.88 8.07-7.48 14.29-10.08 23.85l-33.11 5.86v34.29l32.89 5.5c2.13 8.4 5.02 15.48 10.16 23.95l-20.35 28.4 25.51 25.15 28.55-20.37c7.96 4.84 14.57 7.3 23.87 9.51l5.48 34.05h34.7l5.11-34.12c9.01-2.51 16.41-5.49 23.77-10l28.42 20.93 25.87-25.15-20.66-28.28c4.65-8.02 7.55-14.61 9.72-24.02l34.71-5.78zm-124.8 34.42c-29.67 0-51.11-24.58-51.11-51.19 0-28.27 23.34-51.85 51.14-51.85 28.63 0 51.88 23.19 51.88 51.9 0 27.03-22.39 51.14-51.91 51.14z" />
+            </svg>
+          </button>
+        </div>
       </div>
-
-      {/* Settings gear icon - positioned bottom right */}
-      <button
-        onClick={() => navigate('/settings')}
-        style={{
-          position: 'absolute',
-          bottom: isMobile ? '1rem' : '1.5rem',
-          right: isMobile ? '1.5rem' : '2rem',
-          background: 'none',
-          border: 'none',
-          cursor: 'pointer',
-          opacity: 0.4,
-          transition: 'opacity 0.2s',
-          padding: '4px',
-          display: isIdle || isComplete || isError ? 'block' : 'none',
-          zIndex: 20,
-        }}
-        onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.8'; }}
-        onMouseLeave={(e) => { e.currentTarget.style.opacity = '0.4'; }}
-      >
-        <svg width="18" height="18" viewBox="0 0 256 256" fill="#111">
-          <path d="m252.2 144.9v-34.06l-34.54-5.92c-2.4-9.02-5.47-16.34-9.65-23.4l20.65-29.11-25.92-24.92-28.23 20.72c-7.94-4.72-15.52-8.05-24.27-10.18l-4.98-33.71h-34.5l-5.37 33.66c-9.65 2.54-15.16 5.1-24.1 10.06l-28.93-20.55-25.21 24.65 20.49 28.99c-4.88 8.07-7.48 14.29-10.08 23.85l-33.11 5.86v34.29l32.89 5.5c2.13 8.4 5.02 15.48 10.16 23.95l-20.35 28.4 25.51 25.15 28.55-20.37c7.96 4.84 14.57 7.3 23.87 9.51l5.48 34.05h34.7l5.11-34.12c9.01-2.51 16.41-5.49 23.77-10l28.42 20.93 25.87-25.15-20.66-28.28c4.65-8.02 7.55-14.61 9.72-24.02l34.71-5.78zm-124.8 34.42c-29.67 0-51.11-24.58-51.11-51.19 0-28.27 23.34-51.85 51.14-51.85 28.63 0 51.88 23.19 51.88 51.9 0 27.03-22.39 51.14-51.91 51.14z" />
-        </svg>
-      </button>
     </>
   );
 

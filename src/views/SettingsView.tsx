@@ -257,9 +257,9 @@ export default function SettingsView() {
                 TYPE: {network.type.toUpperCase()}
               </div>
             )}
-            {network.effectiveType && (
+            {network.type && network.effectiveType && (
               <div style={{ fontSize: '0.7rem', opacity: 0.6 }}>
-                EFFECTIVE: {network.effectiveType.toUpperCase()}
+                SPEED CLASS: {network.effectiveType.toUpperCase()}
               </div>
             )}
             {network.downlink !== null && (

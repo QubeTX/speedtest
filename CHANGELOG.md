@@ -2,7 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.1.9] — 2026-03-09
+## [1.2.0] — 2026-03-09
+
+### Added
+
+- **Copyright footer** — "© 2026 QUBETX" in light gray small text at the bottom of both main and settings pages
 
 ### Fixed
 
@@ -10,7 +14,9 @@ All notable changes to this project will be documented in this file.
 - **Settings page mobile layout** — Removed 400px maxHeight scroll box, allowed Apparatus overflow on mobile, and aligned settings page to top so all sections are naturally scrollable
 - **Cloudflare zero results** — Final breakdown no longer shows 0 for download/upload; tracks last known good values from progress callbacks as fallback when `getSummary()` returns undefined
 - **Complete state mobile overflow** — Reclaimed ~60px on mobile by tightening breakdown margins, split-row gap, data-row padding, and action-button spacing
+- **Settings gear overlap** — Moved gear button from absolute positioning to inline flow next to SysInfo text so it no longer overlays the speaker grill dots
 - **Settings gear on error state** — Settings button now visible during error state in addition to idle and complete
+- **Misleading "4G" on desktop** — Network info no longer shows bare "4G" (effectiveType) on desktop WiFi/Ethernet; shows bandwidth and RTT instead. Physical connection type (WiFi, Cellular, Ethernet) only shown when the browser provides it
 
 ---
 
