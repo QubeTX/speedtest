@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 
 - **NDT7 zero download/ping in aggregated mode** — `downloadComplete` and `uploadComplete` callbacks now extract `LastClientMeasurement` / `LastServerMeasurement` data as fallbacks when streaming measurements are missed (e.g. worker timeout)
 - **NDT7 server-source download fallback** — Computes download throughput from server-reported `NumBytes`/`ElapsedTime` when client measurements are unavailable
+- **Cloudflare packet loss error kills entire test** — `onError` firing during TURN credential failure (packet loss phase) would reject the promise and discard valid download/upload/latency results from `onFinish`. Error rejection is now deferred 2s to let `onFinish` resolve first.
 - **Silent Cloudflare failures in aggregated mode** — Catch blocks no longer swallow errors silently; failures are logged to console with `[Cloudflare]`/`[Aggregated]` prefixes
 - **Cloudflare connection interference** — CF engine is now explicitly stopped after completion before NDT7 starts, preventing potential connection conflicts
 

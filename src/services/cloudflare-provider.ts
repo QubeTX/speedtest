@@ -57,6 +57,8 @@ export class CloudflareProvider implements SpeedTestProvider {
       let lastUlMbps: number | null = null;
       let lastPacketLoss: number | null = null;
 
+      let settled = false;
+
       this.engine = new SpeedTestEngine({
         autoStart: false,
         measurements,
@@ -106,6 +108,7 @@ export class CloudflareProvider implements SpeedTestProvider {
       };
 
       engine.onFinish = (results) => {
+        settled = true;
         const summary = results.getSummary();
         console.log('[Cloudflare] Summary:', summary);
         const summaryDl = summary.download ?? 0;
@@ -126,7 +129,15 @@ export class CloudflareProvider implements SpeedTestProvider {
 
       engine.onError = (error: string) => {
         console.warn('[Cloudflare] Error:', error);
-        reject(new Error(error));
+        // Don't reject immediately — CF fires onError for non-fatal phase
+        // errors (e.g. TURN credential failure during packet loss) but still
+        // calls onFinish with valid download/upload/latency data. Defer
+        // rejection to give onFinish a chance to resolve first.
+        setTimeout(() => {
+          if (!settled) {
+            reject(new Error(error));
+          }
+        }, 2000);
       };
 
       onProgress({
