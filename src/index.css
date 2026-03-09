@@ -52,6 +52,11 @@ body {
   to { opacity: 1; }
 }
 
+@keyframes progress-fill {
+  from { width: 0%; }
+  to { width: 100%; }
+}
+
 /* Responsive utilities */
 @media (max-width: 899px) {
   .hide-mobile { display: none !important; }

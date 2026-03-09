@@ -47,7 +47,7 @@ export class AggregatedProvider implements SpeedTestProvider {
 
     if (this.stopped) throw new Error('Test stopped');
 
-    // Brief transition signal between providers
+    // 3-second transition phase between providers
     onProgress({
       phase: 'discovering',
       currentProvider: 'Switching to M-Lab NDT7',
@@ -61,6 +61,9 @@ export class AggregatedProvider implements SpeedTestProvider {
       serverName: cfResult.serverName,
       error: null,
     });
+
+    await new Promise(resolve => setTimeout(resolve, 3000));
+    if (this.stopped) throw new Error('Test stopped');
 
     // Phase 2: NDT7 (progress 50-100%)
     let ndtResult: SpeedTestResult;

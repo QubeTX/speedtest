@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.2] — 2026-03-09
+
+### Improved
+
+- **Provider transition phase** — Extended to a deliberate 3-second pause between Cloudflare and M-Lab NDT7 with blurred background, detailed overlay showing checkmark + "CLOUDFLARE COMPLETE" → "M-LAB NDT7 STARTING", and an animated progress bar filling over the transition
+
+---
+
 ## [1.1.1] — 2026-03-09
 
 ### Improved

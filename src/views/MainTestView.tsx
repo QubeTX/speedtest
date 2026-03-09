@@ -55,7 +55,7 @@ export default function MainTestView() {
   useEffect(() => {
     if (isTransitioning) {
       setShowSwitchOverlay(true);
-      const timer = setTimeout(() => setShowSwitchOverlay(false), 1800);
+      const timer = setTimeout(() => setShowSwitchOverlay(false), 3200);
       return () => clearTimeout(timer);
     }
   }, [isTransitioning]);
@@ -103,13 +103,19 @@ export default function MainTestView() {
       </div>
 
       <div style={{ position: 'relative' }}>
-        <ResultsStamp visible={isComplete} />
-        <TapeMechanism
-          phase={phase}
-          currentSpeed={currentSpeed}
-          onPress={handleMechanismPress}
-          disabled={isTesting}
-        />
+        <div style={{
+          filter: showSwitchOverlay ? 'blur(4px)' : 'none',
+          opacity: showSwitchOverlay ? 0.5 : 1,
+          transition: 'filter 0.4s ease, opacity 0.4s ease',
+        }}>
+          <ResultsStamp visible={isComplete} />
+          <TapeMechanism
+            phase={phase}
+            currentSpeed={currentSpeed}
+            onPress={handleMechanismPress}
+            disabled={isTesting}
+          />
+        </div>
         {showSwitchOverlay && (
           <div
             style={{
@@ -117,31 +123,53 @@ export default function MainTestView() {
               top: '50%',
               left: '50%',
               transform: 'translate(-50%, -50%)',
-              backgroundColor: 'rgba(255, 255, 255, 0.85)',
-              backdropFilter: 'blur(8px)',
-              WebkitBackdropFilter: 'blur(8px)',
+              backgroundColor: 'rgba(255, 255, 255, 0.92)',
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)',
               borderRadius: '16px',
-              padding: '1.25rem 1.75rem',
+              padding: '1.5rem 2rem',
               textAlign: 'center',
               zIndex: 10,
               animation: 'fade-in 0.3s ease',
-              boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+              minWidth: '200px',
             }}
           >
-            <div style={{ fontSize: '0.65rem', letterSpacing: '0.15em', opacity: 0.5, marginBottom: '0.5rem' }}>
-              CLOUDFLARE COMPLETE
+            {/* Cloudflare complete */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', marginBottom: '0.6rem' }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+              <span style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em' }}>CLOUDFLARE</span>
+              <span style={{ fontSize: '0.6rem', letterSpacing: '0.1em', color: '#22c55e', fontWeight: 600 }}>COMPLETE</span>
             </div>
-            <div style={{ fontSize: '0.85rem', fontWeight: 700, letterSpacing: '0.08em' }}>
-              SWITCHING TO M-LAB
+
+            {/* Divider arrow */}
+            <div style={{ fontSize: '0.7rem', opacity: 0.3, margin: '0.3rem 0' }}>
+              &#9660;
             </div>
+
+            {/* M-Lab starting */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', marginBottom: '0.8rem' }}>
+              <span style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em' }}>M-LAB NDT7</span>
+              <span style={{ fontSize: '0.6rem', letterSpacing: '0.1em', opacity: 0.5, fontWeight: 600, animation: 'pulse-scale 1.5s ease infinite' }}>STARTING</span>
+            </div>
+
+            {/* Progress bar */}
             <div style={{
-              width: '40px',
+              width: '100%',
               height: '3px',
-              backgroundColor: '#111',
+              backgroundColor: 'rgba(0,0,0,0.08)',
               borderRadius: '2px',
-              margin: '0.6rem auto 0',
-              animation: 'pulse-scale 1s ease infinite',
-            }} />
+              overflow: 'hidden',
+            }}>
+              <div style={{
+                height: '100%',
+                backgroundColor: '#111',
+                borderRadius: '2px',
+                animation: 'progress-fill 3s linear forwards',
+              }} />
+            </div>
           </div>
         )}
       </div>
