@@ -1,0 +1,59 @@
+import { createContext, useContext, useCallback, type ReactNode } from 'react';
+import { useSettings } from '../hooks/useSettings';
+import { useTestHistory } from '../hooks/useTestHistory';
+import { useSpeedTest } from '../hooks/useSpeedTest';
+import type { TestPhase, SpeedTestProgress, SpeedTestResult, Settings } from '../types/speedtest';
+
+interface SpeedTestContextValue {
+  // Test state
+  phase: TestPhase;
+  progress: SpeedTestProgress;
+  result: SpeedTestResult | null;
+
+  // Actions
+  startTest: () => Promise<void>;
+  stopTest: () => void;
+  resetTest: () => void;
+
+  // Settings
+  settings: Settings;
+  updateSettings: (patch: Partial<Settings>) => void;
+
+  // History
+  history: SpeedTestResult[];
+  clearHistory: () => void;
+}
+
+const Ctx = createContext<SpeedTestContextValue | null>(null);
+
+export function SpeedTestProvider({ children }: { children: ReactNode }) {
+  const { settings, updateSettings } = useSettings();
+  const { history, addResult, clearHistory } = useTestHistory();
+
+  const onComplete = useCallback((result: SpeedTestResult) => {
+    addResult(result);
+  }, [addResult]);
+
+  const { phase, progress, result, startTest, stopTest, resetTest } = useSpeedTest(settings, onComplete);
+
+  const value: SpeedTestContextValue = {
+    phase,
+    progress,
+    result,
+    startTest,
+    stopTest,
+    resetTest,
+    settings,
+    updateSettings,
+    history,
+    clearHistory,
+  };
+
+  return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
+}
+
+export function useSpeedTestContext(): SpeedTestContextValue {
+  const ctx = useContext(Ctx);
+  if (!ctx) throw new Error('useSpeedTestContext must be used within SpeedTestProvider');
+  return ctx;
+}
