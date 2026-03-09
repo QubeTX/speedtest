@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 
 - **Copyright footer** — "© 2026 QUBETX" in light gray small text at the bottom of both main and settings pages
+- **QubeTX favicon** — Site favicon now uses the QubeTX logo SVG instead of the SHAUGHV personal brandmark
 
 ### Fixed
 
