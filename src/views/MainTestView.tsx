@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { useSpeedTestContext } from '../store/SpeedTestContext';
 import { useNavigate } from 'react-router-dom';
 import Apparatus from '../components/layout/Apparatus';
@@ -36,12 +37,28 @@ export default function MainTestView() {
 
   // Status text
   let statusText = 'PRESS TO START';
-  if (phase === 'discovering') statusText = `CONNECTING${progress.currentProvider ? ` • ${progress.currentProvider.toUpperCase()}` : ''}`;
+  if (phase === 'discovering') statusText = 'CONNECTING';
   if (phase === 'latency') statusText = 'MEASURING LATENCY';
-  if (phase === 'download') statusText = `TESTING DOWNLOAD${progress.currentProvider ? ` • ${progress.currentProvider.toUpperCase()}` : ''}`;
-  if (phase === 'upload') statusText = `TESTING UPLOAD${progress.currentProvider ? ` • ${progress.currentProvider.toUpperCase()}` : ''}`;
+  if (phase === 'download') statusText = 'TESTING DOWNLOAD';
+  if (phase === 'upload') statusText = 'TESTING UPLOAD';
   if (isComplete) statusText = 'SYSTEM STANDBY';
   if (isError) statusText = 'CONNECTION FAILURE';
+
+  // Provider label shown separately during active test phases
+  const isTransitioning = progress.currentProvider?.toLowerCase().startsWith('switching');
+  const providerLabel = isTesting && progress.currentProvider
+    ? (isTransitioning ? progress.currentProvider.toUpperCase() : `VIA ${progress.currentProvider.toUpperCase()}`)
+    : null;
+
+  // Provider-switch overlay: show briefly when transitioning
+  const [showSwitchOverlay, setShowSwitchOverlay] = useState(false);
+  useEffect(() => {
+    if (isTransitioning) {
+      setShowSwitchOverlay(true);
+      const timer = setTimeout(() => setShowSwitchOverlay(false), 1800);
+      return () => clearTimeout(timer);
+    }
+  }, [isTransitioning]);
 
   // Current speed for reel animation
   const currentSpeed = phase === 'download'
@@ -57,18 +74,32 @@ export default function MainTestView() {
         errorTag={isError ? '0x000F4' : undefined}
       />
 
-      <div
-        style={{
-          fontSize: isMobile ? '1rem' : '1.25rem',
-          fontWeight: isError ? 700 : 500,
-          marginBottom: '1rem',
-          height: '1.5em',
-          letterSpacing: '0.05em',
-          color: isError ? '#ff3b30' : '#111111',
-          textAlign: 'center',
-        }}
-      >
-        {statusText}
+      <div style={{ marginBottom: '1rem', textAlign: 'center' }}>
+        <div
+          style={{
+            fontSize: isMobile ? '1rem' : '1.25rem',
+            fontWeight: isError ? 700 : 500,
+            height: '1.5em',
+            letterSpacing: '0.05em',
+            color: isError ? '#ff3b30' : '#111111',
+          }}
+        >
+          {statusText}
+        </div>
+        {providerLabel && (
+          <div
+            key={providerLabel}
+            style={{
+              fontSize: '0.7rem',
+              letterSpacing: '0.15em',
+              opacity: 0.55,
+              marginTop: '0.2rem',
+              animation: 'fade-in 0.4s ease',
+            }}
+          >
+            {providerLabel}
+          </div>
+        )}
       </div>
 
       <div style={{ position: 'relative' }}>
@@ -79,22 +110,58 @@ export default function MainTestView() {
           onPress={handleMechanismPress}
           disabled={isTesting}
         />
+        {showSwitchOverlay && (
+          <div
+            style={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              backgroundColor: 'rgba(255, 255, 255, 0.85)',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
+              borderRadius: '16px',
+              padding: '1.25rem 1.75rem',
+              textAlign: 'center',
+              zIndex: 10,
+              animation: 'fade-in 0.3s ease',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+            }}
+          >
+            <div style={{ fontSize: '0.65rem', letterSpacing: '0.15em', opacity: 0.5, marginBottom: '0.5rem' }}>
+              CLOUDFLARE COMPLETE
+            </div>
+            <div style={{ fontSize: '0.85rem', fontWeight: 700, letterSpacing: '0.08em' }}>
+              SWITCHING TO M-LAB
+            </div>
+            <div style={{
+              width: '40px',
+              height: '3px',
+              backgroundColor: '#111',
+              borderRadius: '2px',
+              margin: '0.6rem auto 0',
+              animation: 'pulse-scale 1s ease infinite',
+            }} />
+          </div>
+        )}
       </div>
 
-      {isComplete && (
-        <ActionButton onClick={() => { resetTest(); startTest(); }}>
-          <svg width="20" height="20" viewBox="0 0 32 32" fill="currentColor">
-            <path d="m15.99 0.44c-8.51 0-15.51 6.93-15.51 15.56h3.49c0-6.71 5.61-12.01 12-12.01 6.78 0 12.04 5.53 12.04 12.02 0 6.72-5.49 11.98-12.13 11.98-3 0-5.51-1.05-7.45-2.72l3.15-2.05-9.4-4.12 0.01 10.21 3.18-2.07c2.87 2.7 6.31 4.32 10.51 4.32 8.63 0 15.69-7.07 15.69-15.55 0-8.5-7.06-15.57-15.58-15.57z" />
-          </svg>
-          RUN AGAIN
-        </ActionButton>
-      )}
+      <div style={{ marginBottom: '1.5rem' }}>
+        {isComplete && (
+          <ActionButton onClick={() => { resetTest(); startTest(); }}>
+            <svg width="20" height="20" viewBox="0 0 32 32" fill="currentColor">
+              <path d="m15.99 0.44c-8.51 0-15.51 6.93-15.51 15.56h3.49c0-6.71 5.61-12.01 12-12.01 6.78 0 12.04 5.53 12.04 12.02 0 6.72-5.49 11.98-12.13 11.98-3 0-5.51-1.05-7.45-2.72l3.15-2.05-9.4-4.12 0.01 10.21 3.18-2.07c2.87 2.7 6.31 4.32 10.51 4.32 8.63 0 15.69-7.07 15.69-15.55 0-8.5-7.06-15.57-15.58-15.57z" />
+            </svg>
+            RUN AGAIN
+          </ActionButton>
+        )}
 
-      {isError && (
-        <ActionButton onClick={() => { resetTest(); startTest(); }}>
-          RETRY
-        </ActionButton>
-      )}
+        {isError && (
+          <ActionButton onClick={() => { resetTest(); startTest(); }}>
+            RETRY
+          </ActionButton>
+        )}
+      </div>
 
       <div style={{ marginTop: 'auto', width: '100%' }}>
         <SpeakerGrill height={isMobile ? 48 : 72} />

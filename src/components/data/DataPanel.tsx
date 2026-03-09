@@ -61,6 +61,23 @@ export default function DataPanel({ phase, progress, result, speedUnit }: DataPa
     letterSpacing: '0.05em',
   };
 
+  const avgBadge = breakdown ? (
+    <span style={{
+      display: 'inline-block',
+      fontSize: '0.55rem',
+      fontWeight: 700,
+      letterSpacing: '0.1em',
+      backgroundColor: '#111111',
+      color: '#ffffff',
+      padding: '0.15rem 0.4rem',
+      borderRadius: '4px',
+      marginLeft: '0.5rem',
+      verticalAlign: 'middle',
+    }}>
+      AVG
+    </span>
+  ) : null;
+
   if (isError) {
     return (
       <>
@@ -112,7 +129,8 @@ export default function DataPanel({ phase, progress, result, speedUnit }: DataPa
 
       {/* Download */}
       <DataRow
-        label={breakdown ? 'DOWNLOAD SPEED (AVG)' : 'DOWNLOAD SPEED'}
+        label="DOWNLOAD SPEED"
+        labelSuffix={avgBadge}
         metaStatus={dlMeta}
         value={dl.value}
         unit={dl.unit}
@@ -129,7 +147,8 @@ export default function DataPanel({ phase, progress, result, speedUnit }: DataPa
 
       {/* Upload */}
       <DataRow
-        label={breakdown ? 'UPLOAD SPEED (AVG)' : 'UPLOAD SPEED'}
+        label="UPLOAD SPEED"
+        labelSuffix={avgBadge}
         metaStatus={ulMeta}
         value={ul.value}
         unit={ul.unit}

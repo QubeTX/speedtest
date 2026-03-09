@@ -47,6 +47,21 @@ export class AggregatedProvider implements SpeedTestProvider {
 
     if (this.stopped) throw new Error('Test stopped');
 
+    // Brief transition signal between providers
+    onProgress({
+      phase: 'discovering',
+      currentProvider: 'Switching to M-Lab NDT7',
+      ping: cfResult.ping,
+      jitter: cfResult.jitter,
+      downloadSpeed: null,
+      uploadSpeed: null,
+      packetLoss: cfResult.packetLoss,
+      downloadProgress: 50,
+      uploadProgress: 50,
+      serverName: cfResult.serverName,
+      error: null,
+    });
+
     // Phase 2: NDT7 (progress 50-100%)
     let ndtResult: SpeedTestResult;
     try {
@@ -75,19 +90,23 @@ export class AggregatedProvider implements SpeedTestProvider {
       };
     }
 
-    // Average results
-    const hasCf = cfResult.downloadSpeed > 0;
-    const hasNdt = ndtResult.downloadSpeed > 0;
-    const divisor = (hasCf && hasNdt) ? 2 : 1;
+    // Average results — compute per-metric to handle partial failures
+    function avg(a: number, b: number): number {
+      const hasA = a > 0;
+      const hasB = b > 0;
+      if (hasA && hasB) return (a + b) / 2;
+      return hasA ? a : b;
+    }
 
-    const avgDl = ((hasCf ? cfResult.downloadSpeed : 0) + (hasNdt ? ndtResult.downloadSpeed : 0)) / divisor;
-    const avgUl = ((hasCf ? cfResult.uploadSpeed : 0) + (hasNdt ? ndtResult.uploadSpeed : 0)) / divisor;
-    const avgPing = ((hasCf ? cfResult.ping : 0) + (hasNdt ? ndtResult.ping : 0)) / divisor;
+    const avgDl = avg(cfResult.downloadSpeed, ndtResult.downloadSpeed);
+    const avgUl = avg(cfResult.uploadSpeed, ndtResult.uploadSpeed);
+    const avgPing = avg(cfResult.ping, ndtResult.ping);
+    const avgJitter = avg(cfResult.jitter, ndtResult.jitter);
 
     return {
       provider: 'aggregated',
       ping: avgPing,
-      jitter: cfResult.jitter || ndtResult.jitter, // Cloudflare's is more accurate
+      jitter: avgJitter,
       downloadSpeed: avgDl,
       uploadSpeed: avgUl,
       packetLoss: cfResult.packetLoss,

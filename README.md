@@ -43,7 +43,7 @@ src/
 │   ├── effects/      # ResultsStamp, GlitchText, CRTOverlay
 │   ├── layout/       # Apparatus, TopBar, SpeakerGrill, SysInfo
 │   ├── mechanism/    # TapeReel, TapeMechanism
-│   └── ui/           # ActionButton, NetworkBadge
+│   └── ui/           # ActionButton, ConsentModal, NetworkBadge
 ├── hooks/            # useClock, useResponsive, useSpeedTest, useSettings, etc.
 ├── services/         # Provider adapters (Cloudflare, NDT7, Aggregated)
 ├── store/            # SpeedTestContext (React Context)
@@ -55,12 +55,13 @@ src/
 
 ## How It Works
 
-1. **Idle** — Tape reels are still, "PRESS TO START" displayed
-2. **Testing** — Reels spin at a speed proportional to throughput; runs Cloudflare first, then NDT7
-3. **Complete** — "TEST COMPLETE" stamp appears, averaged results shown with per-provider breakdown
-4. **Error** — CRT glitch effects with system diagnostics
+1. **First visit** — M-Lab consent modal appears (accept enables dual-provider; decline uses Cloudflare-only)
+2. **Idle** — Tape reels are still, frosted glass play button displayed
+3. **Testing** — Reels spin proportional to throughput; runs Cloudflare first, shows a transition overlay, then runs NDT7. Active provider shown below status text.
+4. **Complete** — "TEST COMPLETE" stamp appears, averaged results shown with `AVG` badge and per-provider breakdown
+5. **Error** — CRT glitch effects with system diagnostics
 
-In aggregated mode (default), shared metrics are averaged between providers. Packet loss comes from Cloudflare only. ISP name comes from Cloudflare metadata.
+In aggregated mode (default), each metric is averaged independently between providers. Packet loss comes from Cloudflare only. ISP name comes from Cloudflare metadata.
 
 ## Settings
 

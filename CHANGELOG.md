@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.1] — 2026-03-09
+
+### Improved
+
+- **Frosted glass play button** — Play icon in idle state now sits on a rounded, semi-transparent backdrop with blur so it's clearly visible against the tape reels
+- **Provider labels during testing** — Active provider (`VIA CLOUDFLARE`, `VIA M-LAB NDT7`) shown as a separate line below the status text for better visibility
+- **Provider-switch overlay** — Frosted glass popup with "CLOUDFLARE COMPLETE / SWITCHING TO M-LAB" shown briefly when transitioning between providers
+- **AVG badge on results** — Download/Upload speed labels show a dark `AVG` badge when displaying aggregated results from both providers
+- **Play button hidden on complete** — Play triangle no longer shows when the "RUN AGAIN" button is visible
+- **Button/grill spacing** — Added margin between RUN AGAIN / RETRY buttons and the speaker grill matrix
+
+### Fixed
+
+- **Averaging math** — Jitter now properly averaged between providers (was using `||` which treated 0 as falsy); each metric averaged independently
+
+---
+
 ## [1.1.0] — 2026-03-09
 
 ### Added

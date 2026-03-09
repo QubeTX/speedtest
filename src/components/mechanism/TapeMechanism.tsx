@@ -37,7 +37,7 @@ export default function TapeMechanism({ phase, currentSpeed = 0, onPress, disabl
   const topDuration = isDownload ? speedFactor : isUpload ? speedFactor * 1.3 : 1.2;
   const bottomDuration = isUpload ? speedFactor : isDownload ? speedFactor * 1.3 : 1.2;
 
-  const showPlay = isIdle || isComplete;
+  const showPlay = isIdle;
   const showAlert = isError;
 
   const coreStyle: CSSProperties = {
@@ -95,7 +95,7 @@ export default function TapeMechanism({ phase, currentSpeed = 0, onPress, disabl
         }}
       />
 
-      {/* Play icon */}
+      {/* Play icon with frosted glass background */}
       {showPlay && (
         <div
           style={{
@@ -103,15 +103,30 @@ export default function TapeMechanism({ phase, currentSpeed = 0, onPress, disabl
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            width: 0,
-            height: 0,
-            borderTop: '15px solid transparent',
-            borderBottom: '15px solid transparent',
-            borderLeft: `24px solid ${colors.ink}`,
+            width: '56px',
+            height: '56px',
+            borderRadius: '12px',
+            backgroundColor: 'rgba(255, 255, 255, 0.35)',
+            backdropFilter: 'blur(6px)',
+            WebkitBackdropFilter: 'blur(6px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
             zIndex: 3,
             transition: 'opacity 0.2s',
           }}
-        />
+        >
+          <div
+            style={{
+              width: 0,
+              height: 0,
+              borderTop: '15px solid transparent',
+              borderBottom: '15px solid transparent',
+              borderLeft: `24px solid ${colors.ink}`,
+              marginLeft: '4px',
+            }}
+          />
+        </div>
       )}
 
       {/* Error alert indicator */}

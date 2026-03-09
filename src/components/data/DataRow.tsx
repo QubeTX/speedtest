@@ -7,6 +7,7 @@ import ProgressBar from './ProgressBar';
 
 interface DataRowProps {
   label: string;
+  labelSuffix?: ReactNode;
   metaStatus?: string;
   value: string;
   unit: string;
@@ -23,6 +24,7 @@ interface DataRowProps {
 
 export default function DataRow({
   label,
+  labelSuffix,
   metaStatus,
   value,
   unit,
@@ -63,7 +65,7 @@ export default function DataRow({
     <div style={rowStyle}>
       <CrosshairCorners />
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '0.5rem' }}>
-        <span style={typography.metaLabel}>{label}</span>
+        <span style={typography.metaLabel}>{label}{labelSuffix}</span>
         {metaStatus && (
           <span style={{
             ...typography.metaValue,
