@@ -7,13 +7,13 @@ export default function SpeedTestPage() {
   return (
     <div
       style={{
-        height: '100svh',
+        minHeight: '100svh',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: isMobile ? 'flex-start' : 'center',
         padding: isMobile ? '0.5rem' : '1rem',
-        overflow: isMobile ? 'auto' : 'hidden',
+        overflow: 'auto',
       }}
     >
       <MainTestView />
