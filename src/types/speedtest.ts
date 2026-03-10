@@ -31,6 +31,7 @@ export interface SpeedTestResult {
     ndt7?: SpeedTestResult;
   };
   isp?: string;
+  dnsCheck?: DnsCheckResult;
 }
 
 export interface SpeedTestProvider {
@@ -58,6 +59,18 @@ export const DEFAULT_SETTINGS: Settings = {
   autoCopyResults: false,
   soundEffects: false,
 };
+
+export interface DnsProbeResult {
+  domain: string;
+  status: 'pass' | 'fail';
+  totalMs: number | null;
+}
+
+export interface DnsCheckResult {
+  probes: DnsProbeResult[];
+  allPassed: boolean;
+  avgTotalMs: number | null;
+}
 
 export function formatSpeed(mbps: number, unit: SpeedUnit): { value: string; unit: string } {
   if (unit === 'Kbps') return { value: (mbps * 1000).toFixed(0), unit: 'Kbps' };

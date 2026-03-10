@@ -13,7 +13,7 @@ import { useResponsive } from '../hooks/useResponsive';
 
 export default function MainTestView() {
   const {
-    phase, progress, result, settings,
+    phase, progress, result, dnsCheck, settings,
     startTest, resetTest, updateSettings,
   } = useSpeedTestContext();
   const navigate = useNavigate();
@@ -229,6 +229,7 @@ export default function MainTestView() {
       progress={progress}
       result={result}
       speedUnit={settings.speedUnit}
+      dnsCheck={dnsCheck}
     />
   );
 

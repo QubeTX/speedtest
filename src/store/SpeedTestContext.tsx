@@ -1,13 +1,14 @@
 import { createContext, useContext, type ReactNode } from 'react';
 import { useSettings } from '../hooks/useSettings';
 import { useSpeedTest } from '../hooks/useSpeedTest';
-import type { TestPhase, SpeedTestProgress, SpeedTestResult, Settings } from '../types/speedtest';
+import type { TestPhase, SpeedTestProgress, SpeedTestResult, Settings, DnsCheckResult } from '../types/speedtest';
 
 interface SpeedTestContextValue {
   // Test state
   phase: TestPhase;
   progress: SpeedTestProgress;
   result: SpeedTestResult | null;
+  dnsCheck: DnsCheckResult | null;
 
   // Actions
   startTest: () => Promise<void>;
@@ -23,12 +24,13 @@ const Ctx = createContext<SpeedTestContextValue | null>(null);
 
 export function SpeedTestProvider({ children }: { children: ReactNode }) {
   const { settings, updateSettings } = useSettings();
-  const { phase, progress, result, startTest, stopTest, resetTest } = useSpeedTest(settings);
+  const { phase, progress, result, dnsCheck, startTest, stopTest, resetTest } = useSpeedTest(settings);
 
   const value: SpeedTestContextValue = {
     phase,
     progress,
     result,
+    dnsCheck,
     startTest,
     stopTest,
     resetTest,

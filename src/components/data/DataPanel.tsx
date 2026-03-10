@@ -1,7 +1,8 @@
-import type { TestPhase, SpeedTestProgress, SpeedTestResult, SpeedUnit } from '../../types/speedtest';
+import type { TestPhase, SpeedTestProgress, SpeedTestResult, SpeedUnit, DnsCheckResult } from '../../types/speedtest';
 import { formatSpeed } from '../../types/speedtest';
 import SplitRow from './SplitRow';
 import DataRow from './DataRow';
+import DnsBar from './DnsBar';
 import { typography } from '../../theme/tokens';
 import { responsive } from '../../theme/responsive';
 import { useResponsive } from '../../hooks/useResponsive';
@@ -11,6 +12,7 @@ interface DataPanelProps {
   progress: SpeedTestProgress;
   result: SpeedTestResult | null;
   speedUnit: SpeedUnit;
+  dnsCheck: DnsCheckResult | null;
 }
 
 function metaFor(phase: TestPhase, rowPhase: 'latency' | 'download' | 'upload', complete: boolean): string {
@@ -26,7 +28,7 @@ function metaFor(phase: TestPhase, rowPhase: 'latency' | 'download' | 'upload', 
   return 'WAITING';
 }
 
-export default function DataPanel({ phase, progress, result, speedUnit }: DataPanelProps) {
+export default function DataPanel({ phase, progress, result, speedUnit, dnsCheck }: DataPanelProps) {
   const { breakpoint } = useResponsive();
   const r = responsive[breakpoint];
   const isComplete = phase === 'complete';
@@ -80,7 +82,7 @@ export default function DataPanel({ phase, progress, result, speedUnit }: DataPa
 
   if (isError) {
     return (
-      <>
+      <div style={{ display: 'flex', flexDirection: 'column', flex: 1, position: 'relative' }}>
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.05) 50%), linear-gradient(90deg, rgba(255,0,0,0.02), rgba(0,255,0,0.01), rgba(0,0,255,0.02))', backgroundSize: '100% 4px, 3px 100%', pointerEvents: 'none', zIndex: 5 }} />
         <DataRow label="LATENCY_BUFFER" metaStatus="FAILED" value="NO SIGNAL" unit="" isGlitch />
         <DataRow label="RX_DOWNLINK" metaStatus="TIMEOUT" value="NO SIGNAL" unit="" isGlitch
@@ -93,12 +95,13 @@ export default function DataPanel({ phase, progress, result, speedUnit }: DataPa
           }
         />
         <DataRow label="TX_UPLINK" metaStatus="OFFLINE" value="NO SIGNAL" unit="" isLast isGlitch />
-      </>
+        <DnsBar dnsCheck={dnsCheck} phase={phase} />
+      </div>
     );
   }
 
   return (
-    <>
+    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, position: 'relative' }}>
       {/* Ping / Jitter */}
       <SplitRow isActive={phase === 'latency' || phase === 'discovering'}>
         <div>
@@ -163,6 +166,9 @@ export default function DataPanel({ phase, progress, result, speedUnit }: DataPa
           </div>
         )}
       </DataRow>
-    </>
+
+      {/* DNS Connectivity */}
+      <DnsBar dnsCheck={dnsCheck} phase={phase} />
+    </div>
   );
 }

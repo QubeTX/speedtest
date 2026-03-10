@@ -11,6 +11,7 @@ A dual-provider internet speed test with a retro cassette tape UI, built with Re
 - **Tape reel animation** — Spin speed linked to real-time throughput
 - **Responsive** — Desktop, tablet, and mobile with portrait/landscape support
 - **Configurable** — Test duration (auto to 10 min), speed units, provider selection
+- **DNS / connectivity diagnostics** — Probes 8 popular domains (Google, Cloudflare, Apple, Microsoft, Amazon, Perplexity, GitHub, Wikipedia) in parallel during the test to verify DNS resolution and reachability
 - **Network info** — Connection type, bandwidth estimate, and RTT from browser APIs
 - **Auto-copy** — Optionally copy results to clipboard on completion
 
@@ -40,13 +41,13 @@ npm run preview
 ```
 src/
 ├── components/
-│   ├── data/         # DataPanel, DataRow, SplitRow, ProgressBar
+│   ├── data/         # DataPanel, DataRow, SplitRow, ProgressBar, DnsBar
 │   ├── effects/      # ResultsStamp, GlitchText, CRTOverlay
 │   ├── layout/       # Apparatus, TopBar, SpeakerGrill, SysInfo
 │   ├── mechanism/    # TapeReel, TapeMechanism
 │   └── ui/           # ActionButton, ConsentModal, NetworkBadge
 ├── hooks/            # useClock, useResponsive, useSpeedTest, useSettings, useNetworkInfo
-├── services/         # Provider adapters (Cloudflare, NDT7, Aggregated)
+├── services/         # Provider adapters (Cloudflare, NDT7, Aggregated) + DNS checker
 ├── store/            # SpeedTestContext (React Context)
 ├── theme/            # Design tokens and responsive breakpoints
 ├── types/            # TypeScript interfaces and type declarations
@@ -81,6 +82,23 @@ M-Lab NDT7 requires accepting their data collection policy before testing.
 Built by [QubeTX](https://qubetx.com) — a department of ES Development LLC.
 
 Custom SVG icons generated with [Quiver AI](https://quiver.ai) Arrow model.
+
+## Changelog
+
+### 2026-03-09
+
+- **Added DNS / connectivity diagnostics** — During each speed test, 8 popular domains are probed in parallel using `fetch()` with `mode: 'no-cors'` to verify DNS resolution + TCP + TLS reachability. Results displayed in a compact summary bar at the bottom of the data panel with a click-to-expand detail overlay showing per-domain response times and pass/fail status. No new dependencies; works cross-platform on all modern browsers.
+
+### 2026-03-08
+
+- Fix Cloudflare onError rejecting valid results during packet loss phase
+- Fix zero results in aggregated speed test mode
+
+### 2026-03-07
+
+- Remove test history, fix settings layout shift on provider switch
+- Add custom QubeTX favicon with terra cotta background
+- Switch favicon to QubeTX logo SVG
 
 ---
 
