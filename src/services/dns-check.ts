@@ -6,7 +6,7 @@ const DNS_PROBE_DOMAINS = [
   'apple.com',
   'microsoft.com',
   'amazon.com',
-  'perplexity.ai',
+  'netflix.com',
   'github.com',
   'wikipedia.org',
 ] as const;

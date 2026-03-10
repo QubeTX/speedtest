@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.2] — 2026-03-09
+
+### Fixed
+
+- **DNS probe `perplexity.ai` always failing** — Replaced with `netflix.com` which reliably responds to `no-cors` fetch across all browsers
+
+---
+
 ## [1.3.1] — 2026-03-09
 
 ### Fixed
