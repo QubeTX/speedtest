@@ -7,6 +7,7 @@ interface ResponsiveState {
   breakpoint: Breakpoint;
   isMobile: boolean;
   isTablet: boolean;
+  isSmallDesktop: boolean;
   isDesktop: boolean;
   isLandscape: boolean;
 }
@@ -24,7 +25,8 @@ export function useResponsive(): ResponsiveState {
       breakpoint: bp,
       isMobile: bp === 'mobile',
       isTablet: bp === 'tablet',
-      isDesktop: bp === 'desktop',
+      isSmallDesktop: bp === 'smallDesktop',
+      isDesktop: bp === 'smallDesktop' || bp === 'desktop',
       isLandscape: w > h,
     };
   }

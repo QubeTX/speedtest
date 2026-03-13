@@ -8,11 +8,11 @@ interface ApparatusProps {
 }
 
 export default function Apparatus({ left, right }: ApparatusProps) {
-  const { isDesktop, isMobile } = useResponsive();
+  const { isDesktop, isSmallDesktop, isMobile } = useResponsive();
 
   const style: CSSProperties = {
     width: '100%',
-    maxWidth: isDesktop ? '1200px' : '600px',
+    maxWidth: isDesktop ? (isSmallDesktop ? '1100px' : '1200px') : '600px',
     backgroundColor: colors.bgDevice,
     border: borders.stroke,
     borderRadius: borders.radiusBox,
@@ -41,7 +41,7 @@ export default function Apparatus({ left, right }: ApparatusProps) {
       )}
       <div
         style={{
-          padding: isMobile ? '0.75rem 1.5rem' : isDesktop ? '3rem' : '2rem',
+          padding: isMobile ? '0.75rem 1.5rem' : isSmallDesktop ? '2rem' : isDesktop ? '3rem' : '2rem',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',

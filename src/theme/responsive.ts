@@ -1,13 +1,15 @@
 export const breakpoints = {
   mobile: 600,
   tablet: 900,
+  smallDesktop: 1400,
 } as const;
 
-export type Breakpoint = 'mobile' | 'tablet' | 'desktop';
+export type Breakpoint = 'mobile' | 'tablet' | 'smallDesktop' | 'desktop';
 
 export function getBreakpoint(width: number): Breakpoint {
   if (width < breakpoints.mobile) return 'mobile';
   if (width < breakpoints.tablet) return 'tablet';
+  if (width < breakpoints.smallDesktop) return 'smallDesktop';
   return 'desktop';
 }
 
@@ -27,6 +29,14 @@ export const responsive = {
     unit: '1.25rem',
     panelPadding: '2rem',
     dataRowPadding: '1.5rem 2rem',
+  },
+  smallDesktop: {
+    mechanismScale: 0.85,
+    numberLarge: '4rem',
+    numberMedium: '3rem',
+    unit: '1.25rem',
+    panelPadding: '1.5rem',
+    dataRowPadding: '1rem 2rem',
   },
   desktop: {
     mechanismScale: 1,
