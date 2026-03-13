@@ -17,7 +17,7 @@ export default function MainTestView() {
     startTest, resetTest, updateSettings,
   } = useSpeedTestContext();
   const navigate = useNavigate();
-  const { isMobile } = useResponsive();
+  const { isMobile, isSmallDesktop } = useResponsive();
 
   const needsConsent = (settings.providerMode === 'both' || settings.providerMode === 'ndt7') && !settings.dataPolicyAccepted;
 
@@ -95,7 +95,7 @@ export default function MainTestView() {
         )}
       </div>
 
-      <div style={{ position: 'relative', marginBottom: isMobile ? '0.75rem' : '2rem' }}>
+      <div style={{ position: 'relative', marginBottom: isMobile ? '0.75rem' : isSmallDesktop ? '1rem' : '2rem' }}>
         <div style={{
           filter: showSwitchOverlay ? 'blur(4px)' : 'none',
           opacity: showSwitchOverlay ? 0.5 : 1,
@@ -167,7 +167,7 @@ export default function MainTestView() {
         )}
       </div>
 
-      <div style={{ marginBottom: isMobile ? '0.5rem' : '1.5rem' }}>
+      <div style={{ marginBottom: isMobile ? '0.5rem' : isSmallDesktop ? '0.75rem' : '1.5rem' }}>
         {isComplete && (
           <ActionButton onClick={() => { resetTest(); startTest(); }}>
             <svg width="20" height="20" viewBox="0 0 32 32" fill="currentColor">
@@ -185,7 +185,7 @@ export default function MainTestView() {
       </div>
 
       <div style={{ marginTop: 'auto', width: '100%' }}>
-        <SpeakerGrill height={isMobile ? 36 : 72} />
+        <SpeakerGrill height={isMobile ? 36 : isSmallDesktop ? 48 : 72} />
         <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0.5rem' }}>
           <div style={{ flex: 1 }}>
             <SysInfo
