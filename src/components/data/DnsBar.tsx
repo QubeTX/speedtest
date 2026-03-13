@@ -13,7 +13,7 @@ const TOTAL_DOMAINS = 8;
 
 export default function DnsBar({ dnsCheck, phase }: DnsBarProps) {
   const [showDetail, setShowDetail] = useState(false);
-  const { breakpoint, isMobile } = useResponsive();
+  const { breakpoint, isMobile, isSmallDesktop } = useResponsive();
   const r = responsive[breakpoint];
 
   const isIdle = phase === 'idle';
@@ -45,7 +45,7 @@ export default function DnsBar({ dnsCheck, phase }: DnsBarProps) {
   const barStyle: CSSProperties = {
     flex: 'none',
     borderTop: borders.stroke,
-    padding: isMobile ? '0.5rem 1.5rem' : '0.6rem 3rem',
+    padding: isMobile ? '0.5rem 1.5rem' : isSmallDesktop ? '0.6rem 2rem' : '0.6rem 3rem',
     display: 'flex',
     alignItems: 'center',
     gap: isMobile ? '0.5rem' : '0.75rem',
@@ -113,7 +113,7 @@ export default function DnsBar({ dnsCheck, phase }: DnsBarProps) {
         backdropFilter: 'blur(12px)',
         WebkitBackdropFilter: 'blur(12px)',
         borderTop: borders.stroke,
-        padding: isMobile ? '0.75rem 1.5rem' : '1rem 3rem',
+        padding: isMobile ? '0.75rem 1.5rem' : isSmallDesktop ? '1rem 2rem' : '1rem 3rem',
         zIndex: 20,
         animation: 'fade-in 0.2s ease',
         boxShadow: '0 -8px 24px rgba(0,0,0,0.08)',
