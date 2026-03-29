@@ -10,6 +10,7 @@
     "postinstall": "node scripts/copy-ndt7-workers.js"
   },
   "dependencies": {
+    "@chenglou/pretext": "^0.0.2",
     "@cloudflare/speedtest": "^1.7.0",
     "@m-lab/ndt7": "^0.1.4",
     "react": "^18.3.1",

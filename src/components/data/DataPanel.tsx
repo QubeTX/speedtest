@@ -3,6 +3,7 @@ import { formatSpeed } from '../../types/speedtest';
 import SplitRow from './SplitRow';
 import DataRow from './DataRow';
 import DnsBar from './DnsBar';
+import PretextBlock from '../ui/PretextBlock';
 import { typography } from '../../theme/tokens';
 import { responsive } from '../../theme/responsive';
 import { useResponsive } from '../../hooks/useResponsive';
@@ -108,10 +109,13 @@ export default function DataPanel({ phase, progress, result, speedUnit, dnsCheck
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
             <span style={typography.metaLabel}>PING</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
+          <PretextBlock
+            entryId={`speed-medium-${breakpoint}`}
+            style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}
+          >
             <span style={{ ...typography.numberMedium, fontSize: r.numberMedium }}>{pingVal}</span>
             <span style={{ ...typography.unit, fontSize: r.unit }}>ms</span>
-          </div>
+          </PretextBlock>
           {breakdown && cfResult && ndtResult && (
             <div style={breakdownStyle}>CF: {cfResult.ping.toFixed(0)} • NDT: {ndtResult.ping.toFixed(0)}</div>
           )}
@@ -120,10 +124,13 @@ export default function DataPanel({ phase, progress, result, speedUnit, dnsCheck
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
             <span style={typography.metaLabel}>JITTER</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
+          <PretextBlock
+            entryId={`speed-medium-${breakpoint}`}
+            style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}
+          >
             <span style={{ ...typography.numberMedium, fontSize: r.numberMedium }}>{jitterVal}</span>
             <span style={{ ...typography.unit, fontSize: r.unit }}>ms</span>
-          </div>
+          </PretextBlock>
           {breakdown && cfResult && (
             <div style={breakdownStyle}>CF: {cfResult.jitter.toFixed(0)}</div>
           )}

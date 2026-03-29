@@ -1,5 +1,7 @@
-import type { CSSProperties } from 'react';
+import { useRef, type CSSProperties } from 'react';
 import { useNetworkInfo } from '../../hooks/useNetworkInfo';
+import { useContainerWidth } from '../../hooks/useContainerWidth';
+import { usePretext } from '../../providers/PretextProvider';
 
 interface SysInfoProps {
   serverName?: string | null;
@@ -10,6 +12,16 @@ interface SysInfoProps {
 
 export default function SysInfo({ serverName, isp, isError, errorDetails }: SysInfoProps) {
   const network = useNetworkInfo();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const containerWidth = useContainerWidth(containerRef);
+  const { isReady, getLayout } = usePretext();
+
+  // Reserve height for worst-case SysInfo content to prevent layout jumps
+  let minHeight: number | undefined;
+  if (isReady && containerWidth !== null) {
+    const result = getLayout('sysinfo-worst', containerWidth);
+    if (result) minHeight = result.height;
+  }
 
   const style: CSSProperties = {
     width: '100%',
@@ -19,11 +31,12 @@ export default function SysInfo({ serverName, isp, isError, errorDetails }: SysI
     opacity: 0.6,
     lineHeight: 1.6,
     paddingTop: '0.5rem',
+    minHeight,
   };
 
   if (isError && errorDetails) {
     return (
-      <div style={{ ...style, opacity: 0.8, color: '#ff3b30' }}>
+      <div ref={containerRef} style={{ ...style, opacity: 0.8, color: '#ff3b30' }}>
         {errorDetails.map((line, i) => (
           <span key={i}>{line}<br /></span>
         ))}
@@ -50,7 +63,7 @@ export default function SysInfo({ serverName, isp, isError, errorDetails }: SysI
   }
 
   return (
-    <div style={style}>
+    <div ref={containerRef} style={style}>
       {serverName && <>SERVER: {serverName}<br /></>}
       {isp && <>ISP: {isp}<br /></>}
       {connectionLines.map((line, i) => <span key={i}>{line}<br /></span>)}

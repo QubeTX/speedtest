@@ -4,6 +4,7 @@ import { responsive } from '../../theme/responsive';
 import { useResponsive } from '../../hooks/useResponsive';
 import CrosshairCorners from '../layout/CrosshairCorners';
 import ProgressBar from './ProgressBar';
+import PretextBlock from '../ui/PretextBlock';
 
 interface DataRowProps {
   label: string;
@@ -76,10 +77,13 @@ export default function DataRow({
           </span>
         )}
       </div>
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
+      <PretextBlock
+        entryId={isSmall ? `speed-medium-${breakpoint}` : `speed-large-${breakpoint}`}
+        style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}
+      >
         <span style={numberStyle}>{value}</span>
         <span style={{ ...typography.unit, fontSize: r.unit }}>{unit}</span>
-      </div>
+      </PretextBlock>
       {children}
       <ProgressBar progress={progress} visible={!!showProgress} />
       {diagnostics}

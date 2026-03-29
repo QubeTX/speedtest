@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.4.0] — 2026-03-29
+
+### Added
+
+- **Pretext text measurement integration** — Integrated `@chenglou/pretext` for container-aware text measurement that eliminates layout shift during speed tests. Uses Canvas `measureText()` to predict text height without DOM reflow, then applies purely additive `minHeight` constraints via inline styles.
+- **PretextProvider** — React context that waits for Inter font loading, prepares worst-case text entries via pretext's two-phase architecture (prepare once, layout on every resize at ~0.0002ms per entry), and exposes `getLayout()` to consumers.
+- **PretextBlock component** — Drop-in wrapper that observes container width via ResizeObserver and applies `minHeight` from pretext measurement. Falls back to zero style additions if pretext isn't ready. Never touches grid, flex, display, padding, margin, or font properties.
+- **useContainerWidth hook** — ResizeObserver-based hook returning content-box width of a referenced element in pixels.
+- **Pretext text registry** — Centralized registry mapping worst-case representative strings (e.g., `"8888"` for speed numbers with `tabular-nums`) to font configs per breakpoint for stable height reservation.
+
+### Changed
+
+- **DataRow** — Speed number displays now wrapped in PretextBlock for stable height during value transitions (`"---"` to actual numbers)
+- **DataPanel** — Ping and jitter number displays wrapped in PretextBlock for consistent SplitRow height
+- **SysInfo** — Uses pretext measurement for `minHeight` reservation, preventing left panel height jumps at intermediate widths
+- **tsconfig.json** — Added `ES2022.Intl` to lib array for `Intl.Segmenter` type definitions (required by pretext)
+
+---
+
 ## [1.3.2] — 2026-03-09
 
 ### Fixed

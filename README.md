@@ -9,7 +9,7 @@ A dual-provider internet speed test with a retro cassette tape UI, built with Re
 - **Dual-provider testing** — Cloudflare + M-Lab NDT7, aggregated by default with per-provider breakdown
 - **Live metrics** — Ping, jitter, download speed, upload speed, and packet loss
 - **Tape reel animation** — Spin speed linked to real-time throughput
-- **Responsive** — Desktop, tablet, and mobile with portrait/landscape support
+- **Responsive** — Desktop, tablet, and mobile with portrait/landscape support; pretext-powered container-aware text measurement prevents layout shift
 - **Configurable** — Test duration (auto to 10 min), speed units, provider selection
 - **DNS / connectivity diagnostics** — Probes 8 popular domains (Google, Cloudflare, Apple, Microsoft, Amazon, Perplexity, GitHub, Wikipedia) in parallel during the test to verify DNS resolution and reachability
 - **Network info** — Connection type, bandwidth estimate, and RTT from browser APIs
@@ -21,6 +21,7 @@ A dual-provider internet speed test with a retro cassette tape UI, built with Re
 - [React Router v7](https://reactrouter.com/)
 - [@cloudflare/speedtest](https://www.npmjs.com/package/@cloudflare/speedtest) — Latency, jitter, packet loss, download, upload
 - [@m-lab/ndt7](https://www.npmjs.com/package/@m-lab/ndt7) — Google-backed latency, download, upload
+- [@chenglou/pretext](https://github.com/chenglou/pretext) — Container-aware text measurement for layout-shift prevention
 
 ## Getting Started
 
@@ -45,8 +46,10 @@ src/
 │   ├── effects/      # ResultsStamp, GlitchText, CRTOverlay
 │   ├── layout/       # Apparatus, TopBar, SpeakerGrill, SysInfo
 │   ├── mechanism/    # TapeReel, TapeMechanism
-│   └── ui/           # ActionButton, ConsentModal, NetworkBadge
-├── hooks/            # useClock, useResponsive, useSpeedTest, useSettings, useNetworkInfo
+│   └── ui/           # ActionButton, ConsentModal, NetworkBadge, PretextBlock
+├── hooks/            # useClock, useResponsive, useSpeedTest, useSettings, useNetworkInfo, useContainerWidth
+├── lib/              # Pretext text registry and font helpers
+├── providers/        # PretextProvider (font loading + text measurement context)
 ├── services/         # Provider adapters (Cloudflare, NDT7, Aggregated) + DNS checker
 ├── store/            # SpeedTestContext (React Context)
 ├── theme/            # Design tokens and responsive breakpoints
@@ -84,6 +87,10 @@ Built by [QubeTX](https://qubetx.com) — a department of ES Development LLC.
 Custom SVG icons generated with [Quiver AI](https://quiver.ai) Arrow model.
 
 ## Changelog
+
+### 2026-03-29
+
+- **Added pretext text measurement** — Integrated `@chenglou/pretext` for container-aware text measurement. Speed numbers, ping/jitter values, and SysInfo metadata are now wrapped in PretextBlock components that reserve stable heights via canvas-based measurement, eliminating layout shift when values change during speed tests. All enhancements are purely additive and gracefully degrade if fonts haven't loaded.
 
 ### 2026-03-09
 
