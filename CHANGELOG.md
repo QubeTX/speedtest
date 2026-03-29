@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.4.1] — 2026-03-29
+
+### Fixed
+
+- **Pretext text vibration bug** — Replaced `ResizeObserver` in `useContainerWidth.ts` with synchronous `clientWidth` measurement + `window.resize` listener coalesced via a single `requestAnimationFrame` gate. ResizeObserver caused infinite feedback loops when combined with PretextBlock's shrinkwrap `max-width`, resulting in visible text vibration/oscillation. The new approach follows Pretext's own demo rendering architecture. Same API signature — no consumer changes needed.
+
 ## [1.4.0] — 2026-03-29
 
 ### Added
