@@ -2,7 +2,7 @@
 
 A dual-provider internet speed test with a retro cassette tape UI, built with React and TypeScript.
 
-![QubeTX](https://shaughv.s3.us-east-1.amazonaws.com/brandmark/QUBETX/QubeTX-Logo.svg)
+<img src="https://shaughv.s3.us-east-1.amazonaws.com/brandmark/QUBETX/QubeTX-Logo.svg" alt="QubeTX" width="200">
 
 ## Features
 
@@ -109,4 +109,4 @@ Custom SVG icons generated with [Quiver AI](https://quiver.ai) Arrow model.
 
 ---
 
-![SHAUGHV](https://shaughv.s3.us-east-1.amazonaws.com/brandmark/SHAUGHV-Official.svg)
+<img src="https://shaughv.s3.us-east-1.amazonaws.com/brandmark/SHAUGHV-Official.svg" alt="SHAUGHV" width="200">
