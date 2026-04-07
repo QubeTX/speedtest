@@ -1,5 +1,6 @@
 import { useClock } from '../../hooks/useClock';
 import { useResponsive } from '../../hooks/useResponsive';
+import { useNavigate } from 'react-router-dom';
 import type { CSSProperties } from 'react';
 
 interface TopBarProps {
@@ -10,6 +11,7 @@ interface TopBarProps {
 export default function TopBar({ label, errorTag }: TopBarProps) {
   const time = useClock();
   const { isMobile } = useResponsive();
+  const navigate = useNavigate();
 
   const style: CSSProperties = {
     position: 'absolute',
@@ -36,19 +38,50 @@ export default function TopBar({ label, errorTag }: TopBarProps) {
           style={{ height: isMobile ? '14px' : '18px', opacity: 0.8 }}
         />
       )}
-      {errorTag ? (
-        <span
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        {errorTag ? (
+          <span
+            style={{
+              color: '#ff3b30',
+              fontWeight: 700,
+              animation: 'blink 1s step-end infinite',
+            }}
+          >
+            {errorTag}
+          </span>
+        ) : (
+          <span>{time}</span>
+        )}
+        <button
+          onClick={() => navigate('/how-it-works')}
+          aria-label="How it works"
           style={{
-            color: '#ff3b30',
-            fontWeight: 700,
-            animation: 'blink 1s step-end infinite',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            opacity: 0.35,
+            transition: 'opacity 0.2s ease, transform 0.2s ease',
+            padding: '2px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.opacity = '0.7';
+            e.currentTarget.style.transform = 'scale(1.1)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.opacity = '0.35';
+            e.currentTarget.style.transform = 'scale(1)';
           }}
         >
-          {errorTag}
-        </span>
-      ) : (
-        <span>{time}</span>
-      )}
+          <img
+            src="/question-mark.svg"
+            alt="How it works"
+            style={{ height: isMobile ? '16px' : '20px' }}
+          />
+        </button>
+      </div>
     </div>
   );
 }

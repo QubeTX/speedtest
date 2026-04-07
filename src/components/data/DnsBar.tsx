@@ -9,7 +9,7 @@ interface DnsBarProps {
   phase: TestPhase;
 }
 
-const TOTAL_DOMAINS = 8;
+const TOTAL_DOMAINS = 12;
 
 export default function DnsBar({ dnsCheck, phase }: DnsBarProps) {
   const [showDetail, setShowDetail] = useState(false);
@@ -128,44 +128,98 @@ export default function DnsBar({ dnsCheck, phase }: DnsBarProps) {
         CONNECTIVITY DIAGNOSTICS
       </div>
 
+      {/* Column headers */}
+      {!isMobile && (
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: '16px 1fr 55px 50px 45px 50px 50px',
+          gap: '0.3rem',
+          fontSize: '0.5rem',
+          fontWeight: 700,
+          letterSpacing: '0.1em',
+          opacity: 0.35,
+          marginBottom: '0.3rem',
+          paddingBottom: '0.2rem',
+          borderBottom: '1px solid rgba(0,0,0,0.06)',
+        }}>
+          <span />
+          <span>DOMAIN</span>
+          <span style={{ textAlign: 'right' }}>TOTAL</span>
+          <span style={{ textAlign: 'right' }}>DNS</span>
+          <span style={{ textAlign: 'right' }}>TCP</span>
+          <span style={{ textAlign: 'right' }}>TLS</span>
+          <span style={{ textAlign: 'right' }}>TTFB</span>
+        </div>
+      )}
+
       <div style={{
-        display: 'grid',
-        gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
-        gap: isMobile ? '0.2rem' : '0.25rem 2rem',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: isMobile ? '0.15rem' : '0.2rem',
       }}>
         {probes.map((probe) => (
-          <div
-            key={probe.domain}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.4rem',
-              fontSize: isMobile ? '0.6rem' : '0.65rem',
-              fontVariantNumeric: 'tabular-nums',
-            }}
-          >
-            <div style={{
-              width: 5,
-              height: 5,
-              borderRadius: '50%',
-              backgroundColor: probe.status === 'pass' ? '#22c55e' : colors.error,
-              flexShrink: 0,
-            }} />
-            <span style={{
-              letterSpacing: '0.05em',
-              fontWeight: 500,
-              flex: 1,
-            }}>
-              {probe.domain}
-            </span>
-            <span style={{
-              opacity: 0.6,
-              fontWeight: 500,
-              color: probe.status === 'fail' ? colors.error : colors.ink,
-            }}>
-              {probe.status === 'pass' ? `${probe.totalMs}ms` : 'FAIL'}
-            </span>
-          </div>
+          isMobile ? (
+            <div
+              key={probe.domain}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                fontSize: '0.6rem',
+                fontVariantNumeric: 'tabular-nums',
+              }}
+            >
+              <div style={{
+                width: 5, height: 5, borderRadius: '50%',
+                backgroundColor: probe.status === 'pass' ? '#22c55e' : colors.error,
+                flexShrink: 0,
+              }} />
+              <span style={{ letterSpacing: '0.05em', fontWeight: 500, flex: 1 }}>
+                {probe.domain}
+              </span>
+              <span style={{
+                opacity: 0.6, fontWeight: 500,
+                color: probe.status === 'fail' ? colors.error : colors.ink,
+              }}>
+                {probe.status === 'pass' ? `${probe.totalMs}ms` : 'FAIL'}
+              </span>
+            </div>
+          ) : (
+            <div
+              key={probe.domain}
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '16px 1fr 55px 50px 45px 50px 50px',
+                gap: '0.3rem',
+                alignItems: 'center',
+                fontSize: '0.65rem',
+                fontVariantNumeric: 'tabular-nums',
+              }}
+            >
+              <div style={{
+                width: 5, height: 5, borderRadius: '50%',
+                backgroundColor: probe.status === 'pass' ? '#22c55e' : colors.error,
+              }} />
+              <span style={{ letterSpacing: '0.05em', fontWeight: 500 }}>
+                {probe.domain}
+              </span>
+              <span style={{ textAlign: 'right', opacity: 0.6, fontWeight: 500, color: probe.status === 'fail' ? colors.error : colors.ink }}>
+                {probe.status === 'pass' ? `${probe.totalMs}ms` : 'FAIL'}
+              </span>
+              <span style={{ textAlign: 'right', opacity: 0.4 }}>
+                {probe.dnsMs !== null ? `${probe.dnsMs}` : '-'}
+              </span>
+              <span style={{ textAlign: 'right', opacity: 0.4 }}>
+                {probe.tcpMs !== null ? `${probe.tcpMs}` : '-'}
+              </span>
+              <span style={{ textAlign: 'right', opacity: 0.4 }}>
+                {probe.tlsMs !== null ? `${probe.tlsMs}` : '-'}
+              </span>
+              <span style={{ textAlign: 'right', opacity: 0.4 }}>
+                {probe.ttfbMs !== null ? `${probe.ttfbMs}` : '-'}
+              </span>
+            </div>
+          )
         ))}
       </div>
 
@@ -178,9 +232,16 @@ export default function DnsBar({ dnsCheck, phase }: DnsBarProps) {
           fontWeight: 600,
           letterSpacing: '0.1em',
           opacity: 0.5,
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: '0.5rem',
         }}>
-          {passedCount}/{probes.length} PASSED
-          {dnsCheck.avgTotalMs !== null && ` \u2022 AVG ${dnsCheck.avgTotalMs}ms`}
+          <span>{passedCount}/{probes.length} PASSED</span>
+          {dnsCheck.avgTotalMs !== null && <span>{'\u2022'} AVG {dnsCheck.avgTotalMs}ms</span>}
+          {dnsCheck.avgDnsMs !== null && <span>{'\u2022'} DNS {dnsCheck.avgDnsMs}ms</span>}
+          {dnsCheck.avgTcpMs !== null && <span>{'\u2022'} TCP {dnsCheck.avgTcpMs}ms</span>}
+          {dnsCheck.avgTlsMs !== null && <span>{'\u2022'} TLS {dnsCheck.avgTlsMs}ms</span>}
+          {dnsCheck.avgTtfbMs !== null && <span>{'\u2022'} TTFB {dnsCheck.avgTtfbMs}ms</span>}
         </div>
       )}
     </div>

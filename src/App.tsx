@@ -3,6 +3,7 @@ import { SpeedTestProvider } from './store/SpeedTestContext';
 import PretextProvider from './providers/PretextProvider';
 import SpeedTestPage from './pages/SpeedTestPage';
 import SettingsPage from './pages/SettingsPage';
+import TechnicalReportPage from './pages/TechnicalReportPage';
 
 export default function App() {
   return (
@@ -12,6 +13,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<SpeedTestPage />} />
             <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/how-it-works" element={<TechnicalReportPage />} />
           </Routes>
         </BrowserRouter>
       </PretextProvider>

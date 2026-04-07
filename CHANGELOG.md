@@ -2,6 +2,38 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.0] — 2026-04-07
+
+### Added
+
+- **Dedicated latency engine** — New standalone measurement phase runs 100 HTTP RTT samples against Cloudflare edge before bandwidth tests begin. Includes 3-ping warm-up (discarded) to eliminate DNS/TCP/TLS setup noise. Reports P50, P75, P95, P99, min, max, mean, stddev.
+- **RFC 3550 jitter** — Primary jitter metric now uses the exponentially weighted moving average from RFC 3550 (RTP standard): `J[i] = J[i-1] + (|D(i-1,i)| - J[i-1]) / 16`. Legacy MAD (mean absolute deviation) jitter retained for comparison.
+- **Latency percentile display** — Ping section now shows P50, P95, P99 breakdown below the headline number. Jitter section shows sample count and stddev.
+- **Bufferbloat detection** — Measures loaded latency (during download/upload) vs unloaded latency and assigns a grade (A through F) based on the ratio. Cloudflare's concurrent latency probes fire every 200ms during bandwidth tests, collecting up to 50 data points.
+- **Connection stability metric** — Coefficient of variation (CV = stddev/mean) computed for download and upload bandwidth samples. Displayed as STABLE/VARIABLE badge with per-direction CV percentages.
+- **Provider divergence detection** — When Cloudflare and NDT7 bandwidth results differ by >30%, a DIVERGENCE warning badge appears with per-direction percentages. Helps identify throttling, QoS, or routing differences.
+- **Accuracy metrics bar** — New UI section between upload row and DNS bar displays bufferbloat grade, stability indicator, and divergence warning as colored badges.
+- **Statistics module** (`src/services/statistics.ts`) — Pure math utilities: percentile (linear interpolation), classic trimean, modified trimean (Ookla-style 1:8:1), IQR outlier filtering, slow-start discard, coefficient of variation, confidence-weighted merge, RFC 3550 jitter, latency stats builder.
+- **Enhanced DNS diagnostics** — Now probes 12 domains (added facebook.com, twitter.com, youtube.com, reddit.com). Uses Performance Resource Timing API for per-probe DNS/TCP/TLS/TTFB timing breakdown. Desktop detail overlay shows timing columns. Dual-pass probing available for DNS cache analysis.
+- **Larger test payloads** — Added 100MB and 250MB download chunks plus 50MB upload chunks to properly saturate gigabit+ connections.
+- **Cloudflare AIM scores** — Extracts and displays Aggregated Internet Measurement scores (streaming, gaming, real-time communication quality ratings) from Cloudflare's engine.
+- **"How It Works" page** — Consumer-friendly technical article at `/how-it-works` explaining measurement methodology, accuracy techniques, and comparison to alternatives. Accessible via question mark icon in the top bar.
+- **Tab visibility awareness** — Latency engine pauses measurement when the browser tab is backgrounded (browsers throttle background tabs, which would produce inflated RTT values).
+- **Duration-adaptive latency samples** — Latency engine now scales sample count with test duration: 50 samples at 15s, 100 at 30s, up to 200 at 60s+.
+- **Technical accuracy report** — New `ACCURACY.md` documenting all measurement methodology, algorithms, standards, and architecture.
+- **Project CLAUDE.md** — Comprehensive project guide for AI-assisted development.
+
+### Changed
+
+- **Full duration per provider** — In aggregated mode, each provider now gets the full user-configured test duration (e.g., 30s each = 60s total) instead of being halved (was 15s each). Accuracy over speed.
+- **Confidence-weighted aggregation** — Replaced naive `(a + b) / 2` averaging with methodology-appropriate weights. Cloudflare gets 60% weight for bandwidth (multi-request, many samples), NDT7 gets 60% weight for latency (kernel-level TCPInfo.MinRTT).
+- **Bandwidth accuracy pipeline** — Raw samples from both providers now go through: (1) slow-start discard (first 30%), (2) IQR outlier filtering, (3) modified trimean computation. Replaces simple percentile-based reporting.
+- **Cloudflare `bandwidthPercentile`** — Changed from 0.9 (90th percentile, optimistic) to 0.5 (median, representative) for more accurate bandwidth reporting.
+- **Cloudflare `bandwidthMinRequestDuration`** — Raised from 10ms to 50ms to ignore very short requests with disproportionate HTTP overhead.
+- **Cloudflare loaded latency** — Probe interval reduced from 400ms to 200ms, max data points increased from 20 to 50 for better bufferbloat detection granularity.
+- **NDT7 provider** — Now collects raw bandwidth samples (MeanClientMbps per callback) and computes latency stats from RTT samples for post-processing with the statistics module.
+- **DnsBar** — Updated for 12 domains. Detail overlay now shows DNS/TCP/TLS/TTFB columns on desktop. Summary footer includes per-component averages.
+
 ## [1.4.1] — 2026-03-29
 
 ### Fixed

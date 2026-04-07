@@ -27,11 +27,20 @@ export interface SpeedTestResult {
   serverName: string;
   timestamp: number;
   providerResults?: {
-    cloudflare?: SpeedTestResult;
-    ndt7?: SpeedTestResult;
+    cloudflare?: SpeedTestResult & { bandwidthSamples?: { download: number[]; upload: number[] } };
+    ndt7?: SpeedTestResult & { bandwidthSamples?: { download: number[]; upload: number[] } };
   };
   isp?: string;
   dnsCheck?: DnsCheckResult;
+  latencyStats?: LatencyStats;
+  bufferbloat?: BufferbloatResult;
+  stability?: StabilityMetric;
+  providerDivergence?: {
+    download: number;
+    upload: number;
+    significant: boolean;
+  };
+  aimScores?: AimScores;
 }
 
 export interface SpeedTestProvider {
@@ -63,6 +72,10 @@ export const DEFAULT_SETTINGS: Settings = {
 export interface DnsProbeResult {
   domain: string;
   status: 'pass' | 'fail';
+  dnsMs: number | null;
+  tcpMs: number | null;
+  tlsMs: number | null;
+  ttfbMs: number | null;
   totalMs: number | null;
 }
 
@@ -70,7 +83,51 @@ export interface DnsCheckResult {
   probes: DnsProbeResult[];
   allPassed: boolean;
   avgTotalMs: number | null;
+  avgDnsMs: number | null;
+  avgTcpMs: number | null;
+  avgTlsMs: number | null;
+  avgTtfbMs: number | null;
 }
+
+export interface LatencyStats {
+  samples: number[];
+  p50: number;
+  p75: number;
+  p95: number;
+  p99: number;
+  min: number;
+  max: number;
+  mean: number;
+  stddev: number;
+  jitter: number;
+  jitterMad: number;
+}
+
+export type BufferbloatGrade = 'A' | 'B' | 'C' | 'D' | 'F';
+
+export interface BufferbloatResult {
+  unloadedLatency: LatencyStats;
+  downloadLoadedLatency: LatencyStats;
+  uploadLoadedLatency: LatencyStats;
+  grade: BufferbloatGrade;
+  downloadRatio: number;
+  uploadRatio: number;
+}
+
+export interface StabilityMetric {
+  downloadCV: number;
+  uploadCV: number;
+  downloadStable: boolean;
+  uploadStable: boolean;
+}
+
+export interface AimScoreEntry {
+  points: number;
+  classificationIdx: 0 | 1 | 2 | 3 | 4;
+  classificationName: 'bad' | 'poor' | 'average' | 'good' | 'great';
+}
+
+export type AimScores = Record<string, AimScoreEntry>;
 
 export function formatSpeed(mbps: number, unit: SpeedUnit): { value: string; unit: string } {
   if (unit === 'Kbps') return { value: (mbps * 1000).toFixed(0), unit: 'Kbps' };

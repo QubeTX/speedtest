@@ -6,14 +6,19 @@ A dual-provider internet speed test with a retro cassette tape UI, built with Re
 
 ## Features
 
-- **Dual-provider testing** — Cloudflare + M-Lab NDT7, aggregated by default with per-provider breakdown
+- **Dual-provider testing** — Cloudflare + M-Lab NDT7, aggregated by default with confidence-weighted merge and per-provider breakdown
+- **Technician-grade accuracy** — Ookla-style modified trimean, slow-start discard, IQR outlier filtering, and 100-sample dedicated latency engine
+- **Latency percentiles** — P50, P75, P95, P99 breakdown with RFC 3550 jitter calculation
+- **Bufferbloat detection** — Loaded vs unloaded latency comparison with A-F grading
+- **Connection stability** — Coefficient of variation analysis for download/upload consistency
+- **Provider divergence alerts** — Flags when Cloudflare and NDT7 disagree by >30% (indicates throttling/QoS)
 - **Live metrics** — Ping, jitter, download speed, upload speed, and packet loss
 - **Tape reel animation** — Spin speed linked to real-time throughput
 - **Responsive** — Desktop, tablet, and mobile with portrait/landscape support; pretext-powered container-aware text measurement prevents layout shift
 - **Configurable** — Test duration (auto to 10 min), speed units, provider selection
-- **DNS / connectivity diagnostics** — Probes 8 popular domains (Google, Cloudflare, Apple, Microsoft, Amazon, Perplexity, GitHub, Wikipedia) in parallel during the test to verify DNS resolution and reachability
+- **DNS / connectivity diagnostics** — Probes 12 domains in parallel with DNS/TCP/TLS/TTFB timing breakdown via Performance Resource Timing API
 - **Network info** — Connection type, bandwidth estimate, and RTT from browser APIs
-- **Auto-copy** — Optionally copy results to clipboard on completion
+- **Auto-copy** — Optionally copy results to clipboard on completion (includes percentiles, bufferbloat grade, stability)
 
 ## Tech Stack
 
@@ -62,11 +67,14 @@ src/
 
 1. **First visit** — M-Lab consent modal appears (accept enables dual-provider; decline uses Cloudflare-only)
 2. **Idle** — Tape reels are still, frosted glass play button displayed
-3. **Testing** — Reels spin proportional to throughput; runs Cloudflare first, shows a transition overlay, then runs NDT7. Active provider shown below status text.
-4. **Complete** — "TEST COMPLETE" stamp appears, averaged results shown with `AVG` badge and per-provider breakdown
-5. **Error** — CRT glitch effects with system diagnostics
+3. **Latency phase** — Dedicated engine sends 100 HTTP pings (3 warm-up discarded) with PerformanceResourceTiming precision
+4. **Cloudflare phase** — Progressive payloads (100KB to 250MB) with concurrent loaded latency probes for bufferbloat detection
+5. **NDT7 phase** — Single-stream WebSocket throughput with TCP kernel metrics (MinRTT)
+6. **Aggregation** — Raw samples from both providers go through slow-start discard, IQR outlier filtering, and modified trimean. Results merged with confidence weights (CF 60% bandwidth / NDT7 60% latency).
+7. **Complete** — "TEST COMPLETE" stamp appears with accuracy badges: bufferbloat grade, stability indicator, divergence warning
+8. **Error** — CRT glitch effects with system diagnostics
 
-In aggregated mode (default), each metric is averaged independently between providers. Packet loss comes from Cloudflare only. ISP name comes from Cloudflare metadata.
+Packet loss comes from Cloudflare only (UDP via TURN). See [ACCURACY.md](ACCURACY.md) for full methodology documentation.
 
 ## Settings
 
@@ -88,24 +96,7 @@ Custom SVG icons generated with [Quiver AI](https://quiver.ai) Arrow model.
 
 ## Changelog
 
-### 2026-03-29
-
-- **Added pretext text measurement** — Integrated `@chenglou/pretext` for container-aware text measurement. Speed numbers, ping/jitter values, and SysInfo metadata are now wrapped in PretextBlock components that reserve stable heights via canvas-based measurement, eliminating layout shift when values change during speed tests. All enhancements are purely additive and gracefully degrade if fonts haven't loaded.
-
-### 2026-03-09
-
-- **Added DNS / connectivity diagnostics** — During each speed test, 8 popular domains are probed in parallel using `fetch()` with `mode: 'no-cors'` to verify DNS resolution + TCP + TLS reachability. Results displayed in a compact summary bar at the bottom of the data panel with a click-to-expand detail overlay showing per-domain response times and pass/fail status. No new dependencies; works cross-platform on all modern browsers.
-
-### 2026-03-08
-
-- Fix Cloudflare onError rejecting valid results during packet loss phase
-- Fix zero results in aggregated speed test mode
-
-### 2026-03-07
-
-- Remove test history, fix settings layout shift on provider switch
-- Add custom QubeTX favicon with terra cotta background
-- Switch favicon to QubeTX logo SVG
+See [CHANGELOG.md](CHANGELOG.md) for the full version history.
 
 ---
 

@@ -1,5 +1,6 @@
 import SpeedTestEngine from '@cloudflare/speedtest';
-import type { SpeedTestProvider, SpeedTestProgress, SpeedTestResult, TestDuration } from '../types/speedtest';
+import type { SpeedTestProvider, SpeedTestProgress, SpeedTestResult, TestDuration, LatencyStats, BufferbloatResult, BufferbloatGrade, AimScores } from '../types/speedtest';
+import { computeLatencyStats } from './statistics';
 
 function buildMeasurements(duration: TestDuration) {
   // Default measurements for 'auto'
@@ -12,6 +13,9 @@ function buildMeasurements(duration: TestDuration) {
     { type: 'upload' as const, bytes: 1e5, count: 8 },
     { type: 'upload' as const, bytes: 1e6, count: 6 },
     { type: 'upload' as const, bytes: 1e7, count: 4 },
+    { type: 'download' as const, bytes: 1e8, count: 3 },
+    { type: 'download' as const, bytes: 2.5e8, count: 2 },
+    { type: 'upload' as const, bytes: 5e7, count: 3 },
     { type: 'packetLoss' as const, numPackets: 1000 },
   ];
 
@@ -30,6 +34,9 @@ function buildMeasurements(duration: TestDuration) {
     { type: 'upload' as const, bytes: 1e5, count: 8 * factor },
     { type: 'upload' as const, bytes: 1e6, count: 6 * factor },
     { type: 'upload' as const, bytes: 1e7, count: 4 * factor },
+    { type: 'download' as const, bytes: 1e8, count: 3 * factor },
+    { type: 'download' as const, bytes: 2.5e8, count: 2 * factor },
+    { type: 'upload' as const, bytes: 5e7, count: 3 * factor },
     { type: 'packetLoss' as const, numPackets: 1000 },
   ];
 }
@@ -62,6 +69,13 @@ export class CloudflareProvider implements SpeedTestProvider {
       this.engine = new SpeedTestEngine({
         autoStart: false,
         measurements,
+        bandwidthPercentile: 0.5,
+        latencyPercentile: 0.5,
+        bandwidthMinRequestDuration: 50,
+        loadedLatencyThrottle: 200,
+        loadedLatencyMaxPoints: 50,
+        measureDownloadLoadedLatency: true,
+        measureUploadLoadedLatency: true,
       });
 
       const engine = this.engine;
@@ -115,6 +129,61 @@ export class CloudflareProvider implements SpeedTestProvider {
         const summaryUl = summary.upload ?? 0;
         const dlMbps = summaryDl > 0 ? summaryDl / 1e6 : (lastDlMbps ?? 0);
         const ulMbps = summaryUl > 0 ? summaryUl / 1e6 : (lastUlMbps ?? 0);
+
+        // Collect loaded latency data for bufferbloat detection
+        const unloadedLatencyPoints = results.getUnloadedLatencyPoints?.() ?? [];
+        const dlLoadedLatencyPoints = results.getDownLoadedLatencyPoints?.() ?? [];
+        const ulLoadedLatencyPoints = results.getUpLoadedLatencyPoints?.() ?? [];
+        const dlLoadedLatency = results.getDownLoadedLatency?.() ?? null;
+        const ulLoadedLatency = results.getUpLoadedLatency?.() ?? null;
+        const dlLoadedJitter = results.getDownLoadedJitter?.() ?? null;
+        const ulLoadedJitter = results.getUpLoadedJitter?.() ?? null;
+
+        // Build latency stats from unloaded points
+        const latencyStats = unloadedLatencyPoints.length > 0
+          ? computeLatencyStats(unloadedLatencyPoints)
+          : undefined;
+
+        // Build bufferbloat result
+        let bufferbloat: BufferbloatResult | undefined;
+        const unloadedLat = summary.latency ?? lastPing ?? 0;
+        if (unloadedLat > 0 && (dlLoadedLatency || ulLoadedLatency)) {
+          const dlRatio = dlLoadedLatency && dlLoadedLatency > 0 ? dlLoadedLatency / unloadedLat : 1;
+          const ulRatio = ulLoadedLatency && ulLoadedLatency > 0 ? ulLoadedLatency / unloadedLat : 1;
+          const maxRatio = Math.max(dlRatio, ulRatio);
+          let grade: BufferbloatGrade = 'A';
+          if (maxRatio >= 10) grade = 'F';
+          else if (maxRatio >= 5) grade = 'D';
+          else if (maxRatio >= 3) grade = 'C';
+          else if (maxRatio >= 1.5) grade = 'B';
+
+          bufferbloat = {
+            unloadedLatency: latencyStats ?? computeLatencyStats(unloadedLat > 0 ? [unloadedLat] : []),
+            downloadLoadedLatency: computeLatencyStats(dlLoadedLatencyPoints),
+            uploadLoadedLatency: computeLatencyStats(ulLoadedLatencyPoints),
+            grade,
+            downloadRatio: dlRatio,
+            uploadRatio: ulRatio,
+          };
+        }
+
+        // Collect raw bandwidth samples
+        const dlBandwidthPoints = results.getDownloadBandwidthPoints?.() ?? [];
+        const ulBandwidthPoints = results.getUploadBandwidthPoints?.() ?? [];
+        const dlSamples = dlBandwidthPoints.map((p: any) => p.bps / 1e6); // Convert to Mbps
+        const ulSamples = ulBandwidthPoints.map((p: any) => p.bps / 1e6);
+
+        // Extract AIM scores (streaming, gaming, rtc quality ratings)
+        let aimScores: AimScores | undefined;
+        try {
+          const scores = results.getScores?.();
+          if (scores && Object.keys(scores).length > 0) {
+            aimScores = scores as AimScores;
+          }
+        } catch {
+          // AIM scores unavailable (e.g. incomplete test)
+        }
+
         resolve({
           provider: 'cloudflare',
           ping: summary.latency ?? lastPing ?? 0,
@@ -124,7 +193,11 @@ export class CloudflareProvider implements SpeedTestProvider {
           packetLoss: summary.packetLoss ?? lastPacketLoss ?? null,
           serverName: 'Cloudflare Edge',
           timestamp: Date.now(),
-        });
+          latencyStats,
+          bufferbloat,
+          aimScores,
+          bandwidthSamples: { download: dlSamples, upload: ulSamples },
+        } as any);
       };
 
       engine.onError = (error: string) => {

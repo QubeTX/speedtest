@@ -1,4 +1,5 @@
 import type { SpeedTestProvider, SpeedTestProgress, SpeedTestResult, TestDuration } from '../types/speedtest';
+import { computeLatencyStats } from './statistics';
 
 export class NDT7Provider implements SpeedTestProvider {
   name = 'M-Lab NDT7';
@@ -19,6 +20,10 @@ export class NDT7Provider implements SpeedTestProvider {
     let lastDlSpeed: number | null = null;
     let lastUlSpeed: number | null = null;
     const rttSamples: number[] = [];
+
+    // Raw bandwidth samples for post-processing with statistics module
+    const dlBandwidthSamples: number[] = [];
+    const ulBandwidthSamples: number[] = [];
 
     // For duration-based iteration
     const seconds = duration === 'auto' ? 0 : (typeof duration === 'number' ? duration : 30);
@@ -76,6 +81,7 @@ export class NDT7Provider implements SpeedTestProvider {
 
               if (data.Source === 'client' && data.Data.MeanClientMbps !== undefined) {
                 lastDlSpeed = data.Data.MeanClientMbps;
+                dlBandwidthSamples.push(data.Data.MeanClientMbps);
               }
 
               // Server-source: capture ping from TCPInfo, and throughput as secondary fallback
@@ -149,6 +155,7 @@ export class NDT7Provider implements SpeedTestProvider {
 
               if (data.Source === 'client' && data.Data.MeanClientMbps !== undefined) {
                 lastUlSpeed = data.Data.MeanClientMbps;
+                ulBandwidthSamples.push(data.Data.MeanClientMbps);
               }
 
               const elapsed = Date.now() - (ulStartTime || Date.now());
@@ -193,18 +200,27 @@ export class NDT7Provider implements SpeedTestProvider {
     const avgUl = allUlSpeeds.length > 0 ? allUlSpeeds.reduce((a, b) => a + b, 0) / allUlSpeeds.length : (lastUlSpeed ?? 0);
     const avgPing = allPings.length > 0 ? allPings.reduce((a, b) => a + b, 0) / allPings.length : (lastPing ?? 0);
 
-    console.log('[NDT7] Final:', { download: avgDl, upload: avgUl, ping: avgPing, jitter: computeJitter(rttSamples) });
+    const latencyStats = rttSamples.length > 0 ? computeLatencyStats(rttSamples) : undefined;
+    const jitter = latencyStats?.jitter ?? computeJitter(rttSamples);
+
+    console.log('[NDT7] Final:', {
+      download: avgDl, upload: avgUl, ping: avgPing, jitter,
+      dlSamples: dlBandwidthSamples.length, ulSamples: ulBandwidthSamples.length,
+      rttSamples: rttSamples.length,
+    });
 
     return {
       provider: 'ndt7',
       ping: avgPing,
-      jitter: computeJitter(rttSamples),
+      jitter,
       downloadSpeed: avgDl,
       uploadSpeed: avgUl,
       packetLoss: null,
       serverName,
       timestamp: Date.now(),
-    };
+      latencyStats,
+      bandwidthSamples: { download: dlBandwidthSamples, upload: ulBandwidthSamples },
+    } as any;
   }
 
   stop() {

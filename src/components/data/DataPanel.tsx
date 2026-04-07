@@ -1,10 +1,10 @@
-import type { TestPhase, SpeedTestProgress, SpeedTestResult, SpeedUnit, DnsCheckResult } from '../../types/speedtest';
+import type { TestPhase, SpeedTestProgress, SpeedTestResult, SpeedUnit, DnsCheckResult, BufferbloatGrade, AimScoreEntry } from '../../types/speedtest';
 import { formatSpeed } from '../../types/speedtest';
 import SplitRow from './SplitRow';
 import DataRow from './DataRow';
 import DnsBar from './DnsBar';
 import PretextBlock from '../ui/PretextBlock';
-import { typography } from '../../theme/tokens';
+import { typography, borders } from '../../theme/tokens';
 import { responsive } from '../../theme/responsive';
 import { useResponsive } from '../../hooks/useResponsive';
 
@@ -30,7 +30,7 @@ function metaFor(phase: TestPhase, rowPhase: 'latency' | 'download' | 'upload', 
 }
 
 export default function DataPanel({ phase, progress, result, speedUnit, dnsCheck }: DataPanelProps) {
-  const { breakpoint } = useResponsive();
+  const { breakpoint, isMobile, isSmallDesktop } = useResponsive();
   const r = responsive[breakpoint];
   const isComplete = phase === 'complete';
   const isError = phase === 'error';
@@ -57,6 +57,13 @@ export default function DataPanel({ phase, progress, result, speedUnit, dnsCheck
   const cfResult = breakdown?.cloudflare;
   const ndtResult = breakdown?.ndt7;
 
+  // New accuracy metrics
+  const latencyStats = isComplete && result?.latencyStats ? result.latencyStats : null;
+  const bufferbloat = isComplete && result?.bufferbloat ? result.bufferbloat : null;
+  const stability = isComplete && result?.stability ? result.stability : null;
+  const divergence = isComplete && result?.providerDivergence ? result.providerDivergence : null;
+  const aimScores = isComplete && result?.aimScores ? result.aimScores : null;
+
   const breakdownStyle = {
     fontSize: '0.7rem',
     opacity: 0.5,
@@ -64,22 +71,32 @@ export default function DataPanel({ phase, progress, result, speedUnit, dnsCheck
     letterSpacing: '0.05em',
   };
 
+  const badgeBase: React.CSSProperties = {
+    display: 'inline-block',
+    fontSize: '0.55rem',
+    fontWeight: 700,
+    letterSpacing: '0.1em',
+    padding: '0.15rem 0.4rem',
+    borderRadius: '4px',
+    marginLeft: '0.5rem',
+    verticalAlign: 'middle',
+  };
+
   const avgBadge = breakdown ? (
-    <span style={{
-      display: 'inline-block',
-      fontSize: '0.55rem',
-      fontWeight: 700,
-      letterSpacing: '0.1em',
-      backgroundColor: '#111111',
-      color: '#ffffff',
-      padding: '0.15rem 0.4rem',
-      borderRadius: '4px',
-      marginLeft: '0.5rem',
-      verticalAlign: 'middle',
-    }}>
+    <span style={{ ...badgeBase, backgroundColor: '#111111', color: '#ffffff' }}>
       AVG
     </span>
   ) : null;
+
+  function bufferbloatColor(grade: BufferbloatGrade): string {
+    switch (grade) {
+      case 'A': return '#22c55e';
+      case 'B': return '#84cc16';
+      case 'C': return '#eab308';
+      case 'D': return '#f97316';
+      case 'F': return '#ef4444';
+    }
+  }
 
   if (isError) {
     return (
@@ -116,13 +133,19 @@ export default function DataPanel({ phase, progress, result, speedUnit, dnsCheck
             <span style={{ ...typography.numberMedium, fontSize: r.numberMedium }}>{pingVal}</span>
             <span style={{ ...typography.unit, fontSize: r.unit }}>ms</span>
           </PretextBlock>
-          {breakdown && cfResult && ndtResult && (
+          {latencyStats && (
+            <div style={breakdownStyle}>
+              P50: {latencyStats.p50.toFixed(0)} • P95: {latencyStats.p95.toFixed(0)} • P99: {latencyStats.p99.toFixed(0)}
+            </div>
+          )}
+          {!latencyStats && breakdown && cfResult && ndtResult && (
             <div style={breakdownStyle}>CF: {cfResult.ping.toFixed(0)} • NDT: {ndtResult.ping.toFixed(0)}</div>
           )}
         </div>
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
             <span style={typography.metaLabel}>JITTER</span>
+            <span style={{ ...typography.metaLabel, opacity: 0.4, fontSize: '0.5rem' }}>RFC 3550</span>
           </div>
           <PretextBlock
             entryId={`speed-medium-${breakpoint}`}
@@ -131,8 +154,10 @@ export default function DataPanel({ phase, progress, result, speedUnit, dnsCheck
             <span style={{ ...typography.numberMedium, fontSize: r.numberMedium }}>{jitterVal}</span>
             <span style={{ ...typography.unit, fontSize: r.unit }}>ms</span>
           </PretextBlock>
-          {breakdown && cfResult && (
-            <div style={breakdownStyle}>CF: {cfResult.jitter.toFixed(0)}</div>
+          {latencyStats && (
+            <div style={breakdownStyle}>
+              {latencyStats.samples.length} samples • stddev: {latencyStats.stddev.toFixed(1)}
+            </div>
           )}
         </div>
       </SplitRow>
@@ -173,6 +198,81 @@ export default function DataPanel({ phase, progress, result, speedUnit, dnsCheck
           </div>
         )}
       </DataRow>
+
+      {/* Accuracy Metrics Bar — AIM scores, bufferbloat, stability, divergence */}
+      {isComplete && (aimScores || bufferbloat || stability || divergence?.significant) && (
+        <div style={{
+          flex: 'none',
+          borderBottom: borders.stroke,
+          padding: isMobile ? '0.5rem 1.5rem' : isSmallDesktop ? '0.6rem 2rem' : '0.6rem 3rem',
+          display: 'flex',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+          gap: '0.5rem',
+        }}>
+          {aimScores && Object.entries(aimScores).map(([key, score]) => (
+            <span key={key} style={{
+              ...badgeBase,
+              marginLeft: 0,
+              backgroundColor: score.classificationIdx >= 3 ? '#22c55e'
+                : score.classificationIdx >= 2 ? '#eab308'
+                : '#ef4444',
+              color: '#fff',
+              fontSize: '0.55rem',
+            }}>
+              {key.toUpperCase()}: {score.classificationName.toUpperCase()}
+            </span>
+          ))}
+          {bufferbloat && (
+            <span style={{
+              ...badgeBase,
+              marginLeft: 0,
+              backgroundColor: bufferbloatColor(bufferbloat.grade),
+              color: '#fff',
+              fontSize: '0.6rem',
+            }}>
+              BUFFERBLOAT: {bufferbloat.grade}
+            </span>
+          )}
+          {bufferbloat && (
+            <span style={{ fontSize: '0.6rem', opacity: 0.5, letterSpacing: '0.05em' }}>
+              DL {bufferbloat.downloadRatio.toFixed(1)}x / UL {bufferbloat.uploadRatio.toFixed(1)}x
+            </span>
+          )}
+          {stability && (
+            <span style={{
+              ...badgeBase,
+              marginLeft: 0,
+              backgroundColor: stability.downloadStable && stability.uploadStable ? '#22c55e' : '#eab308',
+              color: '#fff',
+              fontSize: '0.6rem',
+            }}>
+              {stability.downloadStable && stability.uploadStable ? 'STABLE' : 'VARIABLE'}
+            </span>
+          )}
+          {stability && (
+            <span style={{ fontSize: '0.6rem', opacity: 0.5, letterSpacing: '0.05em' }}>
+              CV: DL {(stability.downloadCV * 100).toFixed(0)}% / UL {(stability.uploadCV * 100).toFixed(0)}%
+            </span>
+          )}
+          {divergence?.significant && (
+            <span style={{
+              ...badgeBase,
+              marginLeft: 0,
+              backgroundColor: '#f97316',
+              color: '#fff',
+              fontSize: '0.6rem',
+            }}>
+              DIVERGENCE
+            </span>
+          )}
+          {divergence?.significant && (
+            <span style={{ fontSize: '0.6rem', opacity: 0.5, letterSpacing: '0.05em' }}>
+              DL {(divergence.download * 100).toFixed(0)}% / UL {(divergence.upload * 100).toFixed(0)}%
+            </span>
+          )}
+        </div>
+      )}
 
       {/* DNS Connectivity */}
       <DnsBar dnsCheck={dnsCheck} phase={phase} />

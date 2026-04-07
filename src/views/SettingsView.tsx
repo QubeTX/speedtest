@@ -10,9 +10,9 @@ import type { ProviderMode, TestDuration, SpeedUnit } from '../types/speedtest';
 import type { CSSProperties } from 'react';
 
 const PROVIDER_OPTIONS: { mode: ProviderMode; label: string; desc: string }[] = [
-  { mode: 'both', label: 'BOTH (AGGREGATED)', desc: 'Cloudflare + M-Lab averaged' },
-  { mode: 'cloudflare', label: 'CLOUDFLARE', desc: 'Latency, Jitter, Packet Loss, DL, UL' },
-  { mode: 'ndt7', label: 'M-LAB NDT7', desc: 'Google-backed • Latency, DL, UL' },
+  { mode: 'both', label: 'BOTH (AGGREGATED)', desc: 'Confidence-weighted dual-provider • Full duration each' },
+  { mode: 'cloudflare', label: 'CLOUDFLARE', desc: 'Multi-request • Bufferbloat detection • Packet loss' },
+  { mode: 'ndt7', label: 'M-LAB NDT7', desc: 'Single-stream TCP • Kernel-level RTT • Open data' },
 ];
 
 const DURATION_OPTIONS: { value: TestDuration; label: string }[] = [
