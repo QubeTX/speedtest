@@ -1,4 +1,4 @@
-import type { TestPhase, SpeedTestProgress, SpeedTestResult, SpeedUnit, DnsCheckResult, BufferbloatGrade, AimScoreEntry } from '../../types/speedtest';
+import type { TestPhase, SpeedTestProgress, SpeedTestResult, SpeedUnit, DnsCheckResult } from '../../types/speedtest';
 import { formatSpeed } from '../../types/speedtest';
 import SplitRow from './SplitRow';
 import DataRow from './DataRow';
@@ -91,15 +91,6 @@ export default function DataPanel({ phase, progress, result, speedUnit, dnsCheck
     </Tooltip>
   ) : null;
 
-  function bufferbloatColor(grade: BufferbloatGrade): string {
-    switch (grade) {
-      case 'A': return '#22c55e';
-      case 'B': return '#84cc16';
-      case 'C': return '#eab308';
-      case 'D': return '#f97316';
-      case 'F': return '#ef4444';
-    }
-  }
 
   if (isError) {
     return (
@@ -218,92 +209,117 @@ export default function DataPanel({ phase, progress, result, speedUnit, dnsCheck
         )}
       </DataRow>
 
-      {/* Accuracy Metrics Bar — AIM scores, bufferbloat, stability, divergence */}
-      {isComplete && (aimScores || bufferbloat || stability || divergence?.significant) && (
-        <div style={{
-          flex: 'none',
-          borderBottom: borders.stroke,
-          padding: isMobile ? '0.5rem 1.5rem' : isSmallDesktop ? '0.6rem 2rem' : '0.6rem 3rem',
+      {/* Accuracy Metrics — AIM scores, bufferbloat, stability, divergence */}
+      {isComplete && (aimScores || bufferbloat || stability || divergence?.significant) && (() => {
+        const metricLabel: React.CSSProperties = {
+          ...typography.metaLabel,
+          fontSize: '0.5rem',
+          opacity: 0.45,
+        };
+        const metricValue: React.CSSProperties = {
+          fontSize: isMobile ? '0.65rem' : '0.7rem',
+          fontWeight: 600,
+          letterSpacing: '0.05em',
+          fontVariantNumeric: 'tabular-nums',
+        };
+        const metricRow: React.CSSProperties = {
           display: 'flex',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          gap: '0.5rem',
-        }}>
-          {aimScores && Object.entries(aimScores).map(([key, score]) => (
-            <span key={key} style={{
-              ...badgeBase,
-              marginLeft: 0,
-              backgroundColor: score.classificationIdx >= 3 ? '#22c55e'
-                : score.classificationIdx >= 2 ? '#eab308'
-                : '#ef4444',
-              color: '#fff',
-              fontSize: '0.55rem',
+          justifyContent: 'space-between',
+          alignItems: 'baseline',
+          padding: '0.3rem 0',
+        };
+        const separator: React.CSSProperties = {
+          height: '1px',
+          backgroundColor: 'rgba(17,17,17,0.08)',
+        };
+
+        return (
+          <div style={{
+            flex: 'none',
+            borderBottom: borders.stroke,
+            padding: isMobile ? '0.6rem 1.5rem' : isSmallDesktop ? '0.7rem 2rem' : '0.7rem 3rem',
+          }}>
+            {/* AIM Scores row */}
+            {aimScores && (
+              <>
+                <div style={{
+                  display: 'flex',
+                  gap: isMobile ? '0.75rem' : '1.25rem',
+                  flexWrap: 'wrap',
+                  padding: '0.2rem 0 0.35rem',
+                }}>
+                  {Object.entries(aimScores).map(([key, score]) => (
+                    <div key={key} style={{ display: 'flex', alignItems: 'baseline', gap: '0.35rem' }}>
+                      <span style={metricLabel}>{key.toUpperCase()}</span>
+                      <span style={{
+                        ...metricValue,
+                        fontSize: isMobile ? '0.6rem' : '0.65rem',
+                      }}>
+                        {score.classificationName.toUpperCase()}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                {(bufferbloat || stability || divergence?.significant) && <div style={separator} />}
+              </>
+            )}
+
+            {/* Bufferbloat + Stability + Divergence rows */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: isMobile ? '1fr' : (bufferbloat && stability ? '1fr 1fr' : '1fr'),
+              gap: isMobile ? '0' : '0 1.5rem',
             }}>
-              {key.toUpperCase()}: {score.classificationName.toUpperCase()}
-            </span>
-          ))}
-          {bufferbloat && (
-            <Tooltip tooltipKey="bufferbloat" variant="badge" value={Math.max(bufferbloat.downloadRatio, bufferbloat.uploadRatio)}>
-              <span style={{
-                ...badgeBase,
-                marginLeft: 0,
-                backgroundColor: bufferbloatColor(bufferbloat.grade),
-                color: '#fff',
-                fontSize: '0.6rem',
-              }}>
-                BUFFERBLOAT: {bufferbloat.grade}
-              </span>
-            </Tooltip>
-          )}
-          {bufferbloat && (
-            <Tooltip tooltipKey="bufferbloatRatio" value={Math.max(bufferbloat.downloadRatio, bufferbloat.uploadRatio)}>
-              <span style={{ fontSize: '0.6rem', opacity: 0.5, letterSpacing: '0.05em' }}>
-                DL {bufferbloat.downloadRatio.toFixed(1)}x / UL {bufferbloat.uploadRatio.toFixed(1)}x
-              </span>
-            </Tooltip>
-          )}
-          {stability && (
-            <Tooltip tooltipKey="stable" variant="badge">
-              <span style={{
-                ...badgeBase,
-                marginLeft: 0,
-                backgroundColor: stability.downloadStable && stability.uploadStable ? '#22c55e' : '#eab308',
-                color: '#fff',
-                fontSize: '0.6rem',
-              }}>
-                {stability.downloadStable && stability.uploadStable ? 'STABLE' : 'VARIABLE'}
-              </span>
-            </Tooltip>
-          )}
-          {stability && (
-            <Tooltip tooltipKey="cv" value={Math.max(stability.downloadCV, stability.uploadCV) * 100}>
-              <span style={{ fontSize: '0.6rem', opacity: 0.5, letterSpacing: '0.05em' }}>
-                CV: DL {(stability.downloadCV * 100).toFixed(0)}% / UL {(stability.uploadCV * 100).toFixed(0)}%
-              </span>
-            </Tooltip>
-          )}
-          {divergence?.significant && (
-            <Tooltip tooltipKey="divergence" variant="badge" value={Math.max(divergence.download, divergence.upload) * 100}>
-              <span style={{
-                ...badgeBase,
-                marginLeft: 0,
-                backgroundColor: '#f97316',
-                color: '#fff',
-                fontSize: '0.6rem',
-              }}>
-                DIVERGENCE
-              </span>
-            </Tooltip>
-          )}
-          {divergence?.significant && (
-            <Tooltip tooltipKey="divergence" value={Math.max(divergence.download, divergence.upload) * 100}>
-              <span style={{ fontSize: '0.6rem', opacity: 0.5, letterSpacing: '0.05em' }}>
-                DL {(divergence.download * 100).toFixed(0)}% / UL {(divergence.upload * 100).toFixed(0)}%
-              </span>
-            </Tooltip>
-          )}
-        </div>
-      )}
+              {bufferbloat && (
+                <div style={metricRow}>
+                  <Tooltip tooltipKey="bufferbloat" variant="badge" value={Math.max(bufferbloat.downloadRatio, bufferbloat.uploadRatio)}>
+                    <span style={metricLabel}>BUFFERBLOAT</span>
+                  </Tooltip>
+                  <span style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
+                    <span style={{ ...metricValue, fontSize: isMobile ? '0.75rem' : '0.85rem' }}>
+                      {bufferbloat.grade}
+                    </span>
+                    <Tooltip tooltipKey="bufferbloatRatio" value={Math.max(bufferbloat.downloadRatio, bufferbloat.uploadRatio)}>
+                      <span style={{ fontSize: '0.55rem', opacity: 0.4, letterSpacing: '0.03em', fontVariantNumeric: 'tabular-nums' }}>
+                        {bufferbloat.downloadRatio.toFixed(1)}x / {bufferbloat.uploadRatio.toFixed(1)}x
+                      </span>
+                    </Tooltip>
+                  </span>
+                </div>
+              )}
+              {stability && (
+                <div style={metricRow}>
+                  <Tooltip tooltipKey="stable" variant="badge">
+                    <span style={metricLabel}>STABILITY</span>
+                  </Tooltip>
+                  <span style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
+                    <span style={metricValue}>
+                      {stability.downloadStable && stability.uploadStable ? 'STABLE' : 'VARIABLE'}
+                    </span>
+                    <Tooltip tooltipKey="cv" value={Math.max(stability.downloadCV, stability.uploadCV) * 100}>
+                      <span style={{ fontSize: '0.55rem', opacity: 0.4, letterSpacing: '0.03em', fontVariantNumeric: 'tabular-nums' }}>
+                        {(stability.downloadCV * 100).toFixed(0)}% / {(stability.uploadCV * 100).toFixed(0)}%
+                      </span>
+                    </Tooltip>
+                  </span>
+                </div>
+              )}
+              {divergence?.significant && (
+                <div style={metricRow}>
+                  <Tooltip tooltipKey="divergence" variant="badge" value={Math.max(divergence.download, divergence.upload) * 100}>
+                    <span style={{ ...metricLabel, color: '#111' }}>DIVERGENCE</span>
+                  </Tooltip>
+                  <Tooltip tooltipKey="divergence" value={Math.max(divergence.download, divergence.upload) * 100}>
+                    <span style={{ ...metricValue, fontSize: '0.55rem', fontVariantNumeric: 'tabular-nums' }}>
+                      DL {(divergence.download * 100).toFixed(0)}% / UL {(divergence.upload * 100).toFixed(0)}%
+                    </span>
+                  </Tooltip>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* DNS Connectivity */}
       <DnsBar dnsCheck={dnsCheck} phase={phase} />
