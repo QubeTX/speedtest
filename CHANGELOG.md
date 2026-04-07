@@ -14,7 +14,7 @@ All notable changes to this project will be documented in this file.
 ### Changed
 
 - **Custom typography — Guton Sans Serif** — Replaced Google Fonts Inter with the licensed Guton Sans Serif typeface (geometric sans-serif, 5 weights: Regular through ExtraBold). Self-hosted via `public/fonts/` with woff2/woff formats and font-display: swap. Preloads critical weights (Regular, Medium, SemiBold) for zero FOIT.
-- **Accuracy metrics bar redesign** — Replaced colorful badge soup with a clean, structured layout matching the monochrome industrial aesthetic. AIM scores (streaming, gaming, RTC) shown as label/value pairs. Bufferbloat grade displayed as a bold letter with load ratios. Stability and divergence use the same label-value-detail pattern. Two-column grid on desktop, stacked on mobile.
+- **Accuracy metrics bar redesign** — Replaced colorful badge soup with a clean, structured layout matching the monochrome industrial aesthetic. Each metric uses label-above-value stacking for clear association. AIM scores in an even-column grid, bufferbloat/stability/divergence in a responsive grid below with detail values inline. Proper spacing between groups with subtle separator lines.
 - **Tooltip opacity** — Tooltip bubbles now use fully opaque `#111111` background instead of semi-transparent, ensuring text is always legible over any content.
 - **Technical report typography** — Two spaces after every period on the How It Works page for improved readability.
 
