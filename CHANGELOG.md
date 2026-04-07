@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.1.0] — 2026-04-07
+
+### Added
+
+- **Interactive metric tooltips** — Hover (desktop) or tap (mobile) any technical metric label to see a layman-friendly explanation. Covers P50/P95/P99, RFC 3550, standard deviation, samples, CF/NDT provider labels, AVG badge, bufferbloat grade, load ratio, stability, coefficient of variation, provider divergence, and DNS/TCP/TLS/TTFB column headers. Tooltips are context-aware: they show only the relevant quality range based on your actual measured value, rather than listing all possible ranges.
+- **Tooltip component** (`src/components/ui/Tooltip.tsx`) — Reusable, accessible tooltip with Motion (Framer Motion) spring animations, 150ms show delay, 300ms linger on unhover (so you can mouse into the bubble), viewport-aware repositioning, keyboard support (Tab to focus, Escape to close), mobile tap-to-toggle with outside-tap dismiss, and ARIA attributes.
+- **Tooltip content map** (`src/content/tooltips.ts`) — Centralized definitions for 18 metrics with titles, descriptions, and optional value-based ranges for dynamic feedback.
+
+### Changed
+
+- **Custom typography — Guton Sans Serif** — Replaced Google Fonts Inter with the licensed Guton Sans Serif typeface (geometric sans-serif, 5 weights: Regular through ExtraBold). Self-hosted via `public/fonts/` with woff2/woff formats and font-display: swap. Preloads critical weights (Regular, Medium, SemiBold) for zero FOIT.
+
+### Dependencies
+
+- Added `motion` (Framer Motion) for tooltip enter/exit animations
+
 ## [2.0.0] — 2026-04-07
 
 ### Added

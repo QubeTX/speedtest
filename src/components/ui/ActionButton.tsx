@@ -25,7 +25,7 @@ export default function ActionButton({ onClick, children, variant = 'primary', d
       : (hover ? colors.paper : colors.ink),
     border: isPrimary ? 'none' : borders.stroke,
     borderRadius: borders.radiusPill,
-    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+    fontFamily: "'Guton', -apple-system, BlinkMacSystemFont, sans-serif",
     fontSize: '1rem',
     fontWeight: 600,
     letterSpacing: '0.1em',

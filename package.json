@@ -13,6 +13,7 @@
     "@chenglou/pretext": "^0.0.2",
     "@cloudflare/speedtest": "^1.7.0",
     "@m-lab/ndt7": "^0.1.4",
+    "motion": "^12.38.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^7.1.1"

@@ -16,7 +16,7 @@ export const borders = {
 } as const;
 
 export const typography = {
-  fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+  fontFamily: "'Guton', -apple-system, BlinkMacSystemFont, sans-serif",
   numberLarge: {
     fontSize: '7rem',
     fontWeight: 500,

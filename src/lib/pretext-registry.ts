@@ -10,7 +10,7 @@ export interface TextEntryConfig {
 }
 
 /** Font family matching tokens.ts typography.fontFamily */
-const FONT_FAMILY = "'Inter', -apple-system, BlinkMacSystemFont, sans-serif";
+const FONT_FAMILY = "'Guton', -apple-system, BlinkMacSystemFont, sans-serif";
 
 /**
  * Resolve a rem string to px given the root font size.

@@ -4,6 +4,7 @@ import SplitRow from './SplitRow';
 import DataRow from './DataRow';
 import DnsBar from './DnsBar';
 import PretextBlock from '../ui/PretextBlock';
+import Tooltip from '../ui/Tooltip';
 import { typography, borders } from '../../theme/tokens';
 import { responsive } from '../../theme/responsive';
 import { useResponsive } from '../../hooks/useResponsive';
@@ -83,9 +84,11 @@ export default function DataPanel({ phase, progress, result, speedUnit, dnsCheck
   };
 
   const avgBadge = breakdown ? (
-    <span style={{ ...badgeBase, backgroundColor: '#111111', color: '#ffffff' }}>
-      AVG
-    </span>
+    <Tooltip tooltipKey="avg" variant="badge">
+      <span style={{ ...badgeBase, backgroundColor: '#111111', color: '#ffffff' }}>
+        AVG
+      </span>
+    </Tooltip>
   ) : null;
 
   function bufferbloatColor(grade: BufferbloatGrade): string {
@@ -135,17 +138,27 @@ export default function DataPanel({ phase, progress, result, speedUnit, dnsCheck
           </PretextBlock>
           {latencyStats && (
             <div style={breakdownStyle}>
-              P50: {latencyStats.p50.toFixed(0)} • P95: {latencyStats.p95.toFixed(0)} • P99: {latencyStats.p99.toFixed(0)}
+              <Tooltip tooltipKey="p50" value={latencyStats.p50}>P50: {latencyStats.p50.toFixed(0)}</Tooltip>
+              {' \u2022 '}
+              <Tooltip tooltipKey="p95" value={latencyStats.p95}>P95: {latencyStats.p95.toFixed(0)}</Tooltip>
+              {' \u2022 '}
+              <Tooltip tooltipKey="p99" value={latencyStats.p99}>P99: {latencyStats.p99.toFixed(0)}</Tooltip>
             </div>
           )}
           {!latencyStats && breakdown && cfResult && ndtResult && (
-            <div style={breakdownStyle}>CF: {cfResult.ping.toFixed(0)} • NDT: {ndtResult.ping.toFixed(0)}</div>
+            <div style={breakdownStyle}>
+              <Tooltip tooltipKey="cf">CF: {cfResult.ping.toFixed(0)}</Tooltip>
+              {' \u2022 '}
+              <Tooltip tooltipKey="ndt">NDT: {ndtResult.ping.toFixed(0)}</Tooltip>
+            </div>
           )}
         </div>
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
             <span style={typography.metaLabel}>JITTER</span>
-            <span style={{ ...typography.metaLabel, opacity: 0.4, fontSize: '0.5rem' }}>RFC 3550</span>
+            <Tooltip tooltipKey="rfc3550" variant="badge">
+              <span style={{ ...typography.metaLabel, opacity: 0.4, fontSize: '0.5rem' }}>RFC 3550</span>
+            </Tooltip>
           </div>
           <PretextBlock
             entryId={`speed-medium-${breakpoint}`}
@@ -156,7 +169,9 @@ export default function DataPanel({ phase, progress, result, speedUnit, dnsCheck
           </PretextBlock>
           {latencyStats && (
             <div style={breakdownStyle}>
-              {latencyStats.samples.length} samples • stddev: {latencyStats.stddev.toFixed(1)}
+              <Tooltip tooltipKey="samples" value={latencyStats.samples.length}>{latencyStats.samples.length} samples</Tooltip>
+              {' \u2022 '}
+              <Tooltip tooltipKey="stddev" value={latencyStats.stddev}>stddev: {latencyStats.stddev.toFixed(1)}</Tooltip>
             </div>
           )}
         </div>
@@ -175,7 +190,9 @@ export default function DataPanel({ phase, progress, result, speedUnit, dnsCheck
       >
         {breakdown && cfResult && ndtResult && (
           <div style={breakdownStyle}>
-            CF: {formatSpeed(cfResult.downloadSpeed, speedUnit).value} • NDT: {formatSpeed(ndtResult.downloadSpeed, speedUnit).value}
+            <Tooltip tooltipKey="cf">CF: {formatSpeed(cfResult.downloadSpeed, speedUnit).value}</Tooltip>
+            {' \u2022 '}
+            <Tooltip tooltipKey="ndt">NDT: {formatSpeed(ndtResult.downloadSpeed, speedUnit).value}</Tooltip>
           </div>
         )}
       </DataRow>
@@ -194,7 +211,9 @@ export default function DataPanel({ phase, progress, result, speedUnit, dnsCheck
       >
         {breakdown && cfResult && ndtResult && (
           <div style={breakdownStyle}>
-            CF: {formatSpeed(cfResult.uploadSpeed, speedUnit).value} • NDT: {formatSpeed(ndtResult.uploadSpeed, speedUnit).value}
+            <Tooltip tooltipKey="cf">CF: {formatSpeed(cfResult.uploadSpeed, speedUnit).value}</Tooltip>
+            {' \u2022 '}
+            <Tooltip tooltipKey="ndt">NDT: {formatSpeed(ndtResult.uploadSpeed, speedUnit).value}</Tooltip>
           </div>
         )}
       </DataRow>
@@ -224,52 +243,64 @@ export default function DataPanel({ phase, progress, result, speedUnit, dnsCheck
             </span>
           ))}
           {bufferbloat && (
-            <span style={{
-              ...badgeBase,
-              marginLeft: 0,
-              backgroundColor: bufferbloatColor(bufferbloat.grade),
-              color: '#fff',
-              fontSize: '0.6rem',
-            }}>
-              BUFFERBLOAT: {bufferbloat.grade}
-            </span>
+            <Tooltip tooltipKey="bufferbloat" variant="badge" value={Math.max(bufferbloat.downloadRatio, bufferbloat.uploadRatio)}>
+              <span style={{
+                ...badgeBase,
+                marginLeft: 0,
+                backgroundColor: bufferbloatColor(bufferbloat.grade),
+                color: '#fff',
+                fontSize: '0.6rem',
+              }}>
+                BUFFERBLOAT: {bufferbloat.grade}
+              </span>
+            </Tooltip>
           )}
           {bufferbloat && (
-            <span style={{ fontSize: '0.6rem', opacity: 0.5, letterSpacing: '0.05em' }}>
-              DL {bufferbloat.downloadRatio.toFixed(1)}x / UL {bufferbloat.uploadRatio.toFixed(1)}x
-            </span>
+            <Tooltip tooltipKey="bufferbloatRatio" value={Math.max(bufferbloat.downloadRatio, bufferbloat.uploadRatio)}>
+              <span style={{ fontSize: '0.6rem', opacity: 0.5, letterSpacing: '0.05em' }}>
+                DL {bufferbloat.downloadRatio.toFixed(1)}x / UL {bufferbloat.uploadRatio.toFixed(1)}x
+              </span>
+            </Tooltip>
           )}
           {stability && (
-            <span style={{
-              ...badgeBase,
-              marginLeft: 0,
-              backgroundColor: stability.downloadStable && stability.uploadStable ? '#22c55e' : '#eab308',
-              color: '#fff',
-              fontSize: '0.6rem',
-            }}>
-              {stability.downloadStable && stability.uploadStable ? 'STABLE' : 'VARIABLE'}
-            </span>
+            <Tooltip tooltipKey="stable" variant="badge">
+              <span style={{
+                ...badgeBase,
+                marginLeft: 0,
+                backgroundColor: stability.downloadStable && stability.uploadStable ? '#22c55e' : '#eab308',
+                color: '#fff',
+                fontSize: '0.6rem',
+              }}>
+                {stability.downloadStable && stability.uploadStable ? 'STABLE' : 'VARIABLE'}
+              </span>
+            </Tooltip>
           )}
           {stability && (
-            <span style={{ fontSize: '0.6rem', opacity: 0.5, letterSpacing: '0.05em' }}>
-              CV: DL {(stability.downloadCV * 100).toFixed(0)}% / UL {(stability.uploadCV * 100).toFixed(0)}%
-            </span>
+            <Tooltip tooltipKey="cv" value={Math.max(stability.downloadCV, stability.uploadCV) * 100}>
+              <span style={{ fontSize: '0.6rem', opacity: 0.5, letterSpacing: '0.05em' }}>
+                CV: DL {(stability.downloadCV * 100).toFixed(0)}% / UL {(stability.uploadCV * 100).toFixed(0)}%
+              </span>
+            </Tooltip>
           )}
           {divergence?.significant && (
-            <span style={{
-              ...badgeBase,
-              marginLeft: 0,
-              backgroundColor: '#f97316',
-              color: '#fff',
-              fontSize: '0.6rem',
-            }}>
-              DIVERGENCE
-            </span>
+            <Tooltip tooltipKey="divergence" variant="badge" value={Math.max(divergence.download, divergence.upload) * 100}>
+              <span style={{
+                ...badgeBase,
+                marginLeft: 0,
+                backgroundColor: '#f97316',
+                color: '#fff',
+                fontSize: '0.6rem',
+              }}>
+                DIVERGENCE
+              </span>
+            </Tooltip>
           )}
           {divergence?.significant && (
-            <span style={{ fontSize: '0.6rem', opacity: 0.5, letterSpacing: '0.05em' }}>
-              DL {(divergence.download * 100).toFixed(0)}% / UL {(divergence.upload * 100).toFixed(0)}%
-            </span>
+            <Tooltip tooltipKey="divergence" value={Math.max(divergence.download, divergence.upload) * 100}>
+              <span style={{ fontSize: '0.6rem', opacity: 0.5, letterSpacing: '0.05em' }}>
+                DL {(divergence.download * 100).toFixed(0)}% / UL {(divergence.upload * 100).toFixed(0)}%
+              </span>
+            </Tooltip>
           )}
         </div>
       )}

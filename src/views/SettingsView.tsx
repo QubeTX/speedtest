@@ -80,7 +80,7 @@ export default function SettingsView() {
           padding: '0.75rem 1.5rem',
           border: '3px solid #111',
           background: 'transparent',
-          fontFamily: "'Inter', sans-serif",
+          fontFamily: "'Guton', sans-serif",
           fontWeight: 600,
           fontSize: '0.75rem',
           textTransform: 'uppercase',

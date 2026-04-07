@@ -3,6 +3,7 @@ import type { TestPhase, DnsCheckResult } from '../../types/speedtest';
 import { colors, borders, typography } from '../../theme/tokens';
 import { responsive } from '../../theme/responsive';
 import { useResponsive } from '../../hooks/useResponsive';
+import Tooltip from '../ui/Tooltip';
 
 interface DnsBarProps {
   dnsCheck: DnsCheckResult | null;
@@ -145,10 +146,10 @@ export default function DnsBar({ dnsCheck, phase }: DnsBarProps) {
           <span />
           <span>DOMAIN</span>
           <span style={{ textAlign: 'right' }}>TOTAL</span>
-          <span style={{ textAlign: 'right' }}>DNS</span>
-          <span style={{ textAlign: 'right' }}>TCP</span>
-          <span style={{ textAlign: 'right' }}>TLS</span>
-          <span style={{ textAlign: 'right' }}>TTFB</span>
+          <Tooltip tooltipKey="dns" value={dnsCheck?.avgDnsMs ?? undefined} style={{ textAlign: 'right', display: 'block' }}><span>DNS</span></Tooltip>
+          <Tooltip tooltipKey="tcp" value={dnsCheck?.avgTcpMs ?? undefined} style={{ textAlign: 'right', display: 'block' }}><span>TCP</span></Tooltip>
+          <Tooltip tooltipKey="tls" value={dnsCheck?.avgTlsMs ?? undefined} style={{ textAlign: 'right', display: 'block' }}><span>TLS</span></Tooltip>
+          <Tooltip tooltipKey="ttfb" value={dnsCheck?.avgTtfbMs ?? undefined} style={{ textAlign: 'right', display: 'block' }}><span>TTFB</span></Tooltip>
         </div>
       )}
 
