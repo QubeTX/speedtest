@@ -252,21 +252,21 @@ export default function TechnicalReportView() {
         <Section num={1} title="THE PROBLEM WITH SPEED TESTS">
           <p style={pStyle}>
             You click "Go," a spinner runs for ten seconds, and you get a number. 247 Mbps download.
-            Sounds precise. It isn't.
+            Sounds precise.  It isn't.
           </p>
           <p style={pStyle}>
             Most speed tests measure your connection the way a sprinter measures the first
-            five meters of a race and calls it their finish time. They connect to a single
+            five meters of a race and calls it their finish time.  They connect to a single
             server, open a single connection, run a test for barely ten seconds, and report
-            the result with no statistical processing. The number you see is contaminated by
+            the result with no statistical processing.  The number you see is contaminated by
             TCP slow-start warmup, transient network bursts, and the fact that the test
             server might be three hops away or three hundred.
           </p>
           <p style={pStyle}>
-            Worse, some tests are deliberately optimistic. Reporting the 90th percentile
+            Worse, some tests are deliberately optimistic.  Reporting the 90th percentile
             instead of the median means your "speed" reflects the fastest 10% of measurements,
             not the throughput you actually experience while streaming, gaming, or on a video
-            call. It makes the number look impressive. It just doesn't make it useful.
+            call.  It makes the number look impressive.  It just doesn't make it useful.
           </p>
           <PullQuote>
             A speed test that gives you one big number and no context is like
@@ -274,9 +274,9 @@ export default function TechnicalReportView() {
           </PullQuote>
           <p style={pStyle}>
             And almost none of them test the thing that actually ruins your experience:
-            what happens to your latency when the connection is under load. Your 500 Mbps
+            what happens to your latency when the connection is under load.  Your 500 Mbps
             download means nothing if your ping spikes to 400ms the moment someone starts
-            a file transfer. That phenomenon has a name &mdash; bufferbloat &mdash; and
+            a file transfer.  That phenomenon has a name &mdash; bufferbloat &mdash; and
             we'll get to it.
           </p>
         </Section>
@@ -288,20 +288,20 @@ export default function TechnicalReportView() {
           <p style={pStyle}>
             Instead of trusting a single test server, we run two completely independent
             measurement engines back-to-back: Cloudflare's speed test infrastructure and
-            M-Lab's NDT7 protocol. Each uses a fundamentally different methodology, different
+            M-Lab's NDT7 protocol.  Each uses a fundamentally different methodology, different
             servers, and different network paths.
           </p>
           <p style={pStyle}>
             Cloudflare's engine makes multiple HTTP requests with progressively larger payloads
             to their global edge network &mdash; the same infrastructure that serves roughly
-            20% of the web. It saturates your connection the way real-world browsing does:
+            20% of the web.  It saturates your connection the way real-world browsing does:
             multiple requests, varying sizes, real HTTP overhead.
           </p>
           <p style={pStyle}>
             M-Lab's NDT7, backed by Google and operated by Measurement Lab, takes a different
             approach: a single persistent WebSocket connection that streams data for the full
-            test duration. This gives a conservative, single-flow view of your TCP performance
-            and exposes bottlenecks that multi-connection tests mask. It also extracts latency
+            test duration.  This gives a conservative, single-flow view of your TCP performance
+            and exposes bottlenecks that multi-connection tests mask.  It also extracts latency
             data directly from the Linux kernel's TCP stack &mdash; the most precise RTT
             measurement available in a browser.
           </p>
@@ -327,7 +327,7 @@ export default function TechnicalReportView() {
           </SpecCard>
 
           <p style={pStyle}>
-            When both providers agree, your confidence in the result is high. When they
+            When both providers agree, your confidence in the result is high.  When they
             disagree, that disagreement itself is diagnostic data &mdash; and we report it.
           </p>
         </Section>
@@ -338,14 +338,14 @@ export default function TechnicalReportView() {
         <Section num={3} title="HOW WE MEASURE LATENCY">
           <p style={pStyle}>
             Before any bandwidth testing begins, a dedicated latency engine fires 100
-            HTTP pings against Cloudflare's edge. Not 5. Not 20. One hundred individual
+            HTTP pings against Cloudflare's edge.  Not 5.  Not 20.  One hundred individual
             round-trip time measurements, each captured with the browser's
             PerformanceResourceTiming API at sub-millisecond precision.
           </p>
           <p style={pStyle}>
-            The first three pings are thrown away. They carry the overhead of DNS
+            The first three pings are thrown away.  They carry the overhead of DNS
             resolution, TCP handshake, and TLS negotiation &mdash; noise that has nothing
-            to do with your ongoing network latency. Once the connection is warm, the
+            to do with your ongoing network latency.  Once the connection is warm, the
             remaining 97 samples paint an accurate picture.
           </p>
 
@@ -360,29 +360,29 @@ export default function TechnicalReportView() {
               <tbody>
                 <TableRow boldFirst cells={[
                   'P50 (Median)',
-                  'Your typical ping. The number half your samples fall below. This is what you feel when browsing.',
+                  'Your typical ping.  The number half your samples fall below.  This is what you feel when browsing.',
                 ]} />
                 <TableRow boldFirst cells={[
                   'P95',
-                  'Tail latency. If this is high, one in twenty interactions will feel sluggish \u2014 bad for video calls.',
+                  'Tail latency.  If this is high, one in twenty interactions will feel sluggish \u2014 bad for video calls.',
                 ]} />
                 <TableRow boldFirst cells={[
                   'P99',
-                  'Worst-case latency. Critical for competitive gaming, where a single spike means a missed shot.',
+                  'Worst-case latency.  Critical for competitive gaming, where a single spike means a missed shot.',
                 ]} />
                 <TableRow boldFirst cells={[
                   'Jitter (RFC 3550)',
-                  'How much your latency varies from ping to ping. Low jitter means smooth voice and video. Calculated using the same algorithm as VoIP and video conferencing systems.',
+                  'How much your latency varies from ping to ping.  Low jitter means smooth voice and video.  Calculated using the same algorithm as VoIP and video conferencing systems.',
                 ]} />
               </tbody>
             </table>
           </SpecCard>
 
           <p style={pStyle}>
-            In everyday terms: your P50 is what you feel when you click a link. Your P95
-            is the occasional stutter on a Zoom call. Your P99 is the rubber-banding moment
-            in an online game. Jitter is why your colleague's voice sometimes sounds like a
-            broken robot. We measure all of them because a single "ping" number hides more
+            In everyday terms: your P50 is what you feel when you click a link.  Your P95
+            is the occasional stutter on a Zoom call.  Your P99 is the rubber-banding moment
+            in an online game.  Jitter is why your colleague's voice sometimes sounds like a
+            broken robot.  We measure all of them because a single "ping" number hides more
             than it reveals.
           </p>
         </Section>
@@ -393,14 +393,14 @@ export default function TechnicalReportView() {
         <Section num={4} title="HOW WE MEASURE SPEED">
           <p style={pStyle}>
             Raw bandwidth samples from both providers pass through a three-stage accuracy
-            pipeline. Think of it as the difference between dumping a bucket of data on a
+            pipeline.  Think of it as the difference between dumping a bucket of data on a
             scale versus carefully measuring, cleaning, and weighing it.
           </p>
 
           <SpecCard label="STAGE 1 // SLOW-START DISCARD">
             <p style={{ ...pStyle, margin: '0 0 0.5rem' }}>
               Every TCP connection begins with a "slow start" phase where the protocol
-              cautiously ramps up speed. During those first moments, throughput is
+              cautiously ramps up speed.  During those first moments, throughput is
               artificially low &mdash; it doesn't represent your actual connection speed.
               We discard the first 30% of samples to eliminate this warmup contamination.
             </p>
@@ -410,7 +410,7 @@ export default function TechnicalReportView() {
             <p style={{ ...pStyle, margin: '0 0 0.5rem' }}>
               Statistical outliers are removed using the Interquartile Range method.
               Transient congestion dips, JavaScript garbage collection artifacts, and
-              freak network bursts are identified and stripped. What remains are samples
+              freak network bursts are identified and stripped.  What remains are samples
               that represent your sustained, real-world throughput.
             </p>
           </SpecCard>
@@ -434,9 +434,9 @@ export default function TechnicalReportView() {
               {'Result = (P10 + 8 \u00D7 P50 + P90) / 10'}
             </div>
             <p style={{ ...pStyle, margin: 0 }}>
-              The median gets 80% of the weight. The 10th percentile pulls the number
-              down slightly to account for bad moments. The 90th percentile nudges it up
-              for burst capability. The result is a number that represents what you
+              The median gets 80% of the weight.  The 10th percentile pulls the number
+              down slightly to account for bad moments.  The 90th percentile nudges it up
+              for burst capability.  The result is a number that represents what you
               actually experience &mdash; not the best case, not the worst case, but the
               typical case with a slight nod to reality.
             </p>
@@ -454,20 +454,20 @@ export default function TechnicalReportView() {
         <Section num={5} title="BUFFERBLOAT: THE HIDDEN PROBLEM">
           <p style={pStyle}>
             Here's a scenario most people have lived through: you're on a video call, and
-            someone in the house starts downloading a large file. Suddenly your call turns
-            into a slideshow. Your ISP promised you 300 Mbps, and you're getting 300 Mbps.
+            someone in the house starts downloading a large file.  Suddenly your call turns
+            into a slideshow.  Your ISP promised you 300 Mbps, and you're getting 300 Mbps.
             So why is everything terrible?
           </p>
           <p style={pStyle}>
-            The answer is bufferbloat. When your router receives more data than it can
-            forward, it stuffs the excess into a buffer &mdash; a queue. If that buffer is
+            The answer is bufferbloat.  When your router receives more data than it can
+            forward, it stuffs the excess into a buffer &mdash; a queue.  If that buffer is
             oversized (and most consumer routers ship with absurdly large buffers), packets
-            sit in line for hundreds of milliseconds before being delivered. Your bandwidth
-            is fine. Your latency is catastrophic.
+            sit in line for hundreds of milliseconds before being delivered.  Your bandwidth
+            is fine.  Your latency is catastrophic.
           </p>
           <p style={pStyle}>
             We detect bufferbloat by measuring your latency twice: once with the connection
-            idle (unloaded), and once while actively pushing bandwidth (loaded). The ratio
+            idle (unloaded), and once while actively pushing bandwidth (loaded).  The ratio
             between the two tells the story.
           </p>
 
@@ -484,36 +484,36 @@ export default function TechnicalReportView() {
                 <TableRow boldFirst={false} cells={[
                   <span key="a" style={{ fontWeight: 700, fontSize: '1rem' }}>A</span>,
                   <span key="ar" style={{ fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>{'< 1.5x'}</span>,
-                  'Excellent. Minimal buffering. Likely running smart queue management.',
+                  'Excellent.  Minimal buffering.  Likely running smart queue management.',
                 ]} />
                 <TableRow boldFirst={false} cells={[
                   <span key="b" style={{ fontWeight: 700, fontSize: '1rem' }}>B</span>,
                   <span key="br" style={{ fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>{'1.5x \u2013 3x'}</span>,
-                  'Good. Some buffering under load, acceptable for most uses.',
+                  'Good.  Some buffering under load, acceptable for most uses.',
                 ]} />
                 <TableRow boldFirst={false} cells={[
                   <span key="c" style={{ fontWeight: 700, fontSize: '1rem' }}>C</span>,
                   <span key="cr" style={{ fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>{'3x \u2013 5x'}</span>,
-                  'Fair. Noticeable under load. VoIP and video calls will occasionally degrade.',
+                  'Fair.  Noticeable under load.  VoIP and video calls will occasionally degrade.',
                 ]} />
                 <TableRow boldFirst={false} cells={[
                   <span key="d" style={{ fontWeight: 700, fontSize: '1rem' }}>D</span>,
                   <span key="dr" style={{ fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>{'5x \u2013 10x'}</span>,
-                  'Poor. Significant bufferbloat. Real-time applications suffer noticeably.',
+                  'Poor.  Significant bufferbloat.  Real-time applications suffer noticeably.',
                 ]} />
                 <TableRow boldFirst={false} cells={[
                   <span key="f" style={{ fontWeight: 700, fontSize: '1rem' }}>F</span>,
                   <span key="fr" style={{ fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>{'> 10x'}</span>,
-                  'Critical. Severe bufferbloat. Your connection is fast on paper, miserable in practice.',
+                  'Critical.  Severe bufferbloat.  Your connection is fast on paper, miserable in practice.',
                 ]} />
               </tbody>
             </table>
           </SpecCard>
 
           <p style={pStyle}>
-            Most speed tests don't measure this at all. They test bandwidth in isolation,
+            Most speed tests don't measure this at all.  They test bandwidth in isolation,
             declare your connection fast, and leave you wondering why Netflix buffers
-            every time someone joins a Zoom call. We test it because it is, in practice,
+            every time someone joins a Zoom call.  We test it because it is, in practice,
             the single most common cause of poor internet quality that goes undiagnosed.
           </p>
         </Section>
@@ -523,15 +523,15 @@ export default function TechnicalReportView() {
         {/* ── 06 Stability ── */}
         <Section num={6} title="CONNECTION STABILITY">
           <p style={pStyle}>
-            A connection that averages 500 Mbps sounds great. But if it swings between 50
-            and 900 Mbps every few seconds, your experience will be terrible. Streaming
-            buffers. Downloads stall and resume. Games rubberband. The average means nothing
+            A connection that averages 500 Mbps sounds great.  But if it swings between 50
+            and 900 Mbps every few seconds, your experience will be terrible.  Streaming
+            buffers.  Downloads stall and resume.  Games rubberband.  The average means nothing
             if the variance is high.
           </p>
           <p style={pStyle}>
             We quantify stability using the coefficient of variation &mdash; the ratio of
             standard deviation to mean, expressed as a simple rating from "Excellent" to
-            "Poor." A CV below 0.10 means rock-solid throughput. Above 0.40 means your
+            "Poor." A CV below 0.10 means rock-solid throughput.  Above 0.40 means your
             connection is essentially unreliable regardless of its peak speed.
           </p>
 
@@ -550,17 +550,17 @@ export default function TechnicalReportView() {
                 </tr>
               </thead>
               <tbody>
-                <TableRow boldFirst cells={['< 0.10', 'Excellent', 'Rock steady. Fiber-like consistency.']} />
-                <TableRow boldFirst cells={['0.10 \u2013 0.15', 'Good', 'Minor fluctuations. Stable for all uses.']} />
-                <TableRow boldFirst cells={['0.15 \u2013 0.20', 'Fair', 'Noticeable variation. Shared medium or mild congestion.']} />
-                <TableRow boldFirst cells={['0.20 \u2013 0.40', 'Variable', 'Significant swings. Wireless interference, peak-hour congestion.']} />
-                <TableRow boldFirst cells={['> 0.40', 'Poor', 'Highly unstable. Packet loss, severe congestion, or throttling.']} />
+                <TableRow boldFirst cells={['< 0.10', 'Excellent', 'Rock steady.  Fiber-like consistency.']} />
+                <TableRow boldFirst cells={['0.10 \u2013 0.15', 'Good', 'Minor fluctuations.  Stable for all uses.']} />
+                <TableRow boldFirst cells={['0.15 \u2013 0.20', 'Fair', 'Noticeable variation.  Shared medium or mild congestion.']} />
+                <TableRow boldFirst cells={['0.20 \u2013 0.40', 'Variable', 'Significant swings.  Wireless interference, peak-hour congestion.']} />
+                <TableRow boldFirst cells={['> 0.40', 'Poor', 'Highly unstable.  Packet loss, severe congestion, or throttling.']} />
               </tbody>
             </table>
           </SpecCard>
 
           <p style={pStyle}>
-            This metric is computed separately for download and upload. A connection that
+            This metric is computed separately for download and upload.  A connection that
             is stable on download but variable on upload often points to wireless
             interference or asymmetric QoS policies by the ISP.
           </p>
@@ -572,12 +572,12 @@ export default function TechnicalReportView() {
         <Section num={7} title="PROVIDER DIVERGENCE">
           <p style={pStyle}>
             When Cloudflare and NDT7 report similar results, that's straightforward &mdash;
-            your connection is performing consistently regardless of how it's measured. But
+            your connection is performing consistently regardless of how it's measured.  But
             when they disagree by more than 30%, that disagreement itself is a diagnosis.
           </p>
           <p style={pStyle}>
             Cloudflare's multi-connection approach mimics how browsers load web pages:
-            many simultaneous requests, varying sizes, real HTTP overhead. NDT7's single
+            many simultaneous requests, varying sizes, real HTTP overhead.  NDT7's single
             WebSocket stream behaves more like a large file download or a VPN tunnel.
             If your ISP throttles certain traffic patterns, shapes single-stream flows
             differently than multi-stream, or applies QoS policies based on protocol
@@ -596,10 +596,10 @@ export default function TechnicalReportView() {
           </SpecCard>
 
           <p style={pStyle}>
-            A technician can use per-provider results to narrow down the issue. If
+            A technician can use per-provider results to narrow down the issue.  If
             Cloudflare consistently outperforms NDT7, single-stream throttling is likely.
             If NDT7 outperforms Cloudflare, the network may have poor HTTP handling or
-            CDN routing issues. This is diagnostic information that no single-provider
+            CDN routing issues.  This is diagnostic information that no single-provider
             test can provide.
           </p>
         </Section>
@@ -610,7 +610,7 @@ export default function TechnicalReportView() {
         <Section num={8} title="DNS DIAGNOSTICS">
           <p style={pStyle}>
             When you type a URL, the first thing your browser does is look up the domain
-            name &mdash; converting "google.com" into an IP address. If your DNS resolver
+            name &mdash; converting "google.com" into an IP address.  If your DNS resolver
             is slow, every single page load starts with a penalty before a single byte of
             content is transferred.
           </p>
@@ -645,8 +645,8 @@ export default function TechnicalReportView() {
             or server response.
           </p>
           <p style={pStyle}>
-            This runs in the background alongside the speed test. It doesn't slow your
-            test down, but it provides context that other tools completely ignore. A fast
+            This runs in the background alongside the speed test.  It doesn't slow your
+            test down, but it provides context that other tools completely ignore.  A fast
             connection with a slow DNS resolver will feel slow no matter what your bandwidth
             numbers say.
           </p>
@@ -657,7 +657,7 @@ export default function TechnicalReportView() {
         {/* ── 09 Comparison ── */}
         <Section num={9} title="WHY CHOOSE THIS OVER...">
           <p style={pStyle}>
-            We built this tool because the existing options leave gaps. Here's an honest
+            We built this tool because the existing options leave gaps.  Here's an honest
             comparison &mdash; not to disparage other tools, but to explain what's different.
           </p>
 
@@ -693,14 +693,14 @@ export default function TechnicalReportView() {
           <p style={pStyle}>
             Speedtest.net has been the default for two decades, and it does what it does
             well &mdash; but its single-provider, 90th-percentile reporting produces
-            optimistic results that may not reflect your actual experience. Fast.com is
+            optimistic results that may not reflect your actual experience.  Fast.com is
             Netflix's tool, designed primarily to check if your ISP is throttling Netflix
-            traffic, and its methodology is undocumented. Google's built-in speed test is
+            traffic, and its methodology is undocumented.  Google's built-in speed test is
             basic: a quick single-server check with no advanced metrics.
           </p>
           <p style={pStyle}>
             None of them test bufferbloat, measure connection stability, provide latency
-            percentiles, or cross-validate with multiple providers. These aren't niche
+            percentiles, or cross-validate with multiple providers.  These aren't niche
             features &mdash; they're the metrics that explain why a "fast" connection
             still feels slow.
           </p>
@@ -711,7 +711,7 @@ export default function TechnicalReportView() {
         {/* ── 10 Standards ── */}
         <Section num={10} title="BUILT ON STANDARDS">
           <p style={pStyle}>
-            We don't invent our own math. Every statistical method and measurement
+            We don't invent our own math.  Every statistical method and measurement
             technique used in this tool is grounded in published standards, peer-reviewed
             research, or industry-established methodology.
           </p>
@@ -767,7 +767,7 @@ export default function TechnicalReportView() {
             >
               ACCURACY.md
             </a>{' '}
-            technical documentation. Nothing is hidden. Every decision is explained.
+            technical documentation.  Nothing is hidden.  Every decision is explained.
           </p>
         </Section>
 

@@ -1,7 +1,38 @@
-import { useState, useRef, useEffect, useLayoutEffect, useId, useCallback, type CSSProperties, type ReactNode } from 'react';
+import { useState, useRef, useEffect, useLayoutEffect, useId, useCallback, createContext, useContext, type CSSProperties, type ReactNode } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { tooltips, getRangeLabel } from '../../content/tooltips';
 import { useResponsive } from '../../hooks/useResponsive';
+
+/* ─── Shared context: only one tooltip visible at a time ─── */
+
+interface TooltipContextValue {
+  activeId: string | null;
+  open: (id: string) => void;
+  close: (id: string) => void;
+}
+
+const TooltipContext = createContext<TooltipContextValue>({
+  activeId: null,
+  open: () => {},
+  close: () => {},
+});
+
+export function TooltipProvider({ children }: { children: ReactNode }) {
+  const [activeId, setActiveId] = useState<string | null>(null);
+
+  const open = useCallback((id: string) => setActiveId(id), []);
+  const close = useCallback((id: string) => {
+    setActiveId(prev => (prev === id ? null : prev));
+  }, []);
+
+  return (
+    <TooltipContext.Provider value={{ activeId, open, close }}>
+      {children}
+    </TooltipContext.Provider>
+  );
+}
+
+/* ─── Tooltip component ─── */
 
 interface TooltipProps {
   tooltipKey: string;
@@ -19,14 +50,16 @@ const HIDE_DELAY = 300;
 
 export default function Tooltip({ tooltipKey, children, value, variant = 'inline', style }: TooltipProps) {
   const entry = tooltips[tooltipKey];
-  const [visible, setVisible] = useState(false);
+  const id = useId();
+  const { activeId, open, close } = useContext(TooltipContext);
+  const isActive = activeId === id;
+
   const [position, setPosition] = useState<'above' | 'below'>('above');
   const [align, setAlign] = useState<'left' | 'right'>('left');
   const showTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const bubbleRef = useRef<HTMLSpanElement>(null);
   const wrapperRef = useRef<HTMLSpanElement>(null);
-  const id = useId();
   const { isMobile } = useResponsive();
 
   const rangeLabel = getRangeLabel(tooltipKey, value);
@@ -41,29 +74,29 @@ export default function Tooltip({ tooltipKey, children, value, variant = 'inline
 
   // Mobile: close on outside tap
   useEffect(() => {
-    if (!visible || !isMobile) return;
+    if (!isActive || !isMobile) return;
     const handler = (e: MouseEvent) => {
       if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
-        setVisible(false);
+        close(id);
       }
     };
     document.addEventListener('click', handler, true);
     return () => document.removeEventListener('click', handler, true);
-  }, [visible, isMobile]);
+  }, [isActive, isMobile, close, id]);
 
   // Keyboard: Escape closes
   useEffect(() => {
-    if (!visible) return;
+    if (!isActive) return;
     const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setVisible(false);
+      if (e.key === 'Escape') close(id);
     };
     document.addEventListener('keydown', handler);
     return () => document.removeEventListener('keydown', handler);
-  }, [visible]);
+  }, [isActive, close, id]);
 
   // Reposition bubble on show
   useLayoutEffect(() => {
-    if (!visible || !bubbleRef.current || !wrapperRef.current) return;
+    if (!isActive || !bubbleRef.current || !wrapperRef.current) return;
 
     const wrapperRect = wrapperRef.current.getBoundingClientRect();
     const bubbleRect = bubbleRef.current.getBoundingClientRect();
@@ -81,7 +114,7 @@ export default function Tooltip({ tooltipKey, children, value, variant = 'inline
     } else {
       setAlign('left');
     }
-  }, [visible]);
+  }, [isActive]);
 
   const cancelTimers = useCallback(() => {
     if (showTimer.current) { clearTimeout(showTimer.current); showTimer.current = null; }
@@ -90,20 +123,24 @@ export default function Tooltip({ tooltipKey, children, value, variant = 'inline
 
   const startShow = useCallback(() => {
     cancelTimers();
-    showTimer.current = setTimeout(() => setVisible(true), SHOW_DELAY);
-  }, [cancelTimers]);
+    showTimer.current = setTimeout(() => open(id), SHOW_DELAY);
+  }, [cancelTimers, open, id]);
 
   const startHide = useCallback(() => {
     cancelTimers();
-    hideTimer.current = setTimeout(() => setVisible(false), HIDE_DELAY);
-  }, [cancelTimers]);
+    hideTimer.current = setTimeout(() => close(id), HIDE_DELAY);
+  }, [cancelTimers, close, id]);
 
   const handleClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     if (isMobile) {
-      setVisible(v => !v);
+      if (isActive) {
+        close(id);
+      } else {
+        open(id);
+      }
     }
-  }, [isMobile]);
+  }, [isMobile, isActive, open, close, id]);
 
   if (!entry) return <>{children}</>;
 
@@ -121,7 +158,7 @@ export default function Tooltip({ tooltipKey, children, value, variant = 'inline
     ...(align === 'left' ? { left: 0 } : { right: 0 }),
     width: 'max-content',
     maxWidth: isMobile ? 240 : 280,
-    backgroundColor: 'rgba(17, 17, 17, 0.97)',
+    backgroundColor: '#111111',
     color: '#ffffff',
     fontSize: '0.65rem',
     fontWeight: 400,
@@ -146,8 +183,8 @@ export default function Tooltip({ tooltipKey, children, value, variant = 'inline
     borderLeft: '5px solid transparent',
     borderRight: '5px solid transparent',
     ...(position === 'above'
-      ? { borderTop: '5px solid rgba(17, 17, 17, 0.97)' }
-      : { borderBottom: '5px solid rgba(17, 17, 17, 0.97)' }),
+      ? { borderTop: '5px solid #111111' }
+      : { borderBottom: '5px solid #111111' }),
   };
 
   return (
@@ -161,7 +198,7 @@ export default function Tooltip({ tooltipKey, children, value, variant = 'inline
         style={triggerStyle}
         tabIndex={0}
         role="button"
-        aria-describedby={visible ? id : undefined}
+        aria-describedby={isActive ? id : undefined}
         onClick={handleClick}
         onFocus={isMobile ? undefined : startShow}
         onBlur={isMobile ? undefined : startHide}
@@ -169,7 +206,7 @@ export default function Tooltip({ tooltipKey, children, value, variant = 'inline
         {children}
       </span>
       <AnimatePresence>
-        {visible && (
+        {isActive && (
           <motion.span
             ref={bubbleRef}
             id={id}
