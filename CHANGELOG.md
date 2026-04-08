@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.1.1] — 2026-04-08
+
+### Fixed
+
+- **Progress bar accuracy (Cloudflare)** — Switched from count-based to byte-weighted progress tracking. Previously, the 19 small chunks (100KB–10MB) raced the bar to ~75% despite being only ~5% of total data, then it stalled on the large 100MB/250MB chunks. Now each chunk's weight is proportional to its byte size.
+- **Progress bar accuracy (NDT7)** — Capped time-based progress at 95% so the bar never appears "done" before the download/upload phase actually completes. The completion callback snaps it to 100%.
+
 ## [2.1.0] — 2026-04-07
 
 ### Added

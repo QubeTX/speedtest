@@ -98,7 +98,7 @@ export class NDT7Provider implements SpeedTestProvider {
               }
 
               const elapsed = Date.now() - dlStartTime;
-              const dlProgress = Math.min(100, (elapsed / 10000) * 100);
+              const dlProgress = Math.min(95, (elapsed / 10000) * 100);
 
               onProgress({
                 phase: 'download',
@@ -159,7 +159,7 @@ export class NDT7Provider implements SpeedTestProvider {
               }
 
               const elapsed = Date.now() - (ulStartTime || Date.now());
-              const ulProgress = Math.min(100, (elapsed / 10000) * 100);
+              const ulProgress = Math.min(95, (elapsed / 10000) * 100);
 
               onProgress({
                 phase: 'upload',

@@ -51,10 +51,24 @@ export class CloudflareProvider implements SpeedTestProvider {
   start(onProgress: (p: SpeedTestProgress) => void, duration: TestDuration = 'auto'): Promise<SpeedTestResult> {
     return new Promise((resolve, reject) => {
       const measurements = buildMeasurements(duration);
-      const totalDl = measurements.filter(m => m.type === 'download').reduce((s, m) => s + ('count' in m ? m.count : 0), 0);
-      const totalUl = measurements.filter(m => m.type === 'upload').reduce((s, m) => s + ('count' in m ? m.count : 0), 0);
+
+      // Build flattened byte-size arrays so progress is weighted by data volume,
+      // not chunk count. A 250MB chunk should move the bar ~2500x more than 100KB.
+      const dlByteSizes: number[] = [];
+      const ulByteSizes: number[] = [];
+      for (const m of measurements) {
+        if (m.type === 'download' && 'bytes' in m && 'count' in m) {
+          for (let i = 0; i < m.count; i++) dlByteSizes.push(m.bytes);
+        } else if (m.type === 'upload' && 'bytes' in m && 'count' in m) {
+          for (let i = 0; i < m.count; i++) ulByteSizes.push(m.bytes);
+        }
+      }
+      const totalDlBytes = dlByteSizes.reduce((s, b) => s + b, 0);
+      const totalUlBytes = ulByteSizes.reduce((s, b) => s + b, 0);
       let dlCount = 0;
       let ulCount = 0;
+      let dlBytesTransferred = 0;
+      let ulBytesTransferred = 0;
       let currentPhase = 'discovering';
 
       // Track last known good values from progress callbacks as fallback
@@ -87,9 +101,15 @@ export class CloudflareProvider implements SpeedTestProvider {
           currentPhase = 'latency';
         } else if (type === 'download') {
           currentPhase = 'download';
+          if (dlCount < dlByteSizes.length) {
+            dlBytesTransferred += dlByteSizes[dlCount];
+          }
           dlCount++;
         } else if (type === 'upload') {
           currentPhase = 'upload';
+          if (ulCount < ulByteSizes.length) {
+            ulBytesTransferred += ulByteSizes[ulCount];
+          }
           ulCount++;
         }
 
@@ -114,8 +134,8 @@ export class CloudflareProvider implements SpeedTestProvider {
           downloadSpeed: dlBps !== undefined ? dlBps / 1e6 : null,
           uploadSpeed: ulBps !== undefined ? ulBps / 1e6 : null,
           packetLoss: packetLoss ?? null,
-          downloadProgress: totalDl > 0 ? (dlCount / totalDl) * 100 : 0,
-          uploadProgress: totalUl > 0 ? (ulCount / totalUl) * 100 : 0,
+          downloadProgress: totalDlBytes > 0 ? (dlBytesTransferred / totalDlBytes) * 100 : 0,
+          uploadProgress: totalUlBytes > 0 ? (ulBytesTransferred / totalUlBytes) * 100 : 0,
           serverName: 'Cloudflare Edge',
           error: null,
         });
