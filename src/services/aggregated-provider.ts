@@ -47,7 +47,9 @@ export class AggregatedProvider implements SpeedTestProvider {
     // Each provider gets the FULL requested duration — accuracy > speed.
     const providerDuration: TestDuration = duration;
 
-    // ── Phase 1: Cloudflare (progress 0-50%) ────────────────────────
+    // ── Phase 1: Cloudflare (progress 0-100%) ─────────────────────
+    // Each provider's bars go 0-100% independently. The phase label
+    // ("VIA CLOUDFLARE" / "VIA M-LAB NDT7") shows which is running.
     let cfResult: SpeedTestResult;
     try {
       cfResult = await this.cf.start((p) => {
@@ -55,8 +57,6 @@ export class AggregatedProvider implements SpeedTestProvider {
         onProgress({
           ...p,
           currentProvider: 'Cloudflare',
-          downloadProgress: p.downloadProgress * 0.5,
-          uploadProgress: p.uploadProgress * 0.5,
         });
       }, providerDuration);
     } catch (err) {
@@ -95,8 +95,8 @@ export class AggregatedProvider implements SpeedTestProvider {
       downloadSpeed: null,
       uploadSpeed: null,
       packetLoss: cfResult.packetLoss,
-      downloadProgress: 50,
-      uploadProgress: 50,
+      downloadProgress: 100,
+      uploadProgress: 100,
       serverName: cfResult.serverName,
       error: null,
     });
@@ -104,7 +104,7 @@ export class AggregatedProvider implements SpeedTestProvider {
     await new Promise(resolve => setTimeout(resolve, 1000));
     if (this.stopped) throw new Error('Test stopped');
 
-    // ── Phase 2: NDT7 (progress 50-100%) ────────────────────────────
+    // ── Phase 2: NDT7 (progress 0-100%) ─────────────────────────────
     let ndtResult: SpeedTestResult;
     try {
       ndtResult = await this.ndt.start((p) => {
@@ -114,8 +114,6 @@ export class AggregatedProvider implements SpeedTestProvider {
           currentProvider: 'M-Lab NDT7',
           ping: p.ping ?? cfResult.ping,
           jitter: p.jitter ?? cfResult.jitter,
-          downloadProgress: 50 + p.downloadProgress * 0.5,
-          uploadProgress: 50 + p.uploadProgress * 0.5,
         });
       }, providerDuration);
     } catch (err) {

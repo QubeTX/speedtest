@@ -231,7 +231,11 @@ export default function Tooltip({ tooltipKey, children, value, variant = 'inline
             initial={{ opacity: 0, scale: 0.92, y: position === 'above' ? 6 : -6 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: position === 'above' ? 4 : -4 }}
-            transition={{ type: 'spring', stiffness: 500, damping: 30, mass: 0.8 }}
+            transition={{
+              opacity: { duration: 0.05 },
+              scale: { type: 'spring', stiffness: 500, damping: 30, mass: 0.8 },
+              y: { type: 'spring', stiffness: 500, damping: 30, mass: 0.8 },
+            }}
             onMouseEnter={isMobile ? undefined : cancelTimers}
             onMouseLeave={isMobile ? undefined : startHide}
           >

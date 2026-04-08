@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.1.3] — 2026-04-08
+
+### Fixed
+
+- **Progress bar stalling at 50% in aggregated mode** — Removed the 0-50%/50-100% progress scaling between providers. Each provider's bars now go 0-100% independently, with the phase label indicating which provider is active. Eliminates the visible stall at 50% during provider transitions.
+- **Tooltip transparency during entrance animation** — Separated opacity from the spring animation. Opacity now snaps to 1.0 in 50ms (linear) while scale/position still use the spring physics. Tooltips are fully opaque from the moment they appear.
+
 ## [2.1.2] — 2026-04-08
 
 ### Fixed
