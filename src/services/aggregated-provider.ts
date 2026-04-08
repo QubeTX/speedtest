@@ -101,7 +101,7 @@ export class AggregatedProvider implements SpeedTestProvider {
       error: null,
     });
 
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    await new Promise(resolve => setTimeout(resolve, 1000));
     if (this.stopped) throw new Error('Test stopped');
 
     // ── Phase 2: NDT7 (progress 50-100%) ────────────────────────────

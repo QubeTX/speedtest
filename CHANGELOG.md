@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.1.2] — 2026-04-08
+
+### Fixed
+
+- **Progress bar stalling at ~50%** — Replaced separate download/upload byte tracking with unified overall progress across all Cloudflare measurement types. Progress now advances smoothly through interleaved download and upload phases instead of stalling when the active measurement type switches.
+- **Provider transition delay** — Reduced the pause between Cloudflare and NDT7 providers from 3 seconds to 1 second in aggregated mode.
+- **Tooltip opacity** — Title text now uses color differentiation (`rgba(255,255,255,0.75)`) instead of `opacity: 0.6`, ensuring all tooltip elements are fully opaque.
+
+### Changed
+
+- **Responsive tooltip sizing** — Tooltip font size, maxWidth, and padding now scale with viewport breakpoint: 0.65rem/240px on mobile up to 0.8rem/340px on desktop.
+- **Tooltip touch targets** — Trigger hit areas enlarged to 44×44px minimum on mobile for Apple HIG compliance.
+- **Tooltip Pretext integration** — Tooltip body content wrapped in PretextBlock with breakpoint-specific entries for accurate height reservation during spring animations.
+
 ## [2.1.1] — 2026-04-08
 
 ### Fixed

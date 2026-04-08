@@ -117,10 +117,43 @@ function dnsEntry(): Record<string, TextEntryConfig> {
   };
 }
 
+function tooltipEntries(): Record<string, TextEntryConfig> {
+  const breakpoints: Breakpoint[] = ['mobile', 'tablet', 'smallDesktop', 'desktop'];
+  const entries: Record<string, TextEntryConfig> = {};
+
+  // Tooltip body font sizes per breakpoint
+  const tooltipBodySizes: Record<Breakpoint, string> = {
+    mobile: '0.65rem',
+    tablet: '0.7rem',
+    smallDesktop: '0.75rem',
+    desktop: '0.8rem',
+  };
+
+  // Worst-case tooltip: longest description + range label from tooltips.ts
+  const worstCase = [
+    'The industry-standard algorithm for measuring jitter, defined in RFC 3550.',
+    'The same formula used by VoIP phones, Zoom, and video conferencing systems',
+    'to gauge connection smoothness.',
+    'Grade F \u2014 severe bufferbloat. Fast on paper, miserable in practice.',
+  ].join(' ');
+
+  for (const bp of breakpoints) {
+    entries[`tooltip-body-${bp}`] = {
+      text: worstCase,
+      fontWeight: 400,
+      fontSizeRem: tooltipBodySizes[bp],
+      lineHeight: 1.55,
+    };
+  }
+
+  return entries;
+}
+
 /** Complete registry of all text entries */
 export const textRegistry: Record<string, TextEntryConfig> = {
   ...speedEntries(),
   ...sysinfoEntry(),
   ...statusEntries(),
   ...dnsEntry(),
+  ...tooltipEntries(),
 };

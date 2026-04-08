@@ -52,23 +52,19 @@ export class CloudflareProvider implements SpeedTestProvider {
     return new Promise((resolve, reject) => {
       const measurements = buildMeasurements(duration);
 
-      // Build flattened byte-size arrays so progress is weighted by data volume,
-      // not chunk count. A 250MB chunk should move the bar ~2500x more than 100KB.
-      const dlByteSizes: number[] = [];
-      const ulByteSizes: number[] = [];
+      // Build a unified byte-weight array across ALL bandwidth measurements
+      // (DL + UL interleaved in measurement order). Both downloadProgress and
+      // uploadProgress report the same overall value so the visible bar advances
+      // smoothly even when measurement types alternate.
+      const allByteSizes: number[] = [];
       for (const m of measurements) {
-        if (m.type === 'download' && 'bytes' in m && 'count' in m) {
-          for (let i = 0; i < m.count; i++) dlByteSizes.push(m.bytes);
-        } else if (m.type === 'upload' && 'bytes' in m && 'count' in m) {
-          for (let i = 0; i < m.count; i++) ulByteSizes.push(m.bytes);
+        if ((m.type === 'download' || m.type === 'upload') && 'bytes' in m && 'count' in m) {
+          for (let i = 0; i < m.count; i++) allByteSizes.push(m.bytes);
         }
       }
-      const totalDlBytes = dlByteSizes.reduce((s, b) => s + b, 0);
-      const totalUlBytes = ulByteSizes.reduce((s, b) => s + b, 0);
-      let dlCount = 0;
-      let ulCount = 0;
-      let dlBytesTransferred = 0;
-      let ulBytesTransferred = 0;
+      const totalAllBytes = allByteSizes.reduce((s, b) => s + b, 0);
+      let allCount = 0;
+      let allBytesTransferred = 0;
       let currentPhase = 'discovering';
 
       // Track last known good values from progress callbacks as fallback
@@ -101,16 +97,16 @@ export class CloudflareProvider implements SpeedTestProvider {
           currentPhase = 'latency';
         } else if (type === 'download') {
           currentPhase = 'download';
-          if (dlCount < dlByteSizes.length) {
-            dlBytesTransferred += dlByteSizes[dlCount];
+          if (allCount < allByteSizes.length) {
+            allBytesTransferred += allByteSizes[allCount];
           }
-          dlCount++;
+          allCount++;
         } else if (type === 'upload') {
           currentPhase = 'upload';
-          if (ulCount < ulByteSizes.length) {
-            ulBytesTransferred += ulByteSizes[ulCount];
+          if (allCount < allByteSizes.length) {
+            allBytesTransferred += allByteSizes[allCount];
           }
-          ulCount++;
+          allCount++;
         }
 
         const ping = results.getUnloadedLatency();
@@ -134,8 +130,8 @@ export class CloudflareProvider implements SpeedTestProvider {
           downloadSpeed: dlBps !== undefined ? dlBps / 1e6 : null,
           uploadSpeed: ulBps !== undefined ? ulBps / 1e6 : null,
           packetLoss: packetLoss ?? null,
-          downloadProgress: totalDlBytes > 0 ? (dlBytesTransferred / totalDlBytes) * 100 : 0,
-          uploadProgress: totalUlBytes > 0 ? (ulBytesTransferred / totalUlBytes) * 100 : 0,
+          downloadProgress: totalAllBytes > 0 ? (allBytesTransferred / totalAllBytes) * 100 : 0,
+          uploadProgress: totalAllBytes > 0 ? (allBytesTransferred / totalAllBytes) * 100 : 0,
           serverName: 'Cloudflare Edge',
           error: null,
         });

@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useLayoutEffect, useId, useCallback, creat
 import { AnimatePresence, motion } from 'motion/react';
 import { tooltips, getRangeLabel } from '../../content/tooltips';
 import { useResponsive } from '../../hooks/useResponsive';
+import PretextBlock from './PretextBlock';
 
 /* ─── Shared context: only one tooltip visible at a time ─── */
 
@@ -60,7 +61,15 @@ export default function Tooltip({ tooltipKey, children, value, variant = 'inline
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const bubbleRef = useRef<HTMLSpanElement>(null);
   const wrapperRef = useRef<HTMLSpanElement>(null);
-  const { isMobile } = useResponsive();
+  const { isMobile, breakpoint } = useResponsive();
+
+  const tooltipSizes = {
+    mobile:       { body: '0.65rem', title: '0.6rem',  maxWidth: 240, padding: '0.6rem 0.8rem' },
+    tablet:       { body: '0.7rem',  title: '0.65rem', maxWidth: 280, padding: '0.65rem 0.85rem' },
+    smallDesktop: { body: '0.75rem', title: '0.7rem',  maxWidth: 310, padding: '0.7rem 0.9rem' },
+    desktop:      { body: '0.8rem',  title: '0.75rem', maxWidth: 340, padding: '0.75rem 1rem' },
+  } as const;
+  const sizes = tooltipSizes[breakpoint];
 
   const rangeLabel = getRangeLabel(tooltipKey, value);
 
@@ -148,6 +157,13 @@ export default function Tooltip({ tooltipKey, children, value, variant = 'inline
     borderBottom: variant === 'inline' ? '1px dotted rgba(17,17,17,0.3)' : undefined,
     cursor: 'help',
     position: 'relative' as const,
+    ...(isMobile ? {
+      minWidth: 44,
+      minHeight: 44,
+      display: 'inline-flex' as const,
+      alignItems: 'center' as const,
+      justifyContent: 'center' as const,
+    } : {}),
   };
 
   const bubbleStyle: CSSProperties = {
@@ -157,14 +173,14 @@ export default function Tooltip({ tooltipKey, children, value, variant = 'inline
       : { top: 'calc(100% + 10px)' }),
     ...(align === 'left' ? { left: 0 } : { right: 0 }),
     width: 'max-content',
-    maxWidth: isMobile ? 240 : 280,
+    maxWidth: sizes.maxWidth,
     backgroundColor: '#111111',
     color: '#ffffff',
-    fontSize: '0.65rem',
+    fontSize: sizes.body,
     fontWeight: 400,
     lineHeight: 1.55,
     letterSpacing: '0.02em',
-    padding: '0.6rem 0.8rem',
+    padding: sizes.padding,
     borderRadius: 0,
     zIndex: 30,
     pointerEvents: 'auto' as const,
@@ -219,24 +235,26 @@ export default function Tooltip({ tooltipKey, children, value, variant = 'inline
             onMouseEnter={isMobile ? undefined : cancelTimers}
             onMouseLeave={isMobile ? undefined : startHide}
           >
-            <span style={{ fontWeight: 700, display: 'block', marginBottom: '0.25rem', letterSpacing: '0.05em', fontSize: '0.6rem', opacity: 0.6 }}>
+            <span style={{ fontWeight: 700, display: 'block', marginBottom: '0.25rem', letterSpacing: '0.05em', fontSize: sizes.title, color: 'rgba(255,255,255,0.75)' }}>
               {entry.title}
             </span>
-            <span style={{ display: 'block' }}>
-              {entry.description}
-            </span>
-            {rangeLabel && (
-              <span style={{
-                display: 'block',
-                marginTop: '0.35rem',
-                paddingTop: '0.3rem',
-                borderTop: '1px solid rgba(255,255,255,0.15)',
-                fontWeight: 600,
-                letterSpacing: '0.03em',
-              }}>
-                {rangeLabel}
+            <PretextBlock entryId={`tooltip-body-${breakpoint}`} style={{ display: 'block' }}>
+              <span style={{ display: 'block' }}>
+                {entry.description}
               </span>
-            )}
+              {rangeLabel && (
+                <span style={{
+                  display: 'block',
+                  marginTop: '0.35rem',
+                  paddingTop: '0.3rem',
+                  borderTop: '1px solid rgba(255,255,255,0.15)',
+                  fontWeight: 600,
+                  letterSpacing: '0.03em',
+                }}>
+                  {rangeLabel}
+                </span>
+              )}
+            </PretextBlock>
             <span style={arrowStyle} />
           </motion.span>
         )}
