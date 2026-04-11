@@ -503,3 +503,103 @@ These scores are extracted from `results.getScores()` after the Cloudflare engin
 | `src/hooks/useSpeedTest.ts` | Test orchestration — latency engine + providers + DNS + stability |
 | `src/types/speedtest.ts` | TypeScript interfaces for all metrics |
 | `src/views/TechnicalReportView.tsx` | Consumer-friendly "How It Works" article page |
+
+---
+
+## Network Metadata Collection
+
+The speed test collects network identity metadata in parallel with the latency engine, adding zero additional test time.
+
+### Data Sources
+
+| Source | Endpoint | Data |
+|--------|----------|------|
+| **Cloudflare headers** | `speed.cloudflare.com/__down?bytes=0` | IP, ASN, city, country, lat/lng, postal code, timezone, colo (IATA code), TCP metrics via `server-timing` |
+| **ipinfo.io** | `ipinfo.io/json` | ISP name (from `org` field), region/state (CF doesn't provide this) |
+
+Both requests fire in parallel via `Promise.allSettled` with a 3-second timeout. Cloudflare headers are primary; ipinfo.io enriches the ISP name and region. If either fails, the other's data is used; all fields degrade to `null` gracefully.
+
+### CORS Access
+
+Cloudflare's `__down` endpoint explicitly exposes metadata via the `Access-Control-Expose-Headers` response header:
+```
+access-control-expose-headers: server-timing, cf-meta-ip, cf-meta-request-time,
+  cf-meta-colo, cf-meta-asn, cf-meta-country, cf-meta-city, cf-meta-postalCode,
+  cf-meta-latitude, cf-meta-longitude, cf-meta-timezone
+```
+
+### TCP Server-Timing Metrics
+
+The `server-timing` header from Cloudflare's edge contains TCP kernel metrics:
+```
+cfL4;desc="?proto=TCP&rtt=11084&min_rtt=10358&rtt_var=4403&sent=5&recv=6&lost=0&retrans=0&..."
+```
+Values are in microseconds, converted to milliseconds. These represent the TCP connection characteristics between the user and the Cloudflare edge server.
+
+### Privacy
+
+All metadata is displayed locally in the browser only. No data is stored, transmitted to any backend, or shared with third parties.
+
+---
+
+## Advanced Statistical Methods
+
+### Winsorized Mean Cross-Validation
+
+In addition to the primary IQR-filtered modified trimean, a second robust estimator — the **Winsorized mean** — cross-validates the result. Unlike IQR filtering (which removes outliers entirely), Winsorization caps extreme values at the 5th and 95th percentiles while preserving the full sample count.
+
+If the two estimators diverge by more than 15%, they are averaged. This catches edge cases where IQR filtering is too aggressive, such as bimodal distributions (e.g., a connection that switches between two speeds during the test).
+
+**Pipeline:**
+1. Discard slow-start (first 30%)
+2. **Path A (primary):** IQR outlier filter → modified trimean
+3. **Path B (cross-check):** Winsorize at 5%/95% → modified trimean
+4. If |Path A − Path B| / max(A, B) > 15% → average both; else use Path A
+
+### Bootstrap Confidence Intervals
+
+A 95% confidence interval is computed for download and upload bandwidth using the **percentile bootstrap method** (Efron, 1979):
+
+1. Take the cleaned bandwidth samples (post slow-start discard)
+2. Generate B = 1,000 bootstrap resamples (sampling with replacement)
+3. Compute the modified trimean on each resample
+4. Sort the 1,000 bootstrap statistics
+5. The 2.5th and 97.5th percentiles form the 95% CI bounds
+
+**Formula:** CI = [θ\*(α/2), θ\*(1−α/2)] where θ\* are the sorted bootstrap statistics and α = 0.05.
+
+This communicates measurement uncertainty without parametric assumptions. A narrow CI indicates high confidence in the result; a wide CI suggests the connection was variable during testing.
+
+**Performance:** 1,000 resamples × ~40 samples each × trimean computation ≈ 50K operations, completing in <5ms on modern JS engines.
+
+### Inverse-Variance Weighted Provider Merge
+
+When combining bandwidth estimates from Cloudflare and NDT7, the aggregation uses **inverse-variance weighting** — the statistically optimal method for combining independent measurements of the same quantity.
+
+**Formula:** θ\_w = (θ\_A / σ²\_A + θ\_B / σ²\_B) / (1/σ²\_A + 1/σ²\_B)
+
+Where σ² is the sample variance of each provider's cleaned bandwidth measurements. This produces the **minimum-variance unbiased estimator**: the provider with more consistent results (lower variance) automatically receives more weight.
+
+**Guardrail:** Weights are clamped to [0.3, 0.7] to prevent degenerate cases where one provider's suspiciously low variance would dominate (e.g., when only 2–3 samples are available).
+
+Latency merging retains fixed weights (CF 40% / NDT7 60%) because NDT7's MinRTT from TCP kernel metrics is structurally superior, not just lower-variance.
+
+---
+
+## Progress Bar Calculation
+
+### Cloudflare Provider
+
+Progress is **byte-weighted**: each measurement in the schedule contributes weight proportional to its byte size. A 100MB chunk has 1,000× the weight of a 100KB chunk.
+
+As each measurement completes, its byte weight is added to `allBytesTransferred` and divided by `totalAllBytes` to produce a 0–100% value. Both download and upload measurements share a single unified progress counter, so the bar advances smoothly even when DL/UL measurements are interleaved in the schedule.
+
+### NDT7 Provider
+
+Progress is **time-based**: download and upload each compute `(elapsed / 10000ms) * 100`, capped at 95% during streaming. The bar snaps to 100% on the `downloadComplete` / `uploadComplete` callback.
+
+### Aggregated Mode
+
+Each provider's progress bars run **0–100% independently**. The phase label ("VIA CLOUDFLARE" / "VIA M-LAB NDT7") indicates which provider is currently active. There is no 0–50% / 50–100% scaling between providers — this eliminated a visible stall at 50% during provider transitions.
+
+A 1-second pause separates CF completion from NDT7 start, displayed as a frosted glass overlay with "CLOUDFLARE COMPLETE → M-LAB NDT7 STARTING" and an animated progress bar.

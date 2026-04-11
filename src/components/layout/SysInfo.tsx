@@ -2,15 +2,17 @@ import { useRef, type CSSProperties } from 'react';
 import { useNetworkInfo } from '../../hooks/useNetworkInfo';
 import { useContainerWidth } from '../../hooks/useContainerWidth';
 import { usePretext } from '../../providers/PretextProvider';
+import type { NetworkMetadata } from '../../types/speedtest';
 
 interface SysInfoProps {
   serverName?: string | null;
   isp?: string | null;
+  networkMetadata?: NetworkMetadata | null;
   isError?: boolean;
   errorDetails?: string[];
 }
 
-export default function SysInfo({ serverName, isp, isError, errorDetails }: SysInfoProps) {
+export default function SysInfo({ serverName, isp, networkMetadata, isError, errorDetails }: SysInfoProps) {
   const network = useNetworkInfo();
   const containerRef = useRef<HTMLDivElement>(null);
   const containerWidth = useContainerWidth(containerRef);
@@ -66,6 +68,14 @@ export default function SysInfo({ serverName, isp, isError, errorDetails }: SysI
     <div ref={containerRef} style={style}>
       {serverName && <>SERVER: {serverName}<br /></>}
       {isp && <>ISP: {isp}<br /></>}
+      {!isp && networkMetadata?.ispFull && <>ISP: {networkMetadata.ispFull}<br /></>}
+      {networkMetadata?.ip && <>IP: {networkMetadata.ip} · IPv{networkMetadata.ipVersion ?? '?'}<br /></>}
+      {networkMetadata?.city && (
+        <>{[networkMetadata.city, networkMetadata.region, networkMetadata.country].filter(Boolean).join(', ')}<br /></>
+      )}
+      {networkMetadata?.coloCity && networkMetadata?.colo && (
+        <>EDGE: {networkMetadata.coloCity} ({networkMetadata.colo})<br /></>
+      )}
       {connectionLines.map((line, i) => <span key={i}>{line}<br /></span>)}
       BUILT BY QUBETX
     </div>

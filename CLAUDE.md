@@ -20,21 +20,24 @@ Vercel auto-deploys on push to main.
 ### Test Flow (sequential)
 1. **Latency Engine** (`src/services/latency-engine.ts`) — 100 HTTP pings to Cloudflare edge with 3-ping warmup discard
 2. **DNS Check** (`src/services/dns-check.ts`) — 12 domains in parallel (background, non-blocking)
-3. **Cloudflare** (`src/services/cloudflare-provider.ts`) — Progressive payloads 100KB→250MB, loaded latency probes, packet loss via TURN
-4. **NDT7** (`src/services/ndt7-provider.ts`) — Single-stream WebSocket throughput with TCP kernel metrics
-5. **Aggregation** (`src/services/aggregated-provider.ts`) — Slow-start discard → IQR outlier filter → modified trimean → confidence-weighted merge
+3. **Network Metadata** (`src/services/network-metadata.ts`) — IP/ISP/geolocation from CF headers + ipinfo.io (background, non-blocking)
+4. **Cloudflare** (`src/services/cloudflare-provider.ts`) — Progressive payloads 100KB→250MB, loaded latency probes, packet loss via TURN
+5. **NDT7** (`src/services/ndt7-provider.ts`) — Single-stream WebSocket throughput with TCP kernel metrics
+6. **Aggregation** (`src/services/aggregated-provider.ts`) — Slow-start discard → IQR/Winsorized cross-check → modified trimean → inverse-variance weighted merge → bootstrap CI
 
 ### Key Services
 
 | File | Purpose |
 |------|---------|
-| `src/services/statistics.ts` | Percentile, trimean, IQR filter, slow-start discard, RFC 3550 jitter, CV |
+| `src/services/statistics.ts` | Percentile, trimean, IQR filter, winsorize, slow-start discard, RFC 3550 jitter, CV, bootstrap CI, inverse-variance merge |
 | `src/services/latency-engine.ts` | 100-sample HTTP RTT with PerformanceResourceTiming precision |
-| `src/services/cloudflare-provider.ts` | Cloudflare speed test (bandwidthPercentile=0.5, loaded latency enabled) |
+| `src/services/cloudflare-provider.ts` | Cloudflare speed test (bandwidthPercentile=0.5, loaded latency, jitter breakdown) |
 | `src/services/ndt7-provider.ts` | M-Lab NDT7 with raw bandwidth sample collection |
-| `src/services/aggregated-provider.ts` | Dual-provider merge: CF 60% bandwidth / NDT7 60% latency weights |
+| `src/services/aggregated-provider.ts` | Dual-provider merge: inverse-variance weighted bandwidth, fixed latency weights, bootstrap CI |
+| `src/services/network-metadata.ts` | IP, ISP/ASN, geolocation, edge server from CF headers + ipinfo.io |
 | `src/services/dns-check.ts` | 12-domain DNS probe with Resource Timing API breakdown |
 | `src/services/provider-factory.ts` | Creates provider instance based on settings mode |
+| `src/data/colo-map.ts` | Cloudflare IATA data center code-to-city name mapping (~57 PoPs) |
 
 ### State Management
 - `src/store/SpeedTestContext.tsx` — React Context wrapping `useSpeedTest` hook
@@ -62,20 +65,24 @@ Viewport height uses `100svh` (small viewport height) for mobile browser chrome 
 ## Types
 
 Key types in `src/types/speedtest.ts`:
-- `SpeedTestResult` — Main result with `latencyStats`, `bufferbloat`, `stability`, `providerDivergence`, `dnsCheck`
+- `SpeedTestResult` — Main result with `latencyStats`, `bufferbloat`, `stability`, `providerDivergence`, `dnsCheck`, `jitterBreakdown`, `downloadEstimate`, `uploadEstimate`, `networkMetadata`
 - `LatencyStats` — P50/P75/P95/P99, min/max/mean/stddev, jitter (RFC 3550), jitterMad
 - `BufferbloatResult` — Unloaded/loaded latency stats, grade A-F, download/upload ratios
 - `StabilityMetric` — Coefficient of variation per direction, stable boolean
+- `JitterBreakdown` — Idle, during-download, during-upload jitter values
+- `BandwidthEstimate` — Point estimate with 95% CI (lower, upper, margin), method, sample count
+- `NetworkMetadata` — IP, ipVersion, ISP/ASN, city/region/country, lat/lng, colo/coloCity, TLS, TCP metrics
 - `DnsProbeResult` — Per-domain with dnsMs/tcpMs/tlsMs/ttfbMs/totalMs
 - `DnsCheckResult` — Aggregate with per-component averages
 
 ## Accuracy Methodology
 
-- **Bandwidth**: Raw samples → discard first 30% (slow-start) → IQR outlier filter → modified trimean (P10 + 8*P50 + P90)/10
+- **Bandwidth**: Raw samples → discard first 30% (slow-start) → IQR outlier filter → modified trimean (P10 + 8*P50 + P90)/10 → Winsorized cross-check (if >15% divergence, average both)
+- **Confidence Intervals**: 95% CI via bootstrap resampling (1000 iterations of modified trimean on resampled data)
 - **Latency**: 100 samples with 3-ping warmup, PerformanceResourceTiming for precision, percentile breakdown
-- **Jitter**: RFC 3550 exponentially weighted moving average: J[i] = J[i-1] + (|D| - J[i-1]) / 16
+- **Jitter**: RFC 3550 EWMA: J[i] = J[i-1] + (|D| - J[i-1]) / 16. Per-direction breakdown: idle, during-download, during-upload
 - **Bufferbloat**: loaded_latency / unloaded_latency ratio → grade A-F
-- **Aggregation**: CF 60%/NDT 40% for bandwidth, CF 40%/NDT 60% for latency; divergence flagged at >30% difference
+- **Aggregation**: Inverse-variance weighted merge for bandwidth (dynamic, clamped 0.3-0.7); CF 40%/NDT 60% for latency; divergence flagged at >30% difference
 
 See `ACCURACY.md` for full technical documentation.
 

@@ -18,6 +18,11 @@ A dual-provider internet speed test with a retro cassette tape UI, built with Re
 - **Configurable** — Test duration (auto to 10 min), speed units, provider selection
 - **DNS / connectivity diagnostics** — Probes 12 domains in parallel with DNS/TCP/TLS/TTFB timing breakdown via Performance Resource Timing API
 - **Network info** — Connection type, bandwidth estimate, and RTT from browser APIs
+- **Network identity** — ISP/ASN detection, IP address, IPv4/IPv6, geolocation (city/country), Cloudflare edge data center with IATA code mapping
+- **Per-direction jitter** — Idle, during-download, and during-upload jitter displayed separately
+- **Bootstrap confidence intervals** — 95% CI for bandwidth estimates via 1,000-iteration percentile resampling
+- **Inverse-variance weighting** — Dynamic provider weights based on measurement consistency (replaces fixed 60/40)
+- **Winsorized mean validation** — Second robust estimator cross-checks primary bandwidth pipeline
 - **Auto-copy** — Optionally copy results to clipboard on completion (includes percentiles, bufferbloat grade, stability)
 
 ## Tech Stack
@@ -55,6 +60,7 @@ src/
 ├── hooks/            # useClock, useResponsive, useSpeedTest, useSettings, useNetworkInfo, useContainerWidth
 ├── lib/              # Pretext text registry and font helpers
 ├── providers/        # PretextProvider (font loading + text measurement context)
+├── data/             # Static data (Cloudflare data center IATA code mappings)
 ├── services/         # Provider adapters (Cloudflare, NDT7, Aggregated) + DNS checker
 ├── store/            # SpeedTestContext (React Context)
 ├── theme/            # Design tokens and responsive breakpoints

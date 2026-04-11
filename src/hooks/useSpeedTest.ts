@@ -1,10 +1,11 @@
 import { useState, useCallback, useRef } from 'react';
-import type { TestPhase, SpeedTestProgress, SpeedTestResult, Settings, DnsCheckResult } from '../types/speedtest';
+import type { TestPhase, SpeedTestProgress, SpeedTestResult, Settings, DnsCheckResult, NetworkMetadata } from '../types/speedtest';
 import { initialProgress } from '../types/speedtest';
 import { createProvider } from '../services/provider-factory';
 import type { SpeedTestProvider as IProvider, StabilityMetric } from '../types/speedtest';
 import { runDnsCheck } from '../services/dns-check';
 import { measureLatency } from '../services/latency-engine';
+import { fetchNetworkMetadata } from '../services/network-metadata';
 import { coefficientOfVariation } from '../services/statistics';
 
 export function useSpeedTest(settings: Settings, onComplete?: (result: SpeedTestResult) => void) {
@@ -12,6 +13,7 @@ export function useSpeedTest(settings: Settings, onComplete?: (result: SpeedTest
   const [progress, setProgress] = useState<SpeedTestProgress>(initialProgress());
   const [result, setResult] = useState<SpeedTestResult | null>(null);
   const [dnsCheck, setDnsCheck] = useState<DnsCheckResult | null>(null);
+  const [networkMetadata, setNetworkMetadata] = useState<NetworkMetadata | null>(null);
   const providerRef = useRef<IProvider | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
@@ -24,6 +26,7 @@ export function useSpeedTest(settings: Settings, onComplete?: (result: SpeedTest
     setPhase('discovering');
     setResult(null);
     setDnsCheck(null);
+    setNetworkMetadata(null);
     setProgress({ ...initialProgress(), phase: 'discovering' });
 
     const provider = createProvider(effectiveMode);
@@ -35,6 +38,14 @@ export function useSpeedTest(settings: Settings, onComplete?: (result: SpeedTest
     const dnsPromise = runDnsCheck((partial) => setDnsCheck(partial))
       .catch((err) => {
         console.warn('[DNS Check] Failed:', err);
+        return null;
+      });
+
+    // Fire network metadata fetch in background — resolves ~2-3s into test
+    const metadataPromise = fetchNetworkMetadata(abortController.signal)
+      .then((meta) => { setNetworkMetadata(meta); return meta; })
+      .catch((err) => {
+        console.warn('[Network Metadata] Failed:', err);
         return null;
       });
 
@@ -80,8 +91,9 @@ export function useSpeedTest(settings: Settings, onComplete?: (result: SpeedTest
         setProgress(p);
       }, settings.testDuration);
 
-      // Wait for DNS checks to finish
+      // Wait for DNS checks and metadata to finish
       const dnsResult = await dnsPromise;
+      const metadata = await metadataPromise;
 
       // Compute stability if bandwidth samples available (for single-provider modes)
       const bandwidthSamples = (testResult as any).bandwidthSamples as { download: number[]; upload: number[] } | undefined;
@@ -112,6 +124,8 @@ export function useSpeedTest(settings: Settings, onComplete?: (result: SpeedTest
         // Keep provider's ping/jitter for the headline numbers but
         // latencyStats provides the full percentile breakdown
         ...(dnsResult ? { dnsCheck: dnsResult } : {}),
+        // Network metadata (IP, ISP, geolocation, edge server)
+        ...(metadata ? { networkMetadata: metadata, isp: metadata.ispFull ?? undefined } : {}),
       };
 
       setPhase('complete');
@@ -125,7 +139,20 @@ export function useSpeedTest(settings: Settings, onComplete?: (result: SpeedTest
 
       // Copy to clipboard if enabled
       if (settings.autoCopyResults) {
-        let summary = `Speed Test Results\nDownload: ${testResult.downloadSpeed.toFixed(1)} Mbps\nUpload: ${testResult.uploadSpeed.toFixed(1)} Mbps\nPing: ${testResult.ping.toFixed(0)} ms (P50: ${latencyStats.p50.toFixed(0)}, P95: ${latencyStats.p95.toFixed(0)}, P99: ${latencyStats.p99.toFixed(0)})\nJitter: ${latencyStats.jitter.toFixed(1)} ms (RFC 3550)`;
+        let summary = `Speed Test Results\nDownload: ${resultWithExtras.downloadSpeed.toFixed(1)} Mbps`;
+        if (resultWithExtras.downloadEstimate?.ciMargin) {
+          summary += ` (95% CI: ${resultWithExtras.downloadEstimate.ci95Lower.toFixed(1)}\u2013${resultWithExtras.downloadEstimate.ci95Upper.toFixed(1)})`;
+        }
+        summary += `\nUpload: ${resultWithExtras.uploadSpeed.toFixed(1)} Mbps`;
+        if (resultWithExtras.uploadEstimate?.ciMargin) {
+          summary += ` (95% CI: ${resultWithExtras.uploadEstimate.ci95Lower.toFixed(1)}\u2013${resultWithExtras.uploadEstimate.ci95Upper.toFixed(1)})`;
+        }
+        summary += `\nPing: ${resultWithExtras.ping.toFixed(0)} ms (P50: ${latencyStats.p50.toFixed(0)}, P95: ${latencyStats.p95.toFixed(0)}, P99: ${latencyStats.p99.toFixed(0)})`;
+        summary += `\nJitter: ${latencyStats.jitter.toFixed(1)} ms (RFC 3550)`;
+        if (resultWithExtras.jitterBreakdown) {
+          const jb = resultWithExtras.jitterBreakdown;
+          summary += ` (Idle: ${jb.idle.toFixed(1)} | DL: ${jb.duringDownload.toFixed(1)} | UL: ${jb.duringUpload.toFixed(1)})`;
+        }
 
         if (resultWithExtras.bufferbloat) {
           summary += `\nBufferbloat: Grade ${resultWithExtras.bufferbloat.grade} (DL ${resultWithExtras.bufferbloat.downloadRatio.toFixed(1)}x / UL ${resultWithExtras.bufferbloat.uploadRatio.toFixed(1)}x)`;
@@ -151,6 +178,15 @@ export function useSpeedTest(settings: Settings, onComplete?: (result: SpeedTest
           if (dnsResult.avgTotalMs !== null) {
             summary += ` • avg ${dnsResult.avgTotalMs}ms`;
           }
+        }
+
+        if (metadata) {
+          summary += `\n\nNetwork Info:`;
+          if (metadata.ispFull) summary += `\nISP: ${metadata.ispFull}`;
+          if (metadata.ip) summary += `\nIP: ${metadata.ip} (IPv${metadata.ipVersion ?? '?'})`;
+          const location = [metadata.city, metadata.region, metadata.country].filter(Boolean).join(', ');
+          if (location) summary += `\nLocation: ${location}`;
+          if (metadata.coloCity) summary += `\nEdge: ${metadata.coloCity} (${metadata.colo})`;
         }
 
         navigator.clipboard?.writeText(summary).catch(() => {});
@@ -183,7 +219,8 @@ export function useSpeedTest(settings: Settings, onComplete?: (result: SpeedTest
     setResult(null);
     setProgress(initialProgress());
     setDnsCheck(null);
+    setNetworkMetadata(null);
   }, []);
 
-  return { phase, progress, result, dnsCheck, startTest, stopTest, resetTest };
+  return { phase, progress, result, dnsCheck, networkMetadata, startTest, stopTest, resetTest };
 }

@@ -13,7 +13,7 @@ import { useResponsive } from '../hooks/useResponsive';
 
 export default function MainTestView() {
   const {
-    phase, progress, result, dnsCheck, settings,
+    phase, progress, result, dnsCheck, networkMetadata, settings,
     startTest, resetTest, updateSettings,
   } = useSpeedTestContext();
   const navigate = useNavigate();
@@ -190,7 +190,8 @@ export default function MainTestView() {
           <div style={{ flex: 1 }}>
             <SysInfo
               serverName={progress.serverName}
-              isp={result?.isp}
+              isp={result?.isp ?? networkMetadata?.ispFull}
+              networkMetadata={networkMetadata}
               isError={isError}
               errorDetails={isError ? [
                 'GATEWAY: UNREACHABLE',

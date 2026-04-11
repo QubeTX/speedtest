@@ -97,9 +97,26 @@ export function discardSlowStart(values: number[], fraction = 0.3): number[] {
 export function accurateBandwidth(samples: number[]): number {
   if (samples.length === 0) return 0;
   const afterSlowStart = discardSlowStart(samples);
+
+  // Primary: IQR-filtered trimean
   const cleaned = filterOutliersIQR(afterSlowStart);
-  if (cleaned.length === 0) return modifiedTrimean(samples); // fallback to unfiltered
-  return modifiedTrimean(cleaned);
+  const iqrResult = cleaned.length > 0 ? modifiedTrimean(cleaned) : modifiedTrimean(afterSlowStart);
+
+  // Cross-check: Winsorized trimean
+  if (afterSlowStart.length >= 4) {
+    const winsorized = winsorize(afterSlowStart);
+    const winResult = modifiedTrimean(winsorized);
+
+    if (iqrResult > 0 && winResult > 0) {
+      const divergence = Math.abs(iqrResult - winResult) / Math.max(iqrResult, winResult);
+      if (divergence > 0.15) {
+        console.log(`[Stats] DL IQR/Winsorized divergence: ${(divergence * 100).toFixed(0)}% — averaging`);
+        return (iqrResult + winResult) / 2;
+      }
+    }
+  }
+
+  return iqrResult;
 }
 
 /**
@@ -119,12 +136,28 @@ export function accurateUploadBandwidth(samples: number[]): number {
   if (samples.length === 0) return 0;
   const afterSlowStart = discardSlowStart(samples);
   if (afterSlowStart.length < 2) return accurateBandwidth(samples);
-  // Keep fastest 50%
-  const sorted = [...afterSlowStart].sort((a, b) => b - a); // descending
+
+  // Primary: keep fastest 50% → IQR filter → trimean
+  const sorted = [...afterSlowStart].sort((a, b) => b - a);
   const topHalf = sorted.slice(0, Math.ceil(sorted.length / 2));
   const cleaned = filterOutliersIQR(topHalf);
-  if (cleaned.length === 0) return modifiedTrimean(topHalf);
-  return modifiedTrimean(cleaned);
+  const iqrResult = cleaned.length > 0 ? modifiedTrimean(cleaned) : modifiedTrimean(topHalf);
+
+  // Cross-check: Winsorized trimean on the same top-half set
+  if (topHalf.length >= 4) {
+    const winsorized = winsorize(topHalf);
+    const winResult = modifiedTrimean(winsorized);
+
+    if (iqrResult > 0 && winResult > 0) {
+      const divergence = Math.abs(iqrResult - winResult) / Math.max(iqrResult, winResult);
+      if (divergence > 0.15) {
+        console.log(`[Stats] UL IQR/Winsorized divergence: ${(divergence * 100).toFixed(0)}% — averaging`);
+        return (iqrResult + winResult) / 2;
+      }
+    }
+  }
+
+  return iqrResult;
 }
 
 // ── Jitter ──────────────────────────────────────────────────────────────
@@ -173,6 +206,99 @@ export function weightedMerge(a: number, b: number, weightA: number): number {
   const hasB = b > 0;
   if (hasA && hasB) return a * weightA + b * (1 - weightA);
   return hasA ? a : b;
+}
+
+// ── Variance ───────────────────────────────────────────────────────────
+
+/** Sample variance (Bessel's correction). */
+export function variance(values: number[]): number {
+  if (values.length < 2) return 0;
+  const m = mean(values);
+  return values.reduce((s, v) => s + (v - m) ** 2, 0) / (values.length - 1);
+}
+
+// ── Winsorization ──────────────────────────────────────────────────────
+
+/** Cap extreme values at the given percentiles instead of removing them. */
+export function winsorize(values: number[], lower = 0.05, upper = 0.95): number[] {
+  if (values.length < 4) return values;
+  const sorted = [...values].sort((a, b) => a - b);
+  const lo = percentile(sorted, lower);
+  const hi = percentile(sorted, upper);
+  return values.map(v => Math.max(lo, Math.min(hi, v)));
+}
+
+// ── Bootstrap confidence interval ──────────────────────────────────────
+
+export interface BootstrapCI {
+  estimate: number;
+  lower: number;
+  upper: number;
+  margin: number;
+}
+
+/**
+ * Bootstrap confidence interval via percentile method.
+ * Resamples the data B times, computes the statistic on each,
+ * then takes the α/2 and 1−α/2 percentiles as CI bounds.
+ */
+export function bootstrapCI(
+  samples: number[],
+  statFn: (s: number[]) => number = modifiedTrimean,
+  B = 1000,
+  alpha = 0.05
+): BootstrapCI {
+  if (samples.length < 4) {
+    const est = statFn(samples);
+    return { estimate: est, lower: est, upper: est, margin: 0 };
+  }
+
+  const estimate = statFn(samples);
+  const bootstrapStats: number[] = [];
+
+  for (let b = 0; b < B; b++) {
+    const resample = Array.from({ length: samples.length }, () =>
+      samples[Math.floor(Math.random() * samples.length)]
+    );
+    bootstrapStats.push(statFn(resample));
+  }
+
+  bootstrapStats.sort((a, b) => a - b);
+  const lower = percentile(bootstrapStats, alpha / 2);
+  const upper = percentile(bootstrapStats, 1 - alpha / 2);
+
+  return { estimate, lower, upper, margin: (upper - lower) / 2 };
+}
+
+// ── Inverse-variance merge ─────────────────────────────────────────────
+
+/**
+ * Inverse-variance weighted merge of two estimates.
+ * Minimum-variance unbiased estimator for combining independent measurements.
+ * Weights clamped to [0.3, 0.7] to prevent one source from dominating.
+ */
+export function inverseVarianceMerge(
+  a: number, varA: number,
+  b: number, varB: number,
+): { value: number; weightA: number; weightB: number } {
+  if (a <= 0 && b <= 0) return { value: 0, weightA: 0.5, weightB: 0.5 };
+  if (a <= 0) return { value: b, weightA: 0, weightB: 1 };
+  if (b <= 0) return { value: a, weightA: 1, weightB: 0 };
+  if (varA <= 0 && varB <= 0) return { value: (a + b) / 2, weightA: 0.5, weightB: 0.5 };
+  if (varA <= 0) return { value: a, weightA: 1, weightB: 0 };
+  if (varB <= 0) return { value: b, weightA: 0, weightB: 1 };
+
+  const wA = 1 / varA;
+  const wB = 1 / varB;
+  const totalW = wA + wB;
+  let weightA = wA / totalW;
+  let weightB = wB / totalW;
+
+  // Clamp to [0.3, 0.7] to prevent degenerate weighting
+  if (weightA < 0.3) { weightA = 0.3; weightB = 0.7; }
+  else if (weightA > 0.7) { weightA = 0.7; weightB = 0.3; }
+
+  return { value: a * weightA + b * weightB, weightA, weightB };
 }
 
 // ── Latency stats builder ───────────────────────────────────────────────

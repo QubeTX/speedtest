@@ -1,5 +1,5 @@
 import SpeedTestEngine from '@cloudflare/speedtest';
-import type { SpeedTestProvider, SpeedTestProgress, SpeedTestResult, TestDuration, LatencyStats, BufferbloatResult, BufferbloatGrade, AimScores } from '../types/speedtest';
+import type { SpeedTestProvider, SpeedTestProgress, SpeedTestResult, TestDuration, LatencyStats, BufferbloatResult, BufferbloatGrade, AimScores, JitterBreakdown } from '../types/speedtest';
 import { computeLatencyStats } from './statistics';
 
 function buildMeasurements(duration: TestDuration) {
@@ -200,6 +200,13 @@ export class CloudflareProvider implements SpeedTestProvider {
           // AIM scores unavailable (e.g. incomplete test)
         }
 
+        // Build per-direction jitter breakdown from loaded latency data
+        const jitterBreakdown: JitterBreakdown = {
+          idle: summary.jitter ?? lastJitter ?? 0,
+          duringDownload: dlLoadedJitter ?? 0,
+          duringUpload: ulLoadedJitter ?? 0,
+        };
+
         resolve({
           provider: 'cloudflare',
           ping: summary.latency ?? lastPing ?? 0,
@@ -212,6 +219,7 @@ export class CloudflareProvider implements SpeedTestProvider {
           latencyStats,
           bufferbloat,
           aimScores,
+          jitterBreakdown,
           bandwidthSamples: { download: dlSamples, upload: ulSamples },
         } as any);
       };

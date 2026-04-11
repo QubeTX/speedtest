@@ -5,6 +5,8 @@ import type {
   TestDuration,
   BufferbloatResult,
   StabilityMetric,
+  BandwidthEstimate,
+  JitterBreakdown,
 } from '../types/speedtest';
 import { CloudflareProvider } from './cloudflare-provider';
 import { NDT7Provider } from './ndt7-provider';
@@ -14,15 +16,14 @@ import {
   accurateUploadBandwidth,
   coefficientOfVariation,
   computeLatencyStats,
+  variance,
+  inverseVarianceMerge,
+  bootstrapCI,
 } from './statistics';
 
-// Confidence weights for each provider by metric type.
-// Cloudflare: better for bandwidth (multi-chunk, percentile filtering, many samples).
-// NDT7: better for latency (TCP-level MinRTT from kernel) and single-stream behavior.
-const CF_BANDWIDTH_WEIGHT = 0.6;
-const NDT_BANDWIDTH_WEIGHT = 1 - CF_BANDWIDTH_WEIGHT;
+// Latency weights remain fixed: NDT7's MinRTT is structurally different/better,
+// not just lower-variance, so inverse-variance weighting isn't appropriate here.
 const CF_LATENCY_WEIGHT = 0.4;
-const NDT_LATENCY_WEIGHT = 1 - CF_LATENCY_WEIGHT;
 
 /** Divergence threshold: if providers differ by more than this fraction, flag it. */
 const DIVERGENCE_THRESHOLD = 0.3;
@@ -150,11 +151,24 @@ export class AggregatedProvider implements SpeedTestProvider {
     const ndtDlAccurate = ndtSamples?.download?.length ? accurateBandwidth(ndtSamples.download) : ndtResult.downloadSpeed;
     const ndtUlAccurate = ndtSamples?.upload?.length ? accurateUploadBandwidth(ndtSamples.upload) : ndtResult.uploadSpeed;
 
-    // Confidence-weighted bandwidth merge
-    const avgDl = weightedMerge(cfDlAccurate, ndtDlAccurate, CF_BANDWIDTH_WEIGHT);
-    const avgUl = weightedMerge(cfUlAccurate, ndtUlAccurate, CF_BANDWIDTH_WEIGHT);
+    // Inverse-variance weighted bandwidth merge — statistically optimal combination.
+    // Weights adapt to actual measurement consistency instead of being hardcoded.
+    const cfDlVar = variance(cfSamples?.download ?? []);
+    const ndtDlVar = variance(ndtSamples?.download ?? []);
+    const dlMerge = inverseVarianceMerge(cfDlAccurate, cfDlVar, ndtDlAccurate, ndtDlVar);
+    const avgDl = dlMerge.value;
 
-    // Confidence-weighted latency merge (NDT7 weighted higher for latency)
+    const cfUlVar = variance(cfSamples?.upload ?? []);
+    const ndtUlVar = variance(ndtSamples?.upload ?? []);
+    const ulMerge = inverseVarianceMerge(cfUlAccurate, cfUlVar, ndtUlAccurate, ndtUlVar);
+    const avgUl = ulMerge.value;
+
+    console.log('[Aggregated] Dynamic weights:', {
+      downloadCF: dlMerge.weightA.toFixed(2), downloadNDT: dlMerge.weightB.toFixed(2),
+      uploadCF: ulMerge.weightA.toFixed(2), uploadNDT: ulMerge.weightB.toFixed(2),
+    });
+
+    // Confidence-weighted latency merge (NDT7 weighted higher — structural advantage from kernel MinRTT)
     const avgPing = weightedMerge(cfResult.ping, ndtResult.ping, CF_LATENCY_WEIGHT);
     const avgJitter = weightedMerge(cfResult.jitter, ndtResult.jitter, CF_LATENCY_WEIGHT);
 
@@ -193,6 +207,35 @@ export class AggregatedProvider implements SpeedTestProvider {
         }
       : undefined;
 
+    // Jitter breakdown — use Cloudflare's (only CF has loaded latency probes)
+    const jitterBreakdown: JitterBreakdown | undefined = (cfResult as any).jitterBreakdown;
+
+    // Bootstrap confidence intervals on combined samples
+    let downloadEstimate: BandwidthEstimate | undefined;
+    let uploadEstimate: BandwidthEstimate | undefined;
+    if (allDlSamples.length >= 4) {
+      const dlCI = bootstrapCI(allDlSamples);
+      downloadEstimate = {
+        value: avgDl,
+        ci95Lower: dlCI.lower,
+        ci95Upper: dlCI.upper,
+        ciMargin: dlCI.margin,
+        method: 'inverse-variance + trimean',
+        sampleCount: allDlSamples.length,
+      };
+    }
+    if (allUlSamples.length >= 4) {
+      const ulCI = bootstrapCI(allUlSamples);
+      uploadEstimate = {
+        value: avgUl,
+        ci95Lower: ulCI.lower,
+        ci95Upper: ulCI.upper,
+        ciMargin: ulCI.margin,
+        method: 'inverse-variance + trimean',
+        sampleCount: allUlSamples.length,
+      };
+    }
+
     return {
       provider: 'aggregated',
       ping: avgPing,
@@ -206,6 +249,9 @@ export class AggregatedProvider implements SpeedTestProvider {
       bufferbloat,
       stability,
       aimScores,
+      jitterBreakdown,
+      downloadEstimate,
+      uploadEstimate,
       providerDivergence: {
         download: dlDivergence,
         upload: ulDivergence,

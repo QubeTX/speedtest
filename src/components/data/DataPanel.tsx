@@ -165,6 +165,15 @@ export default function DataPanel({ phase, progress, result, speedUnit, dnsCheck
               <Tooltip tooltipKey="stddev" value={latencyStats.stddev}>stddev: {latencyStats.stddev.toFixed(1)}</Tooltip>
             </div>
           )}
+          {isComplete && result?.jitterBreakdown && (
+            <div style={breakdownStyle}>
+              <Tooltip tooltipKey="jitterIdle">IDLE: {result.jitterBreakdown.idle.toFixed(0)}</Tooltip>
+              {' \u2022 '}
+              <Tooltip tooltipKey="jitterDownload">DL: {result.jitterBreakdown.duringDownload.toFixed(0)}</Tooltip>
+              {' \u2022 '}
+              <Tooltip tooltipKey="jitterUpload">UL: {result.jitterBreakdown.duringUpload.toFixed(0)}</Tooltip>
+            </div>
+          )}
         </div>
       </SplitRow>
 
@@ -186,6 +195,13 @@ export default function DataPanel({ phase, progress, result, speedUnit, dnsCheck
             <Tooltip tooltipKey="ndt">NDT: {formatSpeed(ndtResult.downloadSpeed, speedUnit).value}</Tooltip>
           </div>
         )}
+        {isComplete && result?.downloadEstimate && result.downloadEstimate.ciMargin > 0 && (
+          <div style={breakdownStyle}>
+            <Tooltip tooltipKey="confidenceInterval">
+              95% CI: {formatSpeed(result.downloadEstimate.ci95Lower, speedUnit).value}&ndash;{formatSpeed(result.downloadEstimate.ci95Upper, speedUnit).value} (&plusmn;{result.downloadEstimate.ciMargin.toFixed(1)})
+            </Tooltip>
+          </div>
+        )}
       </DataRow>
 
       {/* Upload */}
@@ -205,6 +221,13 @@ export default function DataPanel({ phase, progress, result, speedUnit, dnsCheck
             <Tooltip tooltipKey="cf">CF: {formatSpeed(cfResult.uploadSpeed, speedUnit).value}</Tooltip>
             {' \u2022 '}
             <Tooltip tooltipKey="ndt">NDT: {formatSpeed(ndtResult.uploadSpeed, speedUnit).value}</Tooltip>
+          </div>
+        )}
+        {isComplete && result?.uploadEstimate && result.uploadEstimate.ciMargin > 0 && (
+          <div style={breakdownStyle}>
+            <Tooltip tooltipKey="confidenceInterval">
+              95% CI: {formatSpeed(result.uploadEstimate.ci95Lower, speedUnit).value}&ndash;{formatSpeed(result.uploadEstimate.ci95Upper, speedUnit).value} (&plusmn;{result.uploadEstimate.ciMargin.toFixed(1)})
+            </Tooltip>
           </div>
         )}
       </DataRow>

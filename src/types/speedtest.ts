@@ -41,6 +41,10 @@ export interface SpeedTestResult {
     significant: boolean;
   };
   aimScores?: AimScores;
+  jitterBreakdown?: JitterBreakdown;
+  downloadEstimate?: BandwidthEstimate;
+  uploadEstimate?: BandwidthEstimate;
+  networkMetadata?: NetworkMetadata;
 }
 
 export interface SpeedTestProvider {
@@ -128,6 +132,43 @@ export interface AimScoreEntry {
 }
 
 export type AimScores = Record<string, AimScoreEntry>;
+
+export interface JitterBreakdown {
+  idle: number;            // Jitter from unloaded latency phase
+  duringDownload: number;  // Jitter during download (loaded)
+  duringUpload: number;    // Jitter during upload (loaded)
+}
+
+export interface BandwidthEstimate {
+  value: number;           // Point estimate (Mbps)
+  ci95Lower: number;       // 95% CI lower bound
+  ci95Upper: number;       // 95% CI upper bound
+  ciMargin: number;        // ± margin
+  method: string;          // e.g. "inverse-variance + trimean"
+  sampleCount: number;     // Number of samples used
+}
+
+export interface NetworkMetadata {
+  ip: string | null;
+  ipVersion: 4 | 6 | null;
+  isp: string | null;
+  asn: number | null;
+  ispFull: string | null;
+  city: string | null;
+  region: string | null;
+  country: string | null;
+  postalCode: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  timezone: string | null;
+  colo: string | null;
+  coloCity: string | null;
+  tlsVersion: string | null;
+  httpVersion: string | null;
+  tcpRtt: number | null;
+  tcpMinRtt: number | null;
+  fetchedAt: number;
+}
 
 export function formatSpeed(mbps: number, unit: SpeedUnit): { value: string; unit: string } {
   if (unit === 'Kbps') return { value: (mbps * 1000).toFixed(0), unit: 'Kbps' };

@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.2.0] — 2026-04-11
+
+### Added
+
+- **Network metadata collection** — IP address, ISP/ASN, IPv4/IPv6 detection, user geolocation (city/region/country), Cloudflare edge data center with IATA code-to-city mapping, and TCP server-timing metrics (RTT, MinRTT from kernel). Fetched in parallel from Cloudflare `__down` CORS-exposed response headers + ipinfo.io enrichment for ISP name.
+- **Jitter breakdown** — Idle, during-download, and during-upload jitter now displayed separately. The per-direction data was already computed by Cloudflare's engine (`getDownLoadedJitter()` / `getUpLoadedJitter()`) but never surfaced — now wired to the result and shown in the DataPanel.
+- **Bootstrap confidence intervals** — 95% CI for download/upload speed via 1,000-iteration percentile bootstrap resampling (`bootstrapCI()` in statistics module). Displays as "95% CI: 41.2–49.1 (±3.9)" below the speed breakdown.
+- **Inverse-variance weighted provider merge** — Bandwidth weights now computed dynamically from sample variance instead of fixed 60/40 split. The minimum-variance unbiased estimator gives more weight to the provider with more consistent measurements, clamped to [0.3, 0.7] to prevent degenerate cases.
+- **Winsorized mean cross-validation** — Second robust estimator validates IQR-filtered trimean results. When IQR-filtered and winsorized trimean diverge by >15%, they are averaged for robustness against bimodal distributions.
+- **Tooltip explanations** for jitter breakdown (idle/DL/UL), confidence intervals, IP address, ISP/ASN, edge server, dynamic weights, and winsorized validation.
+- **IATA data center code-to-city mapping** (`src/data/colo-map.ts`) — ~57 common Cloudflare PoPs worldwide.
+
+### Changed
+
+- **SysInfo component** now displays ISP name with ASN, IP address with IPv4/IPv6, user city/country, and Cloudflare edge data center name. Metadata resolves ~2–3s into the test (during latency phase), appearing before the test completes.
+- **Clipboard auto-copy** now includes ISP, IP, location, edge server, per-direction jitter breakdown, and 95% confidence intervals.
+- **Download/upload breakdown** now shows 95% confidence interval range below the CF/NDT per-provider values.
+
+### Technical
+
+- New `network-metadata.ts` service fetches from Cloudflare `__down` CORS headers + ipinfo.io in parallel with 3-second timeout.
+- New `winsorize()`, `bootstrapCI()`, `inverseVarianceMerge()`, `variance()` functions in statistics module.
+- `NetworkMetadata`, `JitterBreakdown`, `BandwidthEstimate` types added to type system.
+- `networkMetadata` state added to `useSpeedTest` hook and `SpeedTestContext`.
+
 ## [2.1.3] — 2026-04-08
 
 ### Fixed

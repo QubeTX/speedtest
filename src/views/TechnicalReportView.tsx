@@ -654,8 +654,114 @@ export default function TechnicalReportView() {
 
         <hr style={dividerStyle} />
 
-        {/* ── 09 Comparison ── */}
-        <Section num={9} title="WHY CHOOSE THIS OVER...">
+        {/* ── 09 Network Identity ── */}
+        <Section num={9} title="YOUR NETWORK IDENTITY">
+          <p style={pStyle}>
+            When you run a speed test, you&rsquo;re not just measuring bandwidth &mdash;
+            you&rsquo;re also revealing where your data travels.  We collect and display
+            your network identity so you can see exactly what&rsquo;s happening behind
+            the scenes.
+          </p>
+          <p style={pStyle}>
+            <strong>ISP &amp; ASN</strong> &mdash; Your Internet Service Provider and their
+            Autonomous System Number.  Every ISP has a unique ASN that identifies their
+            network in the global routing system.  Knowing which AS handles your traffic
+            helps diagnose routing-specific issues.
+          </p>
+          <p style={pStyle}>
+            <strong>Edge Server</strong> &mdash; The Cloudflare data center handling your
+            test, identified by its IATA airport code (e.g., DFW for Dallas-Fort Worth).
+            The closer the edge server, the lower your baseline latency.  If you see a
+            distant server, your ISP&rsquo;s routing may be suboptimal.
+          </p>
+          <p style={pStyle}>
+            <strong>IPv4 vs IPv6</strong> &mdash; Which internet protocol your connection
+            uses.  IPv6 is the modern standard with a vastly larger address space.  Some
+            ISPs route IPv4 and IPv6 traffic differently, which can affect performance.
+          </p>
+          <p style={pStyle}>
+            All of this metadata is fetched from Cloudflare&rsquo;s edge response headers
+            in parallel with your latency test &mdash; it adds zero time to the measurement.
+            Your data stays in your browser; nothing is stored or transmitted.
+          </p>
+        </Section>
+
+        <hr style={dividerStyle} />
+
+        {/* ── 10 Per-Direction Jitter ── */}
+        <Section num={10} title="PER-DIRECTION JITTER">
+          <p style={pStyle}>
+            Most speed tests report a single jitter number.  We break it down into three:
+            idle jitter, download jitter, and upload jitter.  Why?  Because they tell
+            very different stories about your connection.
+          </p>
+          <p style={pStyle}>
+            <strong>Idle jitter</strong> is your baseline &mdash; how much your latency
+            varies when nothing else is happening.  <strong>Download jitter</strong> measures
+            variability while your connection is under download load, revealing how your
+            router&rsquo;s buffers behave when saturated.  <strong>Upload jitter</strong> is
+            critical for video calls &mdash; it directly determines the smoothness of your
+            outgoing audio and video.
+          </p>
+          <p style={pStyle}>
+            A connection with low idle jitter but high upload jitter will feel fine for
+            browsing but produce choppy Zoom calls.  The breakdown helps pinpoint exactly
+            where the problem lives.
+          </p>
+        </Section>
+
+        <hr style={dividerStyle} />
+
+        {/* ── 11 Confidence Intervals ── */}
+        <Section num={11} title="CONFIDENCE INTERVALS">
+          <p style={pStyle}>
+            Your download speed is 45.2 Mbps, give or take about 3 Mbps.  That &ldquo;give
+            or take&rdquo; is the confidence interval &mdash; a statistically rigorous way
+            of saying how certain we are about the result.
+          </p>
+          <p style={pStyle}>
+            We compute it using <strong>bootstrap resampling</strong>: we take your bandwidth
+            measurements, randomly resample them with replacement 1,000 times, and compute
+            our modified trimean on each resample.  The middle 95% of those 1,000 results
+            forms the confidence interval.  A narrow range means your connection was stable
+            and our measurement is precise.  A wide range means the connection was variable
+            and you should interpret the result with appropriate uncertainty.
+          </p>
+          <p style={pStyle}>
+            This is the same technique used in clinical trials and scientific research when
+            you can&rsquo;t assume your data follows a neat bell curve &mdash; which internet
+            bandwidth measurements rarely do.
+          </p>
+        </Section>
+
+        <hr style={dividerStyle} />
+
+        {/* ── 12 Smart Provider Weighting ── */}
+        <Section num={12} title="SMART PROVIDER WEIGHTING">
+          <p style={pStyle}>
+            When combining results from Cloudflare and NDT7, we don&rsquo;t use a fixed
+            50/50 or 60/40 split.  Instead, we use <strong>inverse-variance weighting</strong>
+            &mdash; whichever test engine gives more consistent results automatically gets
+            more influence on the final number.
+          </p>
+          <p style={pStyle}>
+            If Cloudflare&rsquo;s measurements were very steady but NDT7&rsquo;s bounced
+            around, Cloudflare&rsquo;s result counts for more &mdash; and vice versa.  This
+            is the statistically optimal way to combine two independent measurements of the
+            same quantity, minimizing the variance of the combined estimate.
+          </p>
+          <p style={pStyle}>
+            We also run a <strong>winsorized validation</strong>: a second, independent
+            calculation that caps outliers at the 5th/95th percentile instead of removing
+            them entirely.  If the two methods disagree significantly, we average them for
+            extra safety.  Belt and suspenders.
+          </p>
+        </Section>
+
+        <hr style={dividerStyle} />
+
+        {/* ── 13 Comparison ── */}
+        <Section num={13} title="WHY CHOOSE THIS OVER...">
           <p style={pStyle}>
             We built this tool because the existing options leave gaps.  Here's an honest
             comparison &mdash; not to disparage other tools, but to explain what's different.
@@ -684,6 +790,10 @@ export default function TechnicalReportView() {
                   <TableRow boldFirst cells={['RFC 3550 Jitter', <strong key="v">Yes</strong>, 'No', 'No', 'No']} />
                   <TableRow boldFirst cells={['DNS Diagnostics', <strong key="v">12 domains</strong>, 'No', 'No', 'No']} />
                   <TableRow boldFirst cells={['Provider Divergence', <strong key="v">Yes</strong>, 'N/A', 'N/A', 'N/A']} />
+                  <TableRow boldFirst cells={['Confidence Intervals', <strong key="v">95% CI (bootstrap)</strong>, 'No', 'No', 'No']} />
+                  <TableRow boldFirst cells={['Per-Direction Jitter', <strong key="v">Idle/DL/UL</strong>, 'No', 'No', 'No']} />
+                  <TableRow boldFirst cells={['Network Identity', <strong key="v">ISP/ASN/IP/Geo</strong>, 'Server only', 'No', 'No']} />
+                  <TableRow boldFirst cells={['Dynamic Weighting', <strong key="v">Inverse-variance</strong>, 'N/A', 'N/A', 'N/A']} />
                   <TableRow boldFirst cells={['Open Methodology', <strong key="v">Documented</strong>, 'Partial', 'No', 'No']} />
                 </tbody>
               </table>

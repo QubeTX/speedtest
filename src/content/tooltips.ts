@@ -168,6 +168,64 @@ export const tooltips: Record<string, TooltipEntry> = {
       { max: Infinity, label: 'Slow \u2014 likely server-side processing bottleneck.' },
     ],
   },
+  jitterIdle: {
+    title: 'Idle Jitter',
+    description: 'Jitter measured on an unloaded connection \u2014 your baseline variability before any bandwidth test runs.',
+    unit: 'ms',
+    ranges: [
+      { max: 2, label: 'Excellent \u2014 rock-steady idle connection.' },
+      { max: 5, label: 'Good \u2014 minor variation, normal for most connections.' },
+      { max: 15, label: 'Fair \u2014 some instability even without load.' },
+      { max: Infinity, label: 'High \u2014 unstable connection at baseline.' },
+    ],
+  },
+  jitterDownload: {
+    title: 'Download Jitter',
+    description: 'Jitter measured while download is active. Higher than idle jitter indicates your connection buffers are filling up under load.',
+    unit: 'ms',
+    ranges: [
+      { max: 5, label: 'Excellent \u2014 stable even under download load.' },
+      { max: 15, label: 'Good \u2014 some variation under load, typical.' },
+      { max: 30, label: 'Fair \u2014 noticeable buffering during downloads.' },
+      { max: Infinity, label: 'High \u2014 significant buffering, may affect streaming.' },
+    ],
+  },
+  jitterUpload: {
+    title: 'Upload Jitter',
+    description: 'Jitter measured while upload is active. Critical for voice and video call quality \u2014 upload jitter directly affects outgoing audio/video smoothness.',
+    unit: 'ms',
+    ranges: [
+      { max: 5, label: 'Excellent \u2014 great for video calls.' },
+      { max: 15, label: 'Good \u2014 calls should be smooth.' },
+      { max: 30, label: 'Fair \u2014 may cause occasional voice artifacts.' },
+      { max: Infinity, label: 'High \u2014 video calls will likely stutter.' },
+    ],
+  },
+  ipAddress: {
+    title: 'IP Address',
+    description: 'Your public IP address as seen by the test server. This is the address the internet uses to reach your connection.',
+  },
+  ispInfo: {
+    title: 'ISP / Network',
+    description: 'Your Internet Service Provider and their Autonomous System Number (ASN). The ASN identifies your ISP\'s network in the global routing system.',
+  },
+  edgeServer: {
+    title: 'Edge Server',
+    description: 'The Cloudflare data center handling your test. Closer data centers mean lower latency. The IATA code identifies the nearest airport to the server.',
+  },
+  confidenceInterval: {
+    title: '95% Confidence Interval',
+    description: 'Computed via bootstrap resampling (1,000 iterations). Your actual speed likely falls within this range. A narrow range means high measurement confidence.',
+    unit: 'Mbps',
+  },
+  dynamicWeights: {
+    title: 'Dynamic Provider Weights',
+    description: 'Provider weights are computed from measurement consistency using inverse-variance weighting. The provider with more consistent (lower-variance) results gets more influence on the final number.',
+  },
+  winsorized: {
+    title: 'Winsorized Validation',
+    description: 'A second independent calculation cross-checks the primary result. Instead of removing outliers (IQR filtering), Winsorization caps them at the 5th/95th percentile. If the two methods disagree by more than 15%, they are averaged for robustness.',
+  },
 };
 
 /**
