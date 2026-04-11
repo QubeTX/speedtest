@@ -228,8 +228,8 @@ export default function Tooltip({ tooltipKey, children, value, variant = 'inline
             id={id}
             role="tooltip"
             style={bubbleStyle}
-            initial={{ scale: 0.92, y: position === 'above' ? 6 : -6 }}
-            animate={{ scale: 1, y: 0 }}
+            initial={{ opacity: 1, scale: 0.92, y: position === 'above' ? 6 : -6 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: position === 'above' ? 4 : -4 }}
             transition={{
               opacity: { duration: 0.1 },

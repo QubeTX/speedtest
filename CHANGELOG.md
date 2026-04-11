@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.2.1] — 2026-04-11
+
+### Fixed
+
+- **Tooltip still semi-transparent during entrance animation** — Explicitly pin `opacity: 1` in both `initial` and `animate` motion states. The prior fix (2.1.3) removed opacity from `initial` but framer-motion still inferred an opacity transition from the `exit: { opacity: 0 }` prop, causing a brief transparency during entrance. Now fully opaque at every frame.
+
 ## [2.2.0] — 2026-04-11
 
 ### Added
