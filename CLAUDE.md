@@ -95,59 +95,23 @@ See `ACCURACY.md` for full technical documentation.
 | `TapeMechanism` | `src/components/mechanism/` | Cassette tape animation linked to throughput |
 | `TopBar` | `src/components/layout/` | QubeTX logo, clock, question mark icon |
 | `Apparatus` | `src/components/layout/` | Two-panel responsive layout shell |
-| `AppStoreBadge` | `src/components/layout/` | iOS-only "Download on the App Store" badge linking to SpeedQX native app (renders `null` on non-iOS) |
-
-## Hooks
-
-| Hook | Location | Purpose |
-|------|----------|---------|
-| `useSpeedTest` | `src/hooks/` | Orchestrates latency + provider + DNS; manages phase state |
-| `useResponsive` | `src/hooks/` | Viewport breakpoints: `isMobile`, `isTablet`, `isSmallDesktop`, `isDesktop` |
-| `useIsIOS` | `src/hooks/` | Detects iPhone + iPad (including iPadOS 13+ Mac-UA masquerade via `maxTouchPoints > 1`). Returns `false` before mount to avoid SSR/hydration flash |
-| `useClock` | `src/hooks/` | Current time string for TopBar |
-| `useNetworkInfo` | `src/hooks/` | Connection API (downlink, rtt, effective type) |
-
-## Static Assets
-
-- `public/question-mark.svg` — help icon in TopBar
-- `public/favicon.svg` — browser tab icon
-- `public/app-store-badge.svg` — official Apple "Download on the App Store" black lockup. **Do not modify or optimize this file** — Apple Marketing Guidelines forbid recoloring, resizing below 40px height, or altering the SVG.
-- `public/fonts/` — self-hosted typefaces
-- `public/ndt7-*-worker.js` — M-Lab NDT7 worker scripts
-
-## Native Companion App
-
-SpeedQX is the native iOS version of this speed test, available at
-`https://apps.apple.com/us/app/speedqx/id6760538784`. The `AppStoreBadge` component
-in every page footer links to it, and only renders when `useIsIOS()` returns `true`.
-Desktop, Android, and real-Mac visitors never see the badge — the detection is
-precise enough (UA + `maxTouchPoints`) that we don't fall back to a broad
-"any mobile" rule.
 
 ## Copyright
 
-Every page wrapper (`src/pages/*.tsx`) must include the QubeTX copyright footer AND the `AppStoreBadge`:
+Every page wrapper (`src/pages/*.tsx`) must include the QubeTX copyright footer:
 ```tsx
 <div style={{
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  gap: '0.5rem',
+  fontSize: '0.55rem',
+  letterSpacing: '0.1em',
+  color: 'rgba(0,0,0,0.2)',
+  textAlign: 'center',
   padding: '0.5rem 0',
   flexShrink: 0,
 }}>
-  <AppStoreBadge />
-  <span style={{
-    fontSize: '0.55rem',
-    letterSpacing: '0.1em',
-    color: 'rgba(0,0,0,0.2)',
-    textAlign: 'center',
-  }}>
-    &copy; 2026 QUBETX
-  </span>
+  &copy; 2026 QUBETX
 </div>
 ```
-Any new pages must include this. Article/view-level components should also include "BUILT BY QUBETX" in their footer where appropriate. The `AppStoreBadge` self-hides on non-iOS, so this pattern is safe to use everywhere. The `0.5rem` gap satisfies Apple's clear-space rule around the badge.
+Any new pages must include this. Article/view-level components should also include "BUILT BY QUBETX" in their footer where appropriate.
 
 ## Dependencies
 

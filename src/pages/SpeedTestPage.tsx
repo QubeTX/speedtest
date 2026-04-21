@@ -1,5 +1,4 @@
 import MainTestView from '../views/MainTestView';
-import AppStoreBadge from '../components/layout/AppStoreBadge';
 import { useResponsive } from '../hooks/useResponsive';
 
 export default function SpeedTestPage() {
@@ -19,22 +18,14 @@ export default function SpeedTestPage() {
     >
       <MainTestView />
       <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: '0.5rem',
+        fontSize: '0.55rem',
+        letterSpacing: '0.1em',
+        color: 'rgba(0,0,0,0.2)',
+        textAlign: 'center',
         padding: '0.5rem 0',
         flexShrink: 0,
       }}>
-        <AppStoreBadge />
-        <span style={{
-          fontSize: '0.55rem',
-          letterSpacing: '0.1em',
-          color: 'rgba(0,0,0,0.2)',
-          textAlign: 'center',
-        }}>
-          &copy; 2026 QUBETX
-        </span>
+        &copy; 2026 QUBETX
       </div>
     </div>
   );

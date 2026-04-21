@@ -2,22 +2,6 @@
 
 All notable changes to this project will be documented in this file.
 
-## [2.3.0] — 2026-04-21
-
-### Added
-
-- **SpeedQX iOS App Store badge (iOS-only)** — The official "Download on the App Store" black lockup badge now appears in the page-level footer on all three routes (`/`, `/settings`, `/how-it-works`) for iOS visitors only. Links to the native companion app at `apps.apple.com/us/app/speedqx/id6760538784`. Desktop, Android, and real Mac users see the unchanged footer — no badge is rendered for them.
-- **`useIsIOS()` hook** (`src/hooks/useIsIOS.ts`) — Reliable iOS detection combining `userAgent` regex with `navigator.maxTouchPoints > 1` to catch iPadOS ≥13's "Macintosh" masquerade. Seeded to `false` and computed in `useEffect` to avoid any flash for non-iOS users.
-- **`AppStoreBadge` component** (`src/components/layout/AppStoreBadge.tsx`) — Stateless component that short-circuits on non-iOS and renders the 40px Apple-compliant badge with a subtle `scale(1.04)` hover. The badge SVG is served unmodified from `public/app-store-badge.svg` per Apple Marketing Guidelines (no recoloring, no opacity reduction on the badge itself).
-
-### Changed
-
-- All page footers (`SpeedTestPage`, `SettingsPage`, `TechnicalReportPage`) restructured from single-line copyright to vertical flex stack: `AppStoreBadge` on top (iOS only), `© 2026 QUBETX` below, with a `0.5rem` gap satisfying Apple's clear-space requirement (1/10 of badge height).
-
-### Verification
-
-- Playwright device-emulation suite (`scripts/verify-app-store-badge.cjs`) confirms: desktop no-render, iPhone render, iPad-masquerade render, real-Mac no-render, Android no-render.
-
 ## [2.2.1] — 2026-04-11
 
 ### Fixed
