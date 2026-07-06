@@ -191,15 +191,10 @@ export default function MainTestView() {
       <div style={{ marginBottom: 'clamp(0.5rem, 1.5vw, 1.5rem)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.9rem' }}>
         {isIdle && (
           <>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <ActionButton onClick={() => startTest('fast')}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                  <path d="M8 5v14l11-7z" />
-                </svg>
-                PLAY
-              </ActionButton>
-              <span style={captionStyle}>~1 MIN · 3 SOURCES</span>
-            </div>
+            {/* The cassette deck's play glass IS the primary (fast) start —
+                one iconic control, captioned here, instead of a redundant
+                third play button. DEEP TEST is the single secondary action. */}
+            <span style={captionStyle}>▶ PLAY ON THE DECK · ~1 MIN · 3 SOURCES</span>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <ActionButton variant="outline" onClick={() => startTest('full')}>
                 <svg width="18" height="16" viewBox="0 0 28 24" fill="currentColor" aria-hidden="true">

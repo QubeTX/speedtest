@@ -111,46 +111,60 @@ export default function Tooltip({ tooltipKey, children, value, variant = 'inline
     return () => document.removeEventListener('keydown', handler);
   }, [isActive, close, id]);
 
-  // Position the portaled bubble on show: render invisibly, measure both rects,
-  // then place with viewport clamping (fixed coords, so no ancestor can clip it).
+  // Position the portaled bubble and KEEP it positioned while open: a rAF
+  // tracker re-measures trigger + bubble every frame (two rect reads — trivial
+  // for a short-lived tooltip) so the bubble follows its trigger through
+  // expander animations, layout shifts, and scrolling. A one-shot measurement
+  // was observably wrong whenever the trigger sat inside something that was
+  // still animating (e.g. the Measurement Quality expander).
   useLayoutEffect(() => {
     if (!isActive) {
       setCoords(null);
       return;
     }
-    if (!bubbleRef.current || !wrapperRef.current) return;
 
-    const wrapperRect = wrapperRef.current.getBoundingClientRect();
-    // Measure the bubble with offsetWidth/Height, NOT getBoundingClientRect:
-    // the entrance animation starts at scale 0.92 / translated, and a
-    // transformed rect under-measures — every position was being computed
-    // from a slightly-wrong size (visible as misaligned tooltips on desktop).
-    // offset* report the untransformed layout box.
-    const bubbleW = bubbleRef.current.offsetWidth;
-    const bubbleH = bubbleRef.current.offsetHeight;
-    const margin = 8;
-    const gap = 10;
+    let raf = 0;
+    const track = () => {
+      const wrapperEl = wrapperRef.current;
+      const bubbleEl = bubbleRef.current;
+      if (wrapperEl && bubbleEl) {
+        const wrapperRect = wrapperEl.getBoundingClientRect();
+        // Measure the bubble with offsetWidth/Height, NOT getBoundingClientRect:
+        // the entrance animation starts at scale 0.92, and a transformed rect
+        // under-measures. offset* report the untransformed layout box.
+        const bubbleW = bubbleEl.offsetWidth;
+        const bubbleH = bubbleEl.offsetHeight;
+        const margin = 8;
+        const gap = 10;
 
-    const placement: 'above' | 'below' =
-      wrapperRect.top - bubbleH - gap < margin ? 'below' : 'above';
-    const top = placement === 'above' ? wrapperRect.top - bubbleH - gap : wrapperRect.bottom + gap;
+        const placement: 'above' | 'below' =
+          wrapperRect.top - bubbleH - gap < margin ? 'below' : 'above';
+        const top =
+          placement === 'above' ? wrapperRect.top - bubbleH - gap : wrapperRect.bottom + gap;
 
-    const triggerCenter = wrapperRect.left + wrapperRect.width / 2;
-    let left = triggerCenter - bubbleW / 2;
-    left = Math.min(Math.max(left, margin), window.innerWidth - bubbleW - margin);
-    const arrowLeft = Math.min(Math.max(triggerCenter - left - 5, 10), bubbleW - 20);
+        const triggerCenter = wrapperRect.left + wrapperRect.width / 2;
+        let left = triggerCenter - bubbleW / 2;
+        left = Math.min(Math.max(left, margin), window.innerWidth - bubbleW - margin);
+        const arrowLeft = Math.min(Math.max(triggerCenter - left - 5, 10), bubbleW - 20);
 
-    setCoords({ top, left, arrowLeft, placement });
+        setCoords((prev) => {
+          if (
+            prev &&
+            Math.abs(prev.top - top) < 0.5 &&
+            Math.abs(prev.left - left) < 0.5 &&
+            Math.abs(prev.arrowLeft - arrowLeft) < 0.5 &&
+            prev.placement === placement
+          ) {
+            return prev; // no re-render when nothing moved
+          }
+          return { top, left, arrowLeft, placement };
+        });
+      }
+      raf = requestAnimationFrame(track);
+    };
+    raf = requestAnimationFrame(track);
+    return () => cancelAnimationFrame(raf);
   }, [isActive]);
-
-  // Fixed positioning goes stale the moment anything scrolls — close instead
-  // of chasing the trigger (capture-phase so inner scroll containers count).
-  useEffect(() => {
-    if (!isActive) return;
-    const onScroll = () => close(id);
-    window.addEventListener('scroll', onScroll, { capture: true, passive: true });
-    return () => window.removeEventListener('scroll', onScroll, { capture: true });
-  }, [isActive, close, id]);
 
   const cancelTimers = useCallback(() => {
     if (showTimer.current) { clearTimeout(showTimer.current); showTimer.current = null; }

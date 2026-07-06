@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.0.6] — 2026-07-06
+
+### Fixed
+
+- **Rapid phase flashing between providers** (e.g. Cloudflare-upload ↔ NDT7-download) —
+  engines can keep emitting events after their run settles (loaded-latency probes,
+  packet-loss completion); those stragglers interleaved with the next source's
+  progress. Each source's event stream is now sealed the instant its run resolves.
+- **Tooltips detaching from their triggers** — a one-shot position measurement went
+  stale whenever the trigger sat inside something still animating (the quality
+  expander) or the page shifted. Tooltips now track their trigger every frame while
+  open, following any animation, reflow, or scroll.
+- **Broken rounded corners** (top/bottom-right on desktop, both bottom corners on
+  mobile) — the data panel's square cards overflowed the shell's rounded corners;
+  the shell now clips its children (safe since tooltips render in a portal).
+- **TEST COMPLETE stamp legibility** — the translucent multiply-blended plate went
+  dark exactly where it crossed the dark tape pack; now a solid paper plate with a
+  shadow, fully readable anywhere on the deck.
+
+### Changed
+
+- **One play control instead of three** — the cassette deck's play glass is the
+  primary (fast) start, captioned beneath the deck; the redundant PLAY pill was
+  removed and DEEP TEST remains the single secondary action.
+
 ## [3.0.5] — 2026-07-06
 
 ### Added

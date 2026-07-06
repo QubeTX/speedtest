@@ -18,7 +18,7 @@ export default function ResultsStamp({ visible }: ResultsStampProps) {
 
   const style: CSSProperties = {
     position: 'absolute',
-    top: '35%',
+    top: '38%',
     left: '50%',
     ...textStyles.stamp,
     border: `clamp(4px, 1.2vw, 8px) solid ${colors.ink}`,
@@ -26,8 +26,11 @@ export default function ResultsStamp({ visible }: ResultsStampProps) {
     fontSize: 'clamp(1.6rem, 6vw, 2.5rem)',
     pointerEvents: 'none',
     zIndex: 20,
-    background: colors.bgDevice,
-    mixBlendMode: 'multiply',
+    // Solid paper plate: the previous translucent bgDevice + multiply blend
+    // literally darkened over the dark tape pack, making the stamp hard to
+    // read exactly where it landed. An opaque plate reads everywhere.
+    background: colors.paper,
+    boxShadow: '0 6px 18px rgba(0,0,0,0.18)',
     whiteSpace: 'nowrap',
   };
 
@@ -36,7 +39,7 @@ export default function ResultsStamp({ visible }: ResultsStampProps) {
       style={style}
       aria-hidden="true"
       initial={{ opacity: 0, scale: reduced ? 1 : 1.25, x: '-50%', y: '-50%', rotate: -12 }}
-      animate={{ opacity: 0.92, scale: 1, x: '-50%', y: '-50%', rotate: -12 }}
+      animate={{ opacity: 1, scale: 1, x: '-50%', y: '-50%', rotate: -8 }}
       transition={
         reduced
           ? { duration: 0.2, ease: 'easeOut' }

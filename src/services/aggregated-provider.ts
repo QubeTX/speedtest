@@ -341,8 +341,15 @@ export class AggregatedProvider implements SpeedTestProvider {
     // (locked phone, background tab) are throttled by the browser and read low.
     let sawHidden = false;
 
+    // Once this run settles, DROP any straggler events from its provider.
+    // Engines can keep emitting after their promise resolves (loaded-latency
+    // probes, packet-loss completion) — without this seal those events
+    // interleave with the NEXT provider's progress and the UI flashes rapidly
+    // between the two (observed as CF-upload ↔ NDT7-download flicker).
+    let done = false;
+
     const wrapped = (p: SpeedTestProgress) => {
-      if (this.stopped) return;
+      if (done || this.stopped) return;
       armStall();
       if (typeof document !== 'undefined' && document.hidden) sawHidden = true;
       lastProgress = p;
@@ -380,6 +387,7 @@ export class AggregatedProvider implements SpeedTestProvider {
     });
 
     const outcome = await Promise.race([started, stopSignal, capPromise, stallPromise]);
+    done = true; // seal: no further events from this provider reach the UI
     if (capTimer) clearTimeout(capTimer);
     if (stallTimer) clearTimeout(stallTimer);
 

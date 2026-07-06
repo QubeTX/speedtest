@@ -24,7 +24,10 @@ export default function Apparatus({ left, right }: ApparatusProps) {
     borderRadius: borders.radiusBox,
     display: 'grid',
     gridTemplateColumns: isWide ? '1fr 1fr' : '1fr',
-    overflow: 'visible',
+    // Clip children to the shell's rounded corners — the data panel's square
+    // cards were overflowing them (visible as broken right/bottom corners).
+    // Safe now that tooltips render in a document.body portal.
+    overflow: 'hidden',
     position: 'relative',
     boxShadow: '0 20px 40px rgba(0,0,0,0.05)',
   };
