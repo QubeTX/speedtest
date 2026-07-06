@@ -19,10 +19,14 @@ interface TapeMechanismProps {
 
 /** Fluid reel diameter — exact per the v4 design spec. Deck width/height are
  *  derived from this via calc() so the whole mechanism scales genuinely
- *  (no transform: scale() wrapper, no JS-measured breakpoint switch). */
-const REEL_SIZE_CSS = 'clamp(96px, 40vw, 154px)';
-const DECK_WIDTH_CSS = `calc(${REEL_SIZE_CSS} + 32px)`;
-const DECK_HEIGHT_CSS = `calc(2 * ${REEL_SIZE_CSS} + 64px)`;
+ *  (no transform: scale() wrapper, no JS-measured breakpoint switch).
+ *  LANDSCAPE deck: reels sit side by side like a real cassette — supply on
+ *  the left feeding the take-up on the right, tape reading left→to→right.
+ *  30vw per reel keeps two of them (plus the center gap) inside a 320px
+ *  viewport. */
+const REEL_SIZE_CSS = 'clamp(88px, 30vw, 154px)';
+const DECK_WIDTH_CSS = `calc(2 * ${REEL_SIZE_CSS} + 64px)`;
+const DECK_HEIGHT_CSS = `calc(${REEL_SIZE_CSS} + 32px)`;
 
 /** Scoped styles this component owns outright (fluid reel sizing overrides
  *  TapeReel's numeric SVG width/height attributes; presentation attributes
@@ -65,7 +69,7 @@ export default function TapeMechanism({
   const isError = phase === 'error';
   const isTesting = !isIdle && !isComplete && !isError;
 
-  // Top reel = supply (starts full, feeds out on download). Bottom reel =
+  // Left reel = supply (starts full, feeds out on download). Right reel =
   // take-up (starts empty, fills on download; rewinds on upload). Rotation
   // direction/speed and the fill targets all come from reel-geometry via the
   // drive hook — this component just wires phase + live measurements in.
@@ -103,7 +107,7 @@ export default function TapeMechanism({
     borderRadius: borders.radiusPill,
     position: 'relative',
     display: 'flex',
-    flexDirection: 'column',
+    flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: '10px',
@@ -133,17 +137,17 @@ export default function TapeMechanism({
         }}
         style={buttonStyle}
       >
-        {/* Inner vertical rails */}
+        {/* Tape-window rails — horizontal, spanning between the reels */}
         <div
           aria-hidden="true"
           style={{
             position: 'absolute',
-            top: '25%',
-            bottom: '25%',
-            left: '11%',
-            right: '11%',
-            borderLeft: borders.stroke,
-            borderRight: borders.stroke,
+            top: '11%',
+            bottom: '11%',
+            left: '25%',
+            right: '25%',
+            borderTop: borders.stroke,
+            borderBottom: borders.stroke,
             zIndex: 1,
             pointerEvents: 'none',
           }}
@@ -203,12 +207,12 @@ export default function TapeMechanism({
           </div>
         )}
 
-        {/* Supply reel (top) */}
+        {/* Supply reel (left) */}
         <div className="mechanism-reel" style={{ position: 'relative', zIndex: 2 }}>
           <TapeReel ref={supplyRef} size={154} tapeFill={supplyFill} reduced={reduced} />
         </div>
 
-        {/* Take-up reel (bottom) */}
+        {/* Take-up reel (right) */}
         <div className="mechanism-reel" style={{ position: 'relative', zIndex: 2 }}>
           <TapeReel ref={takeupRef} size={154} tapeFill={takeupFill} reduced={reduced} />
         </div>

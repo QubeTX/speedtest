@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.0.7] — 2026-07-06
+
+### Changed
+
+- **The cassette deck is now landscape** — reels side by side like a real
+  cassette (supply on the left feeding the take-up on the right, tape window
+  rails spanning between them), matching the iOS app's deck orientation. The
+  tape-transfer animation now reads left→right on download and rewinds
+  right→left on upload — the way every tape you've ever seen works. Sizing
+  stays fully fluid (two reels + gap fit a 320 px viewport).
+
 ## [3.0.6] — 2026-07-06
 
 ### Fixed
