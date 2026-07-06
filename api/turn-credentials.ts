@@ -77,11 +77,18 @@ export default async function handler(req: Request): Promise<Response> {
         headers: corsHeaders(origin),
       });
     }
-    // The packet-loss engine needs the UDP relay; expose udp turn: urls plus creds in the
-    // { username, credential } shape @cloudflare/speedtest expects from turnServerCredsApiUrl.
+    // @cloudflare/speedtest destructures { username, credential, turnServerUri } from this
+    // response and builds `turn:${turnServerUri}?transport=udp`. Without turnServerUri it
+    // falls back to the DEPRECATED turn.speed.cloudflare.com relay — so the Realtime host
+    // must be returned explicitly (host:port, no scheme). urls[] included for other clients.
     const udpUrls = server.urls.filter((u) => u.startsWith('turn:') && u.includes('transport=udp'));
     return new Response(
-      JSON.stringify({ username: server.username, credential: server.credential, urls: udpUrls }),
+      JSON.stringify({
+        username: server.username,
+        credential: server.credential,
+        turnServerUri: 'turn.cloudflare.com:3478',
+        urls: udpUrls,
+      }),
       { status: 200, headers: corsHeaders(origin) },
     );
   } catch {
