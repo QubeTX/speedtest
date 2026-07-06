@@ -9,6 +9,18 @@ import { computeLatencyStats, bufferbloatDelta, rpm as computeRpm } from './stat
  */
 const TURN_CREDS_API_URL = 'https://speedqx.com/api/turn-credentials';
 
+/**
+ * @cloudflare/speedtest reports packet loss as a 0–1 RATIO
+ * (lostMessages/numMessagesSent); the spec (METHODOLOGY.md §7), the display
+ * chain, and the tooltip grade bands all speak PERCENT. Convert at the
+ * provider boundary — defensively, in case a future engine version returns
+ * percent already (values > 1 pass through).
+ */
+function packetLossRatioToPercent(value: number | undefined): number | null {
+  if (value === undefined || !Number.isFinite(value)) return null;
+  return value <= 1 ? value * 100 : value;
+}
+
 function buildMeasurements(duration: TestDuration) {
   // Default measurements for 'auto'
   const defaults = [
@@ -152,14 +164,14 @@ export class CloudflareProvider implements SpeedTestProvider {
         const jitter = results.getUnloadedJitter();
         const dlBps = results.getDownloadBandwidth();
         const ulBps = results.getUploadBandwidth();
-        const packetLoss = results.getPacketLoss();
+        const packetLoss = packetLossRatioToPercent(results.getPacketLoss());
 
         // Capture last known good values for fallback in onFinish
         if (ping !== undefined) lastPing = ping;
         if (jitter !== undefined) lastJitter = jitter;
         if (dlBps !== undefined) lastDlMbps = dlBps / 1e6;
         if (ulBps !== undefined) lastUlMbps = ulBps / 1e6;
-        if (packetLoss !== undefined) lastPacketLoss = packetLoss;
+        if (packetLoss !== null) lastPacketLoss = packetLoss;
 
         onProgress({
           phase: currentPhase as SpeedTestProgress['phase'],
@@ -265,7 +277,7 @@ export class CloudflareProvider implements SpeedTestProvider {
           jitter: summary.jitter ?? lastJitter ?? 0,
           downloadSpeed: dlMbps,
           uploadSpeed: ulMbps,
-          packetLoss: summary.packetLoss ?? lastPacketLoss ?? null,
+          packetLoss: packetLossRatioToPercent(summary.packetLoss) ?? lastPacketLoss ?? null,
           serverName: 'Cloudflare Edge',
           timestamp: Date.now(),
           latencyStats,

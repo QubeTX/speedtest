@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.0.9] — 2026-07-06
+
+### Fixed
+
+- **Packet loss under-reported ~100×** — the engine returns loss as a 0–1 ratio
+  (lost/sent) but the display chain, tooltip grade bands, and the spec all speak
+  percent; a real 2% loss displayed as "0.0%". Converted at the provider
+  boundary (defensively: values > 1 pass through). Found by the iOS port's
+  adversarial review comparing the two implementations.
+
 ## [3.0.8] — 2026-07-06
 
 ### Added
