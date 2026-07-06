@@ -83,6 +83,27 @@ export class CloudflareProvider implements SpeedTestProvider {
 
       let settled = false;
 
+      // Stall watchdog: if the engine emits no results-change events for this
+      // long mid-run, it is wedged — most often speed.cloudflare.com throttling
+      // large download payloads per-IP (HTTP 429), which the engine retries
+      // silently forever (observed as a frozen "Cloudflare download" phase on
+      // mobile). Stop the engine and fail this provider; the aggregated run
+      // isolates the failure and the other sources carry the result.
+      const STALL_MS = 25_000;
+      let stallTimer: ReturnType<typeof setTimeout> | null = null;
+      const clearStall = () => {
+        if (stallTimer) { clearTimeout(stallTimer); stallTimer = null; }
+      };
+      const armStall = () => {
+        clearStall();
+        stallTimer = setTimeout(() => {
+          if (settled) return;
+          settled = true;
+          try { this.engine?.pause?.(); } catch { /* best-effort */ }
+          reject(new Error('cloudflare stalled — no progress for 25s (possibly rate-limited, HTTP 429)'));
+        }, STALL_MS);
+      };
+
       this.engine = new SpeedTestEngine({
         autoStart: false,
         measurements,
@@ -108,6 +129,7 @@ export class CloudflareProvider implements SpeedTestProvider {
       const engine = this.engine;
 
       engine.onResultsChange = ({ type }: { type: string }) => {
+        armStall(); // any event = engine alive; re-arm the stall watchdog
         const results = engine.results;
 
         if (type === 'latency') {
@@ -155,6 +177,7 @@ export class CloudflareProvider implements SpeedTestProvider {
       };
 
       engine.onFinish = (results) => {
+        clearStall();
         settled = true;
         const summary = results.getSummary();
         console.log('[Cloudflare] Summary:', summary);
@@ -267,6 +290,8 @@ export class CloudflareProvider implements SpeedTestProvider {
         // rejection to give onFinish a chance to resolve first.
         setTimeout(() => {
           if (!settled) {
+            settled = true;
+            clearStall();
             reject(new Error(error));
           }
         }, 2000);
@@ -287,6 +312,7 @@ export class CloudflareProvider implements SpeedTestProvider {
       });
 
       engine.play();
+      armStall();
     });
   }
 

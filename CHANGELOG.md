@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.0.4] — 2026-07-06
+
+### Fixed
+
+- **Frozen "Cloudflare download" phase (seen on mobile)** — `speed.cloudflare.com`
+  rate-limits large download payloads per IP (HTTP 429 with a multi-minute
+  Retry-After); the engine retries silently forever, wedging the phase. A 25 s
+  stall watchdog now stops the engine and fails the Cloudflare source cleanly —
+  the run continues on the remaining sources and the failure is disclosed in the
+  per-source breakdown. This same throttling explains erratic/low Cloudflare
+  download readings (and understated capacity headlines) on runs where it
+  engaged: with the strongest saturating source silently crippled, the merge
+  fell back to remote-limited single-connection sources.
+
 ## [3.0.3] — 2026-07-06
 
 ### Changed
