@@ -233,31 +233,17 @@ export default function SettingsView() {
         </span>
       </div>
 
-      {/* Network Info */}
-      {network.available && (
+      {/* Network Info — physical connection type only. The Network Information
+          API's downlink/rtt/effectiveType are hidden everywhere: Chrome caps
+          downlink at 10 Mbps and quantizes rtt, so they read as fake "speeds"
+          next to our real measurements. */}
+      {network.available && network.type && (
         <>
           <div style={sectionLabel}>NETWORK</div>
           <div style={{ ...rowStyle(false), flexDirection: 'column', alignItems: 'flex-start', gap: '0.25rem', cursor: 'default' }}>
-            {network.type && (
-              <div style={{ fontSize: '0.75rem', fontWeight: 600 }}>
-                TYPE: {network.type.toUpperCase()}
-              </div>
-            )}
-            {network.type && network.effectiveType && (
-              <div style={{ fontSize: '0.7rem', opacity: 0.6 }}>
-                SPEED CLASS: {network.effectiveType.toUpperCase()}
-              </div>
-            )}
-            {network.downlink !== null && (
-              <div style={{ fontSize: '0.7rem', opacity: 0.6 }}>
-                EST. BANDWIDTH: {network.downlink} Mbps
-              </div>
-            )}
-            {network.rtt !== null && (
-              <div style={{ fontSize: '0.7rem', opacity: 0.6 }}>
-                EST. RTT: {network.rtt} ms
-              </div>
-            )}
+            <div style={{ fontSize: '0.75rem', fontWeight: 600 }}>
+              TYPE: {network.type.toUpperCase()}
+            </div>
           </div>
         </>
       )}

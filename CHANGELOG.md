@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.0.3] — 2026-07-06
+
+### Changed
+
+- **QubeTX logo (deck top bar) and "BUILT BY QUBETX" now link to qubetx.com**
+  (new tab, subtle dotted underline on the text link).
+
+### Removed
+
+- **Fake "speed" readouts from the Network Information API** — the bottom-left
+  deck line (e.g. "10 MBPS · 0 MS RTT") and the Settings NETWORK block's
+  SPEED CLASS / EST. BANDWIDTH / EST. RTT rows. Chrome privacy-caps `downlink`
+  at 10 Mbps and quantizes `rtt`, so these were pseudo-numbers sitting next to
+  real measurements. The factual physical connection type (WIFI/CELLULAR, where
+  the platform reports it) is retained.
+
 ## [3.0.2] — 2026-07-06
 
 ### Changed

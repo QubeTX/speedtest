@@ -32,11 +32,19 @@ export default function TopBar({ label, errorTag }: TopBarProps) {
       {label ? (
         <span>{label}</span>
       ) : (
-        <img
-          src="https://shaughv.s3.us-east-1.amazonaws.com/brandmark/QUBETX/QubeTX-Logo.svg"
-          alt="QubeTX"
-          style={{ height: isWide ? '18px' : '14px', opacity: 0.8 }}
-        />
+        <a
+          href="https://qubetx.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="QubeTX — visit qubetx.com"
+          style={{ display: 'inline-flex', alignItems: 'center' }}
+        >
+          <img
+            src="https://shaughv.s3.us-east-1.amazonaws.com/brandmark/QUBETX/QubeTX-Logo.svg"
+            alt="QubeTX"
+            style={{ height: isWide ? '18px' : '14px', opacity: 0.8 }}
+          />
+        </a>
       )}
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
         {errorTag ? (

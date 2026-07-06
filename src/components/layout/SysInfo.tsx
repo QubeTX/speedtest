@@ -46,22 +46,13 @@ export default function SysInfo({ serverName, isp, networkMetadata, isError, err
     );
   }
 
-  // Build connection lines with clear labels
+  // Connection line: physical type only (WIFI/CELLULAR — factual, Android).
+  // The Network Information API's downlink/rtt/effectiveType are deliberately
+  // NOT shown: Chrome privacy-caps downlink at 10 Mbps and quantizes rtt, so
+  // they read as bogus "speeds" next to our real measurements.
   const connectionLines: string[] = [];
-  if (network.available) {
-    if (network.type) {
-      // Physical type is available (Android) — show it, plus effective type for context
-      connectionLines.push(network.type.toUpperCase());
-      if (network.effectiveType) {
-        connectionLines.push(`SPEED CLASS: ${network.effectiveType.toUpperCase()}`);
-      }
-    } else if (network.downlink !== null || network.rtt !== null) {
-      // Desktop Chrome — no physical type, show bandwidth/RTT instead
-      const parts: string[] = [];
-      if (network.downlink !== null) parts.push(`${network.downlink} Mbps`);
-      if (network.rtt !== null) parts.push(`${network.rtt} ms RTT`);
-      connectionLines.push(parts.join(' • '));
-    }
+  if (network.available && network.type) {
+    connectionLines.push(network.type.toUpperCase());
   }
 
   return (
@@ -77,7 +68,14 @@ export default function SysInfo({ serverName, isp, networkMetadata, isError, err
         <>EDGE: {networkMetadata.coloCity} ({networkMetadata.colo})<br /></>
       )}
       {connectionLines.map((line, i) => <span key={i}>{line}<br /></span>)}
-      BUILT BY QUBETX
+      <a
+        href="https://qubetx.com"
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{ color: 'inherit', textDecoration: 'none', borderBottom: '1px dotted rgba(17,17,17,0.35)', cursor: 'pointer' }}
+      >
+        BUILT BY QUBETX
+      </a>
     </div>
   );
 }
