@@ -66,9 +66,11 @@ export default async function handler(req: Request): Promise<Response> {
       });
     }
     const data = (await mint.json()) as {
-      iceServers: Array<{ urls: string[]; username: string; credential: string }>;
+      iceServers: Array<{ urls: string[]; username?: string; credential?: string }>;
     };
-    const server = data.iceServers?.[0];
+    // The response lists a credential-less STUN entry first; pick the TURN entry
+    // that actually carries username/credential.
+    const server = data.iceServers?.find((s) => s.username && s.credential);
     if (!server?.username || !server?.credential) {
       return new Response(JSON.stringify({ error: 'mint-malformed' }), {
         status: 502,
