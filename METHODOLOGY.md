@@ -49,7 +49,8 @@ visible, never silently missing. Failed providers appear with `availability: "fa
 
 **Test modes:**
 - **FAST** — Cloudflare + NDT7 + MSAK, with confidence-sequence early termination (§8).
-  Target ≈ 15–25 s. Default CLI flag: `speedqx --fast`.
+  Typically ≈ 1 minute end-to-end (each source early-stops when converged, hard-capped
+  at 25 s of sampling; the conservative EB sequence rarely stops sooner). CLI: `speedqx --fast`.
 - **FULL** — every provider available on the platform, fixed durations, no early stop.
   Default for `speedqx` (CLI).
 

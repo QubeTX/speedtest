@@ -6,29 +6,20 @@ import Apparatus from '../components/layout/Apparatus';
 import TopBar from '../components/layout/TopBar';
 import SpeakerGrill from '../components/layout/SpeakerGrill';
 import CrosshairCorners from '../components/layout/CrosshairCorners';
-import type { ProviderMode, TestProfile, TestDuration, SpeedUnit } from '../types/speedtest';
+import type { TestDuration, SpeedUnit } from '../types/speedtest';
 import type { CSSProperties } from 'react';
 import { fontFamilies } from '../theme/tokens';
 
-const PROFILE_OPTIONS: { value: TestProfile; label: string; desc: string }[] = [
-  { value: 'fast', label: 'FAST', desc: 'Cloudflare + M-Lab • ~1 min • quick, high-quality read' },
-  { value: 'full', label: 'FULL', desc: 'Every available source • fixed durations • maximum accuracy' },
-];
-
-const PROVIDER_OPTIONS: { mode: ProviderMode; label: string; desc: string }[] = [
-  { mode: 'both', label: 'BOTH (AGGREGATED)', desc: 'Multi-source confidence-weighted merge • Fast or Full' },
-  { mode: 'cloudflare', label: 'CLOUDFLARE', desc: 'Multi-request • Bufferbloat detection • Packet loss' },
-  { mode: 'ndt7', label: 'M-LAB NDT7', desc: 'Single-stream TCP • Kernel-level RTT • Open data' },
-];
-
+// v4: the test profile is chosen at the deck (PLAY vs DEEP TEST) and the source
+// registry is methodology-defined, so the old "default test" and "provider"
+// pickers are gone. Duration applies PER SOURCE in DEEP TEST — options above
+// one minute multiplied across 7 sequential sources and are deliberately
+// no longer offered (stored legacy values are clamped on load in useSettings).
 const DURATION_OPTIONS: { value: TestDuration; label: string }[] = [
   { value: 'auto', label: 'AUTO' },
   { value: 15, label: '15 SEC' },
   { value: 30, label: '30 SEC' },
   { value: 60, label: '1 MIN' },
-  { value: 120, label: '2 MIN' },
-  { value: 300, label: '5 MIN' },
-  { value: 600, label: '10 MIN' },
 ];
 
 const UNIT_OPTIONS: { value: SpeedUnit; label: string }[] = [
@@ -66,7 +57,9 @@ export default function SettingsView() {
     borderBottom: '1px solid rgba(17,17,17,0.1)',
   };
 
-  const needsConsent = settings.providerMode === 'ndt7' || settings.providerMode === 'both';
+  // v4: the M-Lab sources (NDT7 + MSAK) run in every profile, so the consent
+  // section is always relevant.
+  const needsConsent = true;
 
   const leftPanel = (
     <>
@@ -107,44 +100,6 @@ export default function SettingsView() {
 
   const rightPanel = (
     <div style={{ overflowY: 'auto' }}>
-      {/* Default Test Profile */}
-      <div style={sectionLabel}>DEFAULT TEST</div>
-      {PROFILE_OPTIONS.map(opt => (
-        <div
-          key={opt.value}
-          style={rowStyle(settings.testProfile === opt.value)}
-          onClick={() => updateSettings({ testProfile: opt.value })}
-        >
-          <CrosshairCorners />
-          <div>
-            <div style={{ fontSize: '1rem', fontWeight: 600, letterSpacing: '-0.01em' }}>{opt.label}</div>
-            <div style={{ fontSize: '0.65rem', opacity: 0.5, marginTop: '0.25rem', letterSpacing: '0.05em' }}>{opt.desc}</div>
-          </div>
-          {settings.testProfile === opt.value && (
-            <span style={{ fontSize: '1.2rem' }}>●</span>
-          )}
-        </div>
-      ))}
-
-      {/* Provider Selection */}
-      <div style={sectionLabel}>PROVIDER</div>
-      {PROVIDER_OPTIONS.map(opt => (
-        <div
-          key={opt.mode}
-          style={rowStyle(settings.providerMode === opt.mode)}
-          onClick={() => updateSettings({ providerMode: opt.mode })}
-        >
-          <CrosshairCorners />
-          <div>
-            <div style={{ fontSize: '1rem', fontWeight: 600, letterSpacing: '-0.01em' }}>{opt.label}</div>
-            <div style={{ fontSize: '0.65rem', opacity: 0.5, marginTop: '0.25rem', letterSpacing: '0.05em' }}>{opt.desc}</div>
-          </div>
-          {settings.providerMode === opt.mode && (
-            <span style={{ fontSize: '1.2rem' }}>●</span>
-          )}
-        </div>
-      ))}
-
       {/* M-Lab Consent — always rendered to avoid layout shift; collapsed when not needed */}
       <div data-testid="data-policy-wrapper" style={{
         maxHeight: needsConsent ? '200px' : '0',
@@ -178,13 +133,16 @@ export default function SettingsView() {
             {settings.dataPolicyAccepted ? '✓' : ''}
           </div>
           <div style={{ fontSize: '0.65rem', lineHeight: 1.5, opacity: 0.7, flex: 1 }}>
-            I accept M-Lab's data collection policy. Test data including IP address is collected and published as open data.
+            I accept M-Lab's data collection policy — used by the M-Lab NDT7 and MSAK sources. Test data including IP address is collected and published as open data. Declining runs the test without the M-Lab sources.
           </div>
         </div>
       </div>
 
-      {/* Duration */}
-      <div style={sectionLabel}>TEST DURATION</div>
+      {/* Duration — per source, DEEP TEST only (PLAY paces itself) */}
+      <div style={sectionLabel}>PER-SOURCE DURATION</div>
+      <div style={{ fontSize: '0.6rem', opacity: 0.5, letterSpacing: '0.05em', lineHeight: 1.5, padding: '0 clamp(1.5rem, 3vw, 3rem) 0.6rem' }}>
+        APPLIES TO DEEP TEST — EACH SOURCE RUNS THIS LONG, IN SEQUENCE. PLAY PACES ITSELF AUTOMATICALLY.
+      </div>
       <div style={{ display: 'flex', flexWrap: 'wrap', borderBottom: '3px solid #111' }}>
         {DURATION_OPTIONS.map(opt => (
           <div

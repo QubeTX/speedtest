@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.0.2] — 2026-07-06
+
+### Changed
+
+- **How-it-works page fully rewritten for Methodology v4** — restructured into 15
+  cleanly-numbered sections, each opening with a labeled **TT;DR** plain-English lead
+  (full technical depth kept beneath). Fixes all stale v2/v3 content: dual-provider
+  framing → the seven-source registry (+ Apple as CLI-only), provider divergence →
+  I² agreement bands, old inverse-variance weighting → the capacity/consensus hybrid
+  merge, ratio-graded bufferbloat → delta-ms grades, flat "100 pings" → duration-scaled
+  probing, RFC 3550 headline jitter → PDV. Adds FAST/DEEP TEST early-stopping,
+  min-RTT ping, RPM, Realtime-TURN packet loss, plateau detection, block bootstrap +
+  BCa, golden-vector cross-product parity, and the corrected stability threshold
+  (CV < 0.15). Comparison table made fairer and relabeled to SpeedQX.
+- **Settings page audited for v4** — removed the DEFAULT TEST profile picker
+  (redundant with the PLAY / DEEP TEST deck buttons) and the legacy PROVIDER picker
+  (the M-Lab consent toggle is the real gate; stored single-provider modes are
+  migrated back to the full registry on load). Duration is now **PER-SOURCE DURATION**
+  with an explainer and AUTO/15/30/60 options only — the old 2/5/10-minute options
+  would have multiplied across seven sequential Deep Test sources (stored legacy
+  values are clamped to 60 s). Consent copy names both M-Lab sources (NDT7 + MSAK)
+  and states what declining does.
+- METHODOLOGY.md §3 FAST duration corrected to match measured reality (~1 minute
+  end-to-end; the conservative confidence sequence rarely stops a source before its
+  25 s sampling cap) — synced byte-identical to all three product repos.
+
 ## [3.0.1] — 2026-07-06
 
 ### Fixed
