@@ -77,16 +77,20 @@ export default async function handler(req: Request): Promise<Response> {
         headers: corsHeaders(origin),
       });
     }
-    // @cloudflare/speedtest destructures { username, credential, turnServerUri } from this
-    // response and builds `turn:${turnServerUri}?transport=udp`. Without turnServerUri it
-    // falls back to the DEPRECATED turn.speed.cloudflare.com relay — so the Realtime host
-    // must be returned explicitly (host:port, no scheme). urls[] included for other clients.
+    // @cloudflare/speedtest's default creds parser maps { username, credential, server }
+    // → { turnServerUser, turnServerPass, turnServerUri } and builds
+    // `turn:${turnServerUri}?transport=udp`. The relay host MUST therefore be returned
+    // under the key `server` (host:port, no scheme) or the engine silently falls back to
+    // the deprecated turn.speed.cloudflare.com relay. turnServerUri + urls[] are included
+    // for non-engine consumers.
     const udpUrls = server.urls.filter((u) => u.startsWith('turn:') && u.includes('transport=udp'));
+    const relayHost = 'turn.cloudflare.com:3478';
     return new Response(
       JSON.stringify({
         username: server.username,
         credential: server.credential,
-        turnServerUri: 'turn.cloudflare.com:3478',
+        server: relayHost,
+        turnServerUri: relayHost,
         urls: udpUrls,
       }),
       { status: 200, headers: corsHeaders(origin) },

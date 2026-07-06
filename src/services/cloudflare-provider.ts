@@ -99,6 +99,10 @@ export class CloudflareProvider implements SpeedTestProvider {
         // purpose: the same endpoint serves speedqx.com, local dev, and the iOS app's
         // WebView. On any failure the engine degrades packet loss to unavailable.
         turnServerCredsApiUrl: TURN_CREDS_API_URL,
+        // Explicit relay host as well — the creds-API parser also carries it (as
+        // `server`), but pinning it here means no parser change can strand the
+        // engine on its deprecated turn.speed.cloudflare.com default.
+        turnServerUri: 'turn.cloudflare.com:3478',
       });
 
       const engine = this.engine;
