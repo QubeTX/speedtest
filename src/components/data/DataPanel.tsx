@@ -1,13 +1,16 @@
-import type { TestPhase, SpeedTestProgress, SpeedTestResult, SpeedUnit, DnsCheckResult } from '../../types/speedtest';
+import type { CSSProperties, ReactNode } from 'react';
+import type { TestPhase, SpeedTestProgress, SpeedTestResult, SpeedUnit, DnsCheckResult, BandwidthCi, AgreementBand } from '../../types/speedtest';
 import { formatSpeed } from '../../types/speedtest';
-import SplitRow from './SplitRow';
+import SplitRow, { ROW_PADDING } from './SplitRow';
 import DataRow from './DataRow';
 import DnsBar from './DnsBar';
-import PretextBlock from '../ui/PretextBlock';
 import Tooltip from '../ui/Tooltip';
-import { typography, borders } from '../../theme/tokens';
-import { responsive } from '../../theme/responsive';
-import { useResponsive } from '../../hooks/useResponsive';
+import VuMeter from './VuMeter';
+import MeasurementQuality from './MeasurementQuality';
+import ProviderBreakdown from './ProviderBreakdown';
+import CRTOverlay from '../effects/CRTOverlay';
+import { borders, textStyles, typeSizes } from '../../theme/tokens';
+import { useCountUp } from '../../hooks/useCountUp';
 
 interface DataPanelProps {
   phase: TestPhase;
@@ -30,72 +33,81 @@ function metaFor(phase: TestPhase, rowPhase: 'latency' | 'download' | 'upload', 
   return 'WAITING';
 }
 
+/** Lock a speed formatter to the final value's unit so a live count-up never
+ *  flips units (e.g. Mbps → Kbps) while ramping up from zero. */
+function speedFormatter(finalMbps: number, unit: SpeedUnit): { unit: string; format: (n: number) => string } {
+  const final = formatSpeed(finalMbps, unit);
+  const lockedUnit = final.unit as SpeedUnit;
+  return { unit: final.unit, format: (n) => formatSpeed(n, lockedUnit).value };
+}
+
 export default function DataPanel({ phase, progress, result, speedUnit, dnsCheck }: DataPanelProps) {
-  const { breakpoint, isMobile, isSmallDesktop } = useResponsive();
-  const r = responsive[breakpoint];
   const isComplete = phase === 'complete';
   const isError = phase === 'error';
 
-  // Display values
-  const pingVal = isComplete && result
-    ? result.ping.toFixed(0)
-    : progress.ping !== null ? progress.ping.toFixed(0) : '--';
+  // Headline numeric values (null → placeholder, no count-up).
+  const pingNum = isComplete && result ? result.ping : progress.ping;
+  const jitterNum = isComplete && result ? result.jitter : progress.jitter;
+  const dlNum = isComplete && result ? result.downloadSpeed : progress.downloadSpeed;
+  const ulNum = isComplete && result ? result.uploadSpeed : progress.uploadSpeed;
 
-  const jitterVal = isComplete && result
-    ? result.jitter.toFixed(0)
-    : progress.jitter !== null ? progress.jitter.toFixed(0) : '--';
+  // Count-up refs (hooks run unconditionally; refs bind only when numeric).
+  const pingRef = useCountUp<HTMLSpanElement>(pingNum ?? 0, { format: (n) => n.toFixed(0) });
+  const jitterRef = useCountUp<HTMLSpanElement>(jitterNum ?? 0, { format: (n) => n.toFixed(0) });
 
-  const dlRaw = isComplete && result ? result.downloadSpeed : progress.downloadSpeed;
-  const ulRaw = isComplete && result ? result.uploadSpeed : progress.uploadSpeed;
-  const dl = dlRaw !== null ? formatSpeed(dlRaw, speedUnit) : { value: '---', unit: 'Mbps' };
-  const ul = ulRaw !== null ? formatSpeed(ulRaw, speedUnit) : { value: '---', unit: 'Mbps' };
+  const dlFmt = dlNum != null ? speedFormatter(dlNum, speedUnit) : null;
+  const ulFmt = ulNum != null ? speedFormatter(ulNum, speedUnit) : null;
 
   const dlMeta = metaFor(phase, 'download', isComplete);
   const ulMeta = metaFor(phase, 'upload', isComplete);
 
-  // Aggregated breakdown
-  const breakdown = isComplete && result?.providerResults ? result.providerResults : null;
-  const cfResult = breakdown?.cloudflare;
-  const ndtResult = breakdown?.ndt7;
-
-  // New accuracy metrics
   const latencyStats = isComplete && result?.latencyStats ? result.latencyStats : null;
   const bufferbloat = isComplete && result?.bufferbloat ? result.bufferbloat : null;
-  const stability = isComplete && result?.stability ? result.stability : null;
-  const divergence = isComplete && result?.providerDivergence ? result.providerDivergence : null;
-  const aimScores = isComplete && result?.aimScores ? result.aimScores : null;
 
-  const breakdownStyle = {
-    fontSize: '0.7rem',
-    opacity: 0.5,
-    marginTop: '0.25rem',
-    letterSpacing: '0.05em',
+  const currentSpeed = phase === 'download'
+    ? (progress.downloadSpeed ?? 0)
+    : phase === 'upload'
+      ? (progress.uploadSpeed ?? 0)
+      : 0;
+
+  const numMedium: CSSProperties = textStyles.instrumentNumber;
+  const unitStyle: CSSProperties = { ...textStyles.unit, fontSize: typeSizes.unit };
+  const breakdownStyle: CSSProperties = { ...textStyles.metricValue, fontSize: '0.62rem', opacity: 0.5, marginTop: '0.3rem' };
+  const ciStyle: CSSProperties = { ...textStyles.metricValue, fontSize: '0.7rem', opacity: 0.5, marginTop: '0.35rem' };
+
+  // ── Confidence interval (±X, or an honest clamped range when very wide) ──
+  const dlCi = result?.capacityMbps?.downloadCi ?? result?.confidenceIntervals?.download;
+  const ulCi = result?.capacityMbps?.uploadCi ?? result?.confidenceIntervals?.upload;
+
+  const renderCi = (
+    value: number | null,
+    ci: BandwidthCi | undefined,
+    fmt: { unit: string; format: (n: number) => string } | null,
+    band: AgreementBand | undefined,
+  ): ReactNode => {
+    if (value == null || !ci || !fmt) return null;
+    const lower = Math.max(0, ci.lower);
+    const upper = Math.max(lower, ci.upper);
+    const margin = (upper - lower) / 2;
+    // Speed can't be negative, so a "±X" that implies a negative floor is
+    // misleading. Very-low agreement (METHODOLOGY.md §6) or an interval wider
+    // than the value itself → show the honest clamped range instead.
+    const wide = band === 'very-low' || margin >= value;
+    return (
+      <div style={ciStyle}>
+        <Tooltip tooltipKey="confidenceInterval">
+          {wide
+            ? <>95% CI {fmt.format(lower)}&ndash;{fmt.format(upper)} {fmt.unit}</>
+            : <>&plusmn;{fmt.format(margin)} {fmt.unit} (95% CI)</>}
+        </Tooltip>
+      </div>
+    );
   };
-
-  const badgeBase: React.CSSProperties = {
-    display: 'inline-block',
-    fontSize: '0.55rem',
-    fontWeight: 700,
-    letterSpacing: '0.1em',
-    padding: '0.15rem 0.4rem',
-    borderRadius: '4px',
-    marginLeft: '0.5rem',
-    verticalAlign: 'middle',
-  };
-
-  const avgBadge = breakdown ? (
-    <Tooltip tooltipKey="avg" variant="badge">
-      <span style={{ ...badgeBase, backgroundColor: '#111111', color: '#ffffff' }}>
-        AVG
-      </span>
-    </Tooltip>
-  ) : null;
-
 
   if (isError) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', flex: 1, position: 'relative' }}>
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.05) 50%), linear-gradient(90deg, rgba(255,0,0,0.02), rgba(0,255,0,0.01), rgba(0,0,255,0.02))', backgroundSize: '100% 4px, 3px 100%', pointerEvents: 'none', zIndex: 5 }} />
+        <CRTOverlay />
         <DataRow label="LATENCY_BUFFER" metaStatus="FAILED" value="NO SIGNAL" unit="" isGlitch />
         <DataRow label="RX_DOWNLINK" metaStatus="TIMEOUT" value="NO SIGNAL" unit="" isGlitch
           diagnostics={
@@ -112,66 +124,56 @@ export default function DataPanel({ phase, progress, result, speedUnit, dnsCheck
     );
   }
 
+  const latencyActive = phase === 'latency' || phase === 'discovering';
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', flex: 1, position: 'relative' }}>
       {/* Ping / Jitter */}
-      <SplitRow isActive={phase === 'latency' || phase === 'discovering'}>
+      <SplitRow isActive={latencyActive}>
         <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-            <span style={typography.metaLabel}>PING</span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', minHeight: '1.5rem', marginBottom: '0.5rem' }}>
+            <Tooltip tooltipKey="minRtt" variant="badge"><span style={textStyles.microLabel}>PING</span></Tooltip>
           </div>
-          <PretextBlock
-            entryId={`speed-medium-${breakpoint}`}
-            style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}
-          >
-            <span style={{ ...typography.numberMedium, fontSize: r.numberMedium }}>{pingVal}</span>
-            <span style={{ ...typography.unit, fontSize: r.unit }}>ms</span>
-          </PretextBlock>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
+            {pingNum != null
+              ? <span ref={pingRef} style={numMedium} />
+              : <span style={numMedium}>--</span>}
+            <span style={unitStyle}>ms</span>
+          </div>
           {latencyStats && (
             <div style={breakdownStyle}>
-              <Tooltip tooltipKey="p50" value={latencyStats.p50}>P50: {latencyStats.p50.toFixed(0)}</Tooltip>
-              {' \u2022 '}
-              <Tooltip tooltipKey="p95" value={latencyStats.p95}>P95: {latencyStats.p95.toFixed(0)}</Tooltip>
-              {' \u2022 '}
-              <Tooltip tooltipKey="p99" value={latencyStats.p99}>P99: {latencyStats.p99.toFixed(0)}</Tooltip>
-            </div>
-          )}
-          {!latencyStats && breakdown && cfResult && ndtResult && (
-            <div style={breakdownStyle}>
-              <Tooltip tooltipKey="cf">CF: {cfResult.ping.toFixed(0)}</Tooltip>
-              {' \u2022 '}
-              <Tooltip tooltipKey="ndt">NDT: {ndtResult.ping.toFixed(0)}</Tooltip>
+              <Tooltip tooltipKey="p50" value={latencyStats.p50}>P50 {latencyStats.p50.toFixed(0)}</Tooltip>
+              {' • '}
+              <Tooltip tooltipKey="p95" value={latencyStats.p95}>P95 {latencyStats.p95.toFixed(0)}</Tooltip>
+              {' • '}
+              <Tooltip tooltipKey="p99" value={latencyStats.p99}>P99 {latencyStats.p99.toFixed(0)}</Tooltip>
             </div>
           )}
         </div>
         <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-            <span style={typography.metaLabel}>JITTER</span>
-            <Tooltip tooltipKey="rfc3550" variant="badge">
-              <span style={{ ...typography.metaLabel, opacity: 0.4, fontSize: '0.5rem' }}>RFC 3550</span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', minHeight: '1.5rem', marginBottom: '0.5rem' }}>
+            <span style={textStyles.microLabel}>JITTER</span>
+            <Tooltip tooltipKey="pdv" variant="badge">
+              <span style={{ ...textStyles.microLabel, opacity: 0.4, fontSize: '0.5rem' }}>PDV</span>
             </Tooltip>
           </div>
-          <PretextBlock
-            entryId={`speed-medium-${breakpoint}`}
-            style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}
-          >
-            <span style={{ ...typography.numberMedium, fontSize: r.numberMedium }}>{jitterVal}</span>
-            <span style={{ ...typography.unit, fontSize: r.unit }}>ms</span>
-          </PretextBlock>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
+            {jitterNum != null
+              ? <span ref={jitterRef} style={numMedium} />
+              : <span style={numMedium}>--</span>}
+            <span style={unitStyle}>ms</span>
+          </div>
           {latencyStats && (
             <div style={breakdownStyle}>
               <Tooltip tooltipKey="samples" value={latencyStats.samples.length}>{latencyStats.samples.length} samples</Tooltip>
-              {' \u2022 '}
-              <Tooltip tooltipKey="stddev" value={latencyStats.stddev}>stddev: {latencyStats.stddev.toFixed(1)}</Tooltip>
-            </div>
-          )}
-          {isComplete && result?.jitterBreakdown && (
-            <div style={breakdownStyle}>
-              <Tooltip tooltipKey="jitterIdle">IDLE: {result.jitterBreakdown.idle.toFixed(0)}</Tooltip>
-              {' \u2022 '}
-              <Tooltip tooltipKey="jitterDownload">DL: {result.jitterBreakdown.duringDownload.toFixed(0)}</Tooltip>
-              {' \u2022 '}
-              <Tooltip tooltipKey="jitterUpload">UL: {result.jitterBreakdown.duringUpload.toFixed(0)}</Tooltip>
+              {' • '}
+              <Tooltip tooltipKey="stddev" value={latencyStats.stddev}>&sigma; {latencyStats.stddev.toFixed(1)}</Tooltip>
+              {typeof latencyStats.jitterRfc3550 === 'number' && (
+                <>
+                  {' • '}
+                  <Tooltip tooltipKey="rfc3550">RFC3550 {latencyStats.jitterRfc3550.toFixed(1)}</Tooltip>
+                </>
+              )}
             </div>
           )}
         </div>
@@ -180,169 +182,82 @@ export default function DataPanel({ phase, progress, result, speedUnit, dnsCheck
       {/* Download */}
       <DataRow
         label="DOWNLOAD SPEED"
-        labelSuffix={avgBadge}
         metaStatus={dlMeta}
-        value={dl.value}
-        unit={dl.unit}
+        value={dlFmt && dlNum != null ? dlFmt.format(dlNum) : '---'}
+        unit={dlFmt?.unit ?? 'Mbps'}
+        numericValue={dlNum ?? undefined}
+        format={dlFmt?.format}
         isActive={phase === 'download'}
         showProgress={phase === 'download'}
         progress={progress.downloadProgress}
       >
-        {breakdown && cfResult && ndtResult && (
-          <div style={breakdownStyle}>
-            <Tooltip tooltipKey="cf">CF: {formatSpeed(cfResult.downloadSpeed, speedUnit).value}</Tooltip>
-            {' \u2022 '}
-            <Tooltip tooltipKey="ndt">NDT: {formatSpeed(ndtResult.downloadSpeed, speedUnit).value}</Tooltip>
-          </div>
+        {phase === 'download' && (
+          <VuMeter mbps={currentSpeed} style={{ marginTop: '0.6rem' }} />
         )}
-        {isComplete && result?.downloadEstimate && result.downloadEstimate.ciMargin > 0 && (
-          <div style={breakdownStyle}>
-            <Tooltip tooltipKey="confidenceInterval">
-              95% CI: {formatSpeed(result.downloadEstimate.ci95Lower, speedUnit).value}&ndash;{formatSpeed(result.downloadEstimate.ci95Upper, speedUnit).value} (&plusmn;{result.downloadEstimate.ciMargin.toFixed(1)})
-            </Tooltip>
-          </div>
-        )}
+        {isComplete && renderCi(dlNum, dlCi, dlFmt, result?.agreement?.band)}
       </DataRow>
 
       {/* Upload */}
       <DataRow
         label="UPLOAD SPEED"
-        labelSuffix={avgBadge}
         metaStatus={ulMeta}
-        value={ul.value}
-        unit={ul.unit}
+        value={ulFmt && ulNum != null ? ulFmt.format(ulNum) : '---'}
+        unit={ulFmt?.unit ?? 'Mbps'}
+        numericValue={ulNum ?? undefined}
+        format={ulFmt?.format}
         isActive={phase === 'upload'}
         showProgress={phase === 'upload'}
         progress={progress.uploadProgress}
-        isLast
+        isLast={!isComplete}
       >
-        {breakdown && cfResult && ndtResult && (
-          <div style={breakdownStyle}>
-            <Tooltip tooltipKey="cf">CF: {formatSpeed(cfResult.uploadSpeed, speedUnit).value}</Tooltip>
-            {' \u2022 '}
-            <Tooltip tooltipKey="ndt">NDT: {formatSpeed(ndtResult.uploadSpeed, speedUnit).value}</Tooltip>
-          </div>
+        {phase === 'upload' && (
+          <VuMeter mbps={currentSpeed} style={{ marginTop: '0.6rem' }} />
         )}
-        {isComplete && result?.uploadEstimate && result.uploadEstimate.ciMargin > 0 && (
-          <div style={breakdownStyle}>
-            <Tooltip tooltipKey="confidenceInterval">
-              95% CI: {formatSpeed(result.uploadEstimate.ci95Lower, speedUnit).value}&ndash;{formatSpeed(result.uploadEstimate.ci95Upper, speedUnit).value} (&plusmn;{result.uploadEstimate.ciMargin.toFixed(1)})
-            </Tooltip>
-          </div>
-        )}
+        {isComplete && renderCi(ulNum, ulCi, ulFmt, result?.uploadAgreement?.band)}
       </DataRow>
 
-      {/* Accuracy Metrics — AIM scores, bufferbloat, stability, divergence */}
-      {isComplete && (aimScores || bufferbloat || stability || divergence?.significant) && (() => {
-        const mLabel: React.CSSProperties = {
-          ...typography.metaLabel,
-          fontSize: '0.5rem',
-          display: 'block',
-          marginBottom: '0.2rem',
-        };
-        const mVal: React.CSSProperties = {
-          fontSize: isMobile ? '0.8rem' : '0.85rem',
-          fontWeight: 600,
-          letterSpacing: '0.03em',
-          fontVariantNumeric: 'tabular-nums',
-        };
-        const mDetail: React.CSSProperties = {
-          fontSize: '0.55rem',
-          opacity: 0.4,
-          letterSpacing: '0.03em',
-          fontVariantNumeric: 'tabular-nums',
-          marginLeft: '0.4rem',
-        };
-        const cellStyle: React.CSSProperties = {
-          padding: isMobile ? '0.4rem 0' : '0.45rem 0',
-        };
-
-        // Count how many bottom-row metrics we have
-        const bottomMetrics = [bufferbloat, stability, divergence?.significant].filter(Boolean).length;
-
-        return (
-          <div style={{
-            flex: 'none',
-            borderBottom: borders.stroke,
-            padding: isMobile ? '0.5rem 1.5rem' : isSmallDesktop ? '0.6rem 2rem' : '0.6rem 3rem',
-          }}>
-            {/* AIM Scores */}
-            {aimScores && (
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: `repeat(${Object.keys(aimScores).length}, 1fr)`,
-                gap: '0.5rem',
-                ...((bufferbloat || stability || divergence?.significant)
-                  ? { paddingBottom: '0.5rem', marginBottom: '0.5rem', borderBottom: '1px solid rgba(17,17,17,0.08)' }
-                  : {}),
-              }}>
-                {Object.entries(aimScores).map(([key, score]) => (
-                  <div key={key} style={cellStyle}>
-                    <span style={mLabel}>{key.toUpperCase()}</span>
-                    <span style={mVal}>{score.classificationName.toUpperCase()}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Bufferbloat / Stability / Divergence */}
-            {bottomMetrics > 0 && (
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: isMobile
-                  ? '1fr'
-                  : `repeat(${bottomMetrics}, 1fr)`,
-                gap: isMobile ? '0.25rem 0' : '0 2rem',
-              }}>
-                {bufferbloat && (
-                  <div style={cellStyle}>
-                    <Tooltip tooltipKey="bufferbloat" variant="badge" value={Math.max(bufferbloat.downloadRatio, bufferbloat.uploadRatio)}>
-                      <span style={mLabel}>BUFFERBLOAT</span>
-                    </Tooltip>
-                    <span style={{ display: 'flex', alignItems: 'baseline' }}>
-                      <span style={mVal}>{bufferbloat.grade}</span>
-                      <Tooltip tooltipKey="bufferbloatRatio" value={Math.max(bufferbloat.downloadRatio, bufferbloat.uploadRatio)}>
-                        <span style={mDetail}>
-                          DL {bufferbloat.downloadRatio.toFixed(1)}x / UL {bufferbloat.uploadRatio.toFixed(1)}x
-                        </span>
-                      </Tooltip>
-                    </span>
-                  </div>
-                )}
-                {stability && (
-                  <div style={cellStyle}>
-                    <Tooltip tooltipKey="stable" variant="badge">
-                      <span style={mLabel}>STABILITY</span>
-                    </Tooltip>
-                    <span style={{ display: 'flex', alignItems: 'baseline' }}>
-                      <span style={mVal}>
-                        {stability.downloadStable && stability.uploadStable ? 'STABLE' : 'VARIABLE'}
-                      </span>
-                      <Tooltip tooltipKey="cv" value={Math.max(stability.downloadCV, stability.uploadCV) * 100}>
-                        <span style={mDetail}>
-                          DL {(stability.downloadCV * 100).toFixed(0)}% / UL {(stability.uploadCV * 100).toFixed(0)}%
-                        </span>
-                      </Tooltip>
-                    </span>
-                  </div>
-                )}
-                {divergence?.significant && (
-                  <div style={cellStyle}>
-                    <Tooltip tooltipKey="divergence" variant="badge" value={Math.max(divergence.download, divergence.upload) * 100}>
-                      <span style={mLabel}>DIVERGENCE</span>
-                    </Tooltip>
-                    <Tooltip tooltipKey="divergence" value={Math.max(divergence.download, divergence.upload) * 100}>
-                      <span style={mVal}>
-                        DL {(divergence.download * 100).toFixed(0)}% / UL {(divergence.upload * 100).toFixed(0)}%
-                      </span>
-                    </Tooltip>
-                  </div>
-                )}
-              </div>
-            )}
+      {/* Accuracy row — Responsiveness (RPM) + Bufferbloat (delta-ms) */}
+      {isComplete && result && ((typeof result.rpm === 'number' && result.rpm > 0) || bufferbloat) && (
+        <div style={{
+          flex: 'none',
+          borderBottom: borders.stroke,
+          padding: ROW_PADDING,
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: '1rem',
+        }}>
+          <div>
+            <Tooltip tooltipKey="rpm" variant="badge">
+              <span style={{ ...textStyles.microLabel, fontSize: '0.55rem', display: 'block', marginBottom: '0.25rem', opacity: 0.7 }}>RESPONSIVENESS</span>
+            </Tooltip>
+            {typeof result.rpm === 'number' && result.rpm > 0 ? (
+              <span style={{ display: 'flex', alignItems: 'baseline', gap: '0.35rem' }}>
+                <span style={{ ...textStyles.metricValue, fontSize: '1rem' }}>{result.rpm.toFixed(0)}</span>
+                <span style={{ ...textStyles.unit, fontSize: '0.7rem' }}>RPM</span>
+              </span>
+            ) : <span style={{ ...textStyles.metricValue, fontSize: '1rem', opacity: 0.4 }}>—</span>}
           </div>
-        );
-      })()}
+          <div>
+            <Tooltip tooltipKey="bufferbloatDelta" variant="badge" value={bufferbloat?.deltaMs}>
+              <span style={{ ...textStyles.microLabel, fontSize: '0.55rem', display: 'block', marginBottom: '0.25rem', opacity: 0.7 }}>BUFFERBLOAT</span>
+            </Tooltip>
+            {bufferbloat ? (
+              <span style={{ display: 'flex', alignItems: 'baseline', gap: '0.4rem' }}>
+                <span style={{ ...textStyles.metricValue, fontSize: '1rem' }}>{bufferbloat.grade}</span>
+                {typeof bufferbloat.deltaMs === 'number' && (
+                  <span style={{ ...textStyles.metricValue, fontSize: '0.65rem', opacity: 0.45 }}>+{bufferbloat.deltaMs.toFixed(0)} ms</span>
+                )}
+              </span>
+            ) : <span style={{ ...textStyles.metricValue, fontSize: '1rem', opacity: 0.4 }}>—</span>}
+          </div>
+        </div>
+      )}
+
+      {/* L1 — Measurement quality (consensus, agreement, stability, packet loss, methodology) */}
+      {isComplete && result && <MeasurementQuality result={result} speedUnit={speedUnit} />}
+
+      {/* L2 — Per-provider breakdown */}
+      {isComplete && result && <ProviderBreakdown result={result} speedUnit={speedUnit} />}
 
       {/* DNS Connectivity */}
       <DnsBar dnsCheck={dnsCheck} phase={phase} />

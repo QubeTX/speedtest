@@ -1,5 +1,4 @@
-import { responsive, type Breakpoint } from '../theme/responsive';
-import { typography } from '../theme/tokens';
+import { fontFamilies, typography } from '../theme/tokens';
 
 export interface TextEntryConfig {
   text: string;
@@ -9,8 +8,13 @@ export interface TextEntryConfig {
   lineHeight: number;
 }
 
-/** Font family matching tokens.ts typography.fontFamily */
-const FONT_FAMILY = "'Guton', -apple-system, BlinkMacSystemFont, sans-serif";
+/**
+ * Font family matching the text these entries measure. Everything registered
+ * here (SysInfo meta, status strings, DNS lines, tooltip metrics) renders in
+ * the instrument voice (IBM Plex Mono) under the v4 type system — imported
+ * from tokens so measurement can never drift from rendering again.
+ */
+const FONT_FAMILY = fontFamilies.instrument;
 
 /**
  * Resolve a rem string to px given the root font size.
@@ -28,48 +32,20 @@ export function buildFontShorthand(weight: number, sizePx: number): string {
 }
 
 /**
- * All text entries to be measured by pretext.
- *
- * For dynamic values (speed numbers), we use worst-case representative strings.
- * Since the site uses fontVariantNumeric: 'tabular-nums', all digits are equal
- * width. "8888" covers the widest 4-digit speed value. Decimals like "888.88"
- * would be wider but speed display typically shows whole numbers or 1-2 decimals
- * at most; "8888" is a safe reservation.
+ * Text entries pretext measures to reserve worst-case minHeight and prevent
+ * layout shift. The v4 design overhaul made the hero/metric numerals fluid
+ * (clamp()) AND single-line + always-present (placeholder → value at identical
+ * metrics), so those rows can't shift — they no longer need a measured entry.
+ * What remains here is genuinely-wrapping multi-line text (SysInfo, tooltips,
+ * status/DNS strings) where reflow risk is real.
  */
-
-function speedEntries(): Record<string, TextEntryConfig> {
-  const breakpoints: Breakpoint[] = ['mobile', 'tablet', 'smallDesktop', 'desktop'];
-  const entries: Record<string, TextEntryConfig> = {};
-
-  for (const bp of breakpoints) {
-    const r = responsive[bp];
-
-    // Large numbers (download/upload speed)
-    entries[`speed-large-${bp}`] = {
-      text: '8888',
-      fontWeight: typography.numberLarge.fontWeight,
-      fontSizeRem: r.numberLarge,
-      lineHeight: typography.numberLarge.lineHeight,
-    };
-
-    // Medium numbers (ping/jitter)
-    entries[`speed-medium-${bp}`] = {
-      text: '8888',
-      fontWeight: typography.numberMedium.fontWeight,
-      fontSizeRem: r.numberMedium,
-      lineHeight: typography.numberMedium.lineHeight,
-    };
-  }
-
-  return entries;
-}
 
 function sysinfoEntry(): Record<string, TextEntryConfig> {
   // Worst-case SysInfo: 4 lines of metadata text
   const worstCase = [
     'SERVER: CLOUDFLARE-SPEEDTEST-SFO',
     'ISP: COMCAST CABLE COMMUNICATIONS',
-    '100 MBPS \u2022 50 MS RTT',
+    '100 MBPS • 50 MS RTT',
     'BUILT BY QUBETX',
   ].join('\n');
 
@@ -109,7 +85,7 @@ function statusEntries(): Record<string, TextEntryConfig> {
 function dnsEntry(): Record<string, TextEntryConfig> {
   return {
     'dns-summary': {
-      text: '8/8 REACHABLE \u2022 888ms',
+      text: '8/8 REACHABLE • 888ms',
       fontWeight: 500,
       fontSizeRem: '0.65rem',
       lineHeight: 1.5,
@@ -118,40 +94,24 @@ function dnsEntry(): Record<string, TextEntryConfig> {
 }
 
 function tooltipEntries(): Record<string, TextEntryConfig> {
-  const breakpoints: Breakpoint[] = ['mobile', 'tablet', 'smallDesktop', 'desktop'];
-  const entries: Record<string, TextEntryConfig> = {};
-
-  // Tooltip body font sizes per breakpoint
-  const tooltipBodySizes: Record<Breakpoint, string> = {
-    mobile: '0.65rem',
-    tablet: '0.7rem',
-    smallDesktop: '0.75rem',
-    desktop: '0.8rem',
-  };
-
   // Worst-case tooltip: longest description + range label from tooltips.ts
   const worstCase = [
     'The industry-standard algorithm for measuring jitter, defined in RFC 3550.',
     'The same formula used by VoIP phones, Zoom, and video conferencing systems',
     'to gauge connection smoothness.',
-    'Grade F \u2014 severe bufferbloat. Fast on paper, miserable in practice.',
+    'Grade F — severe bufferbloat. Fast on paper, miserable in practice.',
   ].join(' ');
 
-  for (const bp of breakpoints) {
-    entries[`tooltip-body-${bp}`] = {
-      text: worstCase,
-      fontWeight: 400,
-      fontSizeRem: tooltipBodySizes[bp],
-      lineHeight: 1.55,
-    };
-  }
-
-  return entries;
+  // Single structural breakpoint (v4): wide vs narrow tooltip body sizes,
+  // matching Tooltip.tsx's collapsed size map.
+  return {
+    'tooltip-body-wide': { text: worstCase, fontWeight: 400, fontSizeRem: '0.8rem', lineHeight: 1.55 },
+    'tooltip-body-narrow': { text: worstCase, fontWeight: 400, fontSizeRem: '0.65rem', lineHeight: 1.55 },
+  };
 }
 
 /** Complete registry of all text entries */
 export const textRegistry: Record<string, TextEntryConfig> = {
-  ...speedEntries(),
   ...sysinfoEntry(),
   ...statusEntries(),
   ...dnsEntry(),

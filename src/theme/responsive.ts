@@ -1,49 +1,15 @@
-export const breakpoints = {
-  mobile: 600,
-  tablet: 900,
-  smallDesktop: 1400,
-} as const;
+// Single structural breakpoint (SpeedQX v4 design overhaul).
+//
+// The old four-tier matrix (mobile/tablet/smallDesktop/desktop) plus per-tier
+// `mechanismScale`/type sizes is gone — it produced a non-monotonic size ramp
+// and the scale(0.65) blur on the cassette. Layout now branches on ONE
+// structural breakpoint (stacked vs. two-up at 900px); all type/geometry sizing
+// is fluid via clamp() CSS custom properties (see index.css / tokens.ts).
 
-export type Breakpoint = 'mobile' | 'tablet' | 'smallDesktop' | 'desktop';
+/** Width (px) at/above which the layout goes two-up ("wide"). */
+export const WIDE_BREAKPOINT = 900;
 
-export function getBreakpoint(width: number): Breakpoint {
-  if (width < breakpoints.mobile) return 'mobile';
-  if (width < breakpoints.tablet) return 'tablet';
-  if (width < breakpoints.smallDesktop) return 'smallDesktop';
-  return 'desktop';
+/** True when the viewport is wide enough for the two-panel layout. */
+export function isWideWidth(width: number): boolean {
+  return width >= WIDE_BREAKPOINT;
 }
-
-export const responsive = {
-  mobile: {
-    mechanismScale: 0.65,
-    numberLarge: '3.5rem',
-    numberMedium: '2.5rem',
-    unit: '1rem',
-    panelPadding: '1.5rem',
-    dataRowPadding: '0.75rem 1.5rem',
-  },
-  tablet: {
-    mechanismScale: 0.85,
-    numberLarge: '5rem',
-    numberMedium: '3rem',
-    unit: '1.25rem',
-    panelPadding: '2rem',
-    dataRowPadding: '1.5rem 2rem',
-  },
-  smallDesktop: {
-    mechanismScale: 0.85,
-    numberLarge: '4rem',
-    numberMedium: '3rem',
-    unit: '1.25rem',
-    panelPadding: '1.5rem',
-    dataRowPadding: '1rem 2rem',
-  },
-  desktop: {
-    mechanismScale: 1,
-    numberLarge: '5rem',
-    numberMedium: '3.5rem',
-    unit: '1.5rem',
-    panelPadding: '2rem',
-    dataRowPadding: '1.5rem 3rem',
-  },
-} as const;

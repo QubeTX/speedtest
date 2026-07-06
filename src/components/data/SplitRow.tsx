@@ -1,25 +1,27 @@
 import type { CSSProperties, ReactNode } from 'react';
 import { colors, borders } from '../../theme/tokens';
-import { responsive } from '../../theme/responsive';
-import { useResponsive } from '../../hooks/useResponsive';
+import { useIsWide } from '../../hooks/useResponsive';
 import CrosshairCorners from '../layout/CrosshairCorners';
+import ActiveEdge from './ActiveEdge';
 
 interface SplitRowProps {
   isActive?: boolean;
   children: ReactNode;
 }
 
+/** Shared fluid data-row padding (v4: single breakpoint, clamp() sizing). */
+export const ROW_PADDING = 'clamp(1.25rem, 2.5vw, 2rem) clamp(1.5rem, 3vw, 3rem)';
+
 export default function SplitRow({ isActive, children }: SplitRowProps) {
-  const { breakpoint } = useResponsive();
-  const r = responsive[breakpoint];
+  const isWide = useIsWide();
 
   const style: CSSProperties = {
     flex: 1,
     borderBottom: borders.stroke,
-    padding: r.dataRowPadding,
+    padding: ROW_PADDING,
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
-    gap: breakpoint === 'mobile' ? '1rem' : '2rem',
+    gap: isWide ? '2rem' : '1rem',
     position: 'relative',
     alignItems: 'center',
     transition: 'background-color 0.3s ease',
@@ -28,6 +30,7 @@ export default function SplitRow({ isActive, children }: SplitRowProps) {
 
   return (
     <div style={style}>
+      <ActiveEdge active={!!isActive} />
       <CrosshairCorners />
       {children}
     </div>

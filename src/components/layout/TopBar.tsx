@@ -1,5 +1,5 @@
 import { useClock } from '../../hooks/useClock';
-import { useResponsive } from '../../hooks/useResponsive';
+import { useIsWide } from '../../hooks/useResponsive';
 import { useNavigate } from 'react-router-dom';
 import type { CSSProperties } from 'react';
 
@@ -10,14 +10,14 @@ interface TopBarProps {
 
 export default function TopBar({ label, errorTag }: TopBarProps) {
   const time = useClock();
-  const { isMobile } = useResponsive();
+  const isWide = useIsWide();
   const navigate = useNavigate();
 
   const style: CSSProperties = {
     position: 'absolute',
-    top: isMobile ? '1rem' : '1.5rem',
-    left: isMobile ? '1.5rem' : '2rem',
-    right: isMobile ? '1.5rem' : '2rem',
+    top: isWide ? '1.5rem' : '1rem',
+    left: isWide ? '2rem' : '1.5rem',
+    right: isWide ? '2rem' : '1.5rem',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -35,7 +35,7 @@ export default function TopBar({ label, errorTag }: TopBarProps) {
         <img
           src="https://shaughv.s3.us-east-1.amazonaws.com/brandmark/QUBETX/QubeTX-Logo.svg"
           alt="QubeTX"
-          style={{ height: isMobile ? '14px' : '18px', opacity: 0.8 }}
+          style={{ height: isWide ? '18px' : '14px', opacity: 0.8 }}
         />
       )}
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -78,7 +78,7 @@ export default function TopBar({ label, errorTag }: TopBarProps) {
           <img
             src="/question-mark.svg"
             alt="How it works"
-            style={{ height: isMobile ? '16px' : '20px' }}
+            style={{ height: isWide ? '20px' : '16px' }}
           />
         </button>
       </div>

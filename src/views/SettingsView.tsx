@@ -1,16 +1,22 @@
 import { useNavigate } from 'react-router-dom';
 import { useSpeedTestContext } from '../store/SpeedTestContext';
 import { useNetworkInfo } from '../hooks/useNetworkInfo';
-import { useResponsive } from '../hooks/useResponsive';
+import { useIsWide } from '../hooks/useResponsive';
 import Apparatus from '../components/layout/Apparatus';
 import TopBar from '../components/layout/TopBar';
 import SpeakerGrill from '../components/layout/SpeakerGrill';
 import CrosshairCorners from '../components/layout/CrosshairCorners';
-import type { ProviderMode, TestDuration, SpeedUnit } from '../types/speedtest';
+import type { ProviderMode, TestProfile, TestDuration, SpeedUnit } from '../types/speedtest';
 import type { CSSProperties } from 'react';
+import { fontFamilies } from '../theme/tokens';
+
+const PROFILE_OPTIONS: { value: TestProfile; label: string; desc: string }[] = [
+  { value: 'fast', label: 'FAST', desc: 'Cloudflare + M-Lab • ~1 min • quick, high-quality read' },
+  { value: 'full', label: 'FULL', desc: 'Every available source • fixed durations • maximum accuracy' },
+];
 
 const PROVIDER_OPTIONS: { mode: ProviderMode; label: string; desc: string }[] = [
-  { mode: 'both', label: 'BOTH (AGGREGATED)', desc: 'Confidence-weighted dual-provider • Full duration each' },
+  { mode: 'both', label: 'BOTH (AGGREGATED)', desc: 'Multi-source confidence-weighted merge • Fast or Full' },
   { mode: 'cloudflare', label: 'CLOUDFLARE', desc: 'Multi-request • Bufferbloat detection • Packet loss' },
   { mode: 'ndt7', label: 'M-LAB NDT7', desc: 'Single-stream TCP • Kernel-level RTT • Open data' },
 ];
@@ -36,7 +42,7 @@ export default function SettingsView() {
   const { settings, updateSettings } = useSpeedTestContext();
   const navigate = useNavigate();
   const network = useNetworkInfo();
-  const { isMobile } = useResponsive();
+  const isMobile = !useIsWide();
 
   const rowStyle = (active: boolean): CSSProperties => ({
     padding: isMobile ? '1rem 1.5rem' : '1.25rem 3rem',
@@ -80,7 +86,7 @@ export default function SettingsView() {
           padding: '0.75rem 1.5rem',
           border: '3px solid #111',
           background: 'transparent',
-          fontFamily: "'Guton', sans-serif",
+          fontFamily: fontFamilies.display,
           fontWeight: 600,
           fontSize: '0.75rem',
           textTransform: 'uppercase',
@@ -101,6 +107,25 @@ export default function SettingsView() {
 
   const rightPanel = (
     <div style={{ overflowY: 'auto' }}>
+      {/* Default Test Profile */}
+      <div style={sectionLabel}>DEFAULT TEST</div>
+      {PROFILE_OPTIONS.map(opt => (
+        <div
+          key={opt.value}
+          style={rowStyle(settings.testProfile === opt.value)}
+          onClick={() => updateSettings({ testProfile: opt.value })}
+        >
+          <CrosshairCorners />
+          <div>
+            <div style={{ fontSize: '1rem', fontWeight: 600, letterSpacing: '-0.01em' }}>{opt.label}</div>
+            <div style={{ fontSize: '0.65rem', opacity: 0.5, marginTop: '0.25rem', letterSpacing: '0.05em' }}>{opt.desc}</div>
+          </div>
+          {settings.testProfile === opt.value && (
+            <span style={{ fontSize: '1.2rem' }}>●</span>
+          )}
+        </div>
+      ))}
+
       {/* Provider Selection */}
       <div style={sectionLabel}>PROVIDER</div>
       {PROVIDER_OPTIONS.map(opt => (

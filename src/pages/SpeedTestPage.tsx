@@ -1,9 +1,9 @@
 import MainTestView from '../views/MainTestView';
 import AppStoreBadge from '../components/layout/AppStoreBadge';
-import { useResponsive } from '../hooks/useResponsive';
+import { useIsWide } from '../hooks/useResponsive';
 
 export default function SpeedTestPage() {
-  const { isMobile } = useResponsive();
+  const isWide = useIsWide();
 
   return (
     <div
@@ -12,8 +12,8 @@ export default function SpeedTestPage() {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        justifyContent: isMobile ? 'flex-start' : 'center',
-        padding: isMobile ? '0.5rem' : '1rem',
+        justifyContent: isWide ? 'center' : 'flex-start',
+        padding: isWide ? '1rem' : '0.5rem',
         overflow: 'auto',
       }}
     >

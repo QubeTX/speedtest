@@ -1,13 +1,18 @@
 import type { CSSProperties } from 'react';
-import { colors } from '../../theme/tokens';
-import { useResponsive } from '../../hooks/useResponsive';
+import { motion, useReducedMotion } from 'motion/react';
+import { colors, textStyles } from '../../theme/tokens';
 
 interface ResultsStampProps {
   visible: boolean;
 }
 
+/** easeOutBack — matches the bounce already used by the index.css `stamp-in`
+ *  keyframe elsewhere, kept as a plain bezier array so motion can drive it. */
+const EASE_OUT_BACK: [number, number, number, number] = [0.34, 1.56, 0.64, 1];
+
 export default function ResultsStamp({ visible }: ResultsStampProps) {
-  const { isMobile } = useResponsive();
+  // Hook runs unconditionally, before the early return, to keep hook order stable.
+  const reduced = useReducedMotion();
 
   if (!visible) return null;
 
@@ -15,20 +20,30 @@ export default function ResultsStamp({ visible }: ResultsStampProps) {
     position: 'absolute',
     top: '35%',
     left: '50%',
-    transform: 'translate(-50%, -50%) rotate(-12deg)',
-    border: `${isMobile ? '5px' : '8px'} solid ${colors.ink}`,
-    padding: isMobile ? '0.5rem 1rem' : '1rem 2rem',
-    fontWeight: 800,
-    fontSize: isMobile ? '1.8rem' : '2.5rem',
-    letterSpacing: '0.05em',
-    textTransform: 'uppercase',
+    ...textStyles.stamp,
+    border: `clamp(4px, 1.2vw, 8px) solid ${colors.ink}`,
+    padding: 'clamp(0.4rem, 1.6vw, 1rem) clamp(0.8rem, 3.2vw, 2rem)',
+    fontSize: 'clamp(1.6rem, 6vw, 2.5rem)',
     pointerEvents: 'none',
     zIndex: 20,
     background: colors.bgDevice,
     mixBlendMode: 'multiply',
     whiteSpace: 'nowrap',
-    animation: 'stamp-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
   };
 
-  return <div style={style}>TEST COMPLETE</div>;
+  return (
+    <motion.div
+      style={style}
+      aria-hidden="true"
+      initial={{ opacity: 0, scale: reduced ? 1 : 1.25, x: '-50%', y: '-50%', rotate: -12 }}
+      animate={{ opacity: 0.92, scale: 1, x: '-50%', y: '-50%', rotate: -12 }}
+      transition={
+        reduced
+          ? { duration: 0.2, ease: 'easeOut' }
+          : { duration: 0.42, ease: EASE_OUT_BACK }
+      }
+    >
+      TEST COMPLETE
+    </motion.div>
+  );
 }

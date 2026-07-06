@@ -1,4 +1,4 @@
-/* Guton Sans Serif — licensed font */
+/* Guton Sans Serif — licensed font (legacy body voice during Makira roll-out) */
 @font-face {
   font-family: 'Guton';
   src: url('/fonts/Guton-Regular.woff2') format('woff2'),
@@ -33,6 +33,87 @@
        url('/fonts/Guton-ExtraBold.woff') format('woff');
   font-weight: 800;
   font-display: swap;
+}
+
+/* Makira Sans Serif — licensed display voice (hero numerals, headings, stamp) */
+@font-face {
+  font-family: 'Makira';
+  src: url('/fonts/Makira-Regular.woff2') format('woff2'),
+       url('/fonts/Makira-Regular.woff') format('woff');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Makira';
+  src: url('/fonts/Makira-Medium.woff2') format('woff2'),
+       url('/fonts/Makira-Medium.woff') format('woff');
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Makira';
+  src: url('/fonts/Makira-SemiBold.woff2') format('woff2'),
+       url('/fonts/Makira-SemiBold.woff') format('woff');
+  font-weight: 600;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Makira';
+  src: url('/fonts/Makira-Bold.woff2') format('woff2'),
+       url('/fonts/Makira-Bold.woff') format('woff');
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Makira';
+  src: url('/fonts/Makira-ExtraBold.woff2') format('woff2'),
+       url('/fonts/Makira-ExtraBold.woff') format('woff');
+  font-weight: 800;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Makira';
+  src: url('/fonts/Makira-Black.woff2') format('woff2'),
+       url('/fonts/Makira-Black.woff') format('woff');
+  font-weight: 900;
+  font-display: swap;
+}
+
+/* IBM Plex Mono — instrument voice (units, metric values, micro-labels) */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  src: url('/fonts/IBMPlexMono-Regular.woff2') format('woff2'),
+       url('/fonts/IBMPlexMono-Regular.woff') format('woff');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  src: url('/fonts/IBMPlexMono-Medium.woff2') format('woff2'),
+       url('/fonts/IBMPlexMono-Medium.woff') format('woff');
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  src: url('/fonts/IBMPlexMono-SemiBold.woff2') format('woff2'),
+       url('/fonts/IBMPlexMono-SemiBold.woff') format('woff');
+  font-weight: 600;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  src: url('/fonts/IBMPlexMono-Bold.woff2') format('woff2'),
+       url('/fonts/IBMPlexMono-Bold.woff') format('woff');
+  font-weight: 700;
+  font-display: swap;
+}
+
+:root {
+  /* Fluid type ramps — mirrored in theme/tokens.ts (typeSizes). */
+  --type-hero: clamp(3rem, 12vw, 6.5rem);
+  --type-number-md: clamp(2.25rem, 8vw, 3.75rem);
+  --type-unit: clamp(0.85rem, 3.2vw, 1.4rem);
 }
 
 * {
@@ -70,13 +151,11 @@ body {
   50% { opacity: 0; }
 }
 
-@keyframes glitch-anim {
-  0% { clip-path: inset(10% 0 80% 0); }
-  20% { clip-path: inset(60% 0 10% 0); }
-  40% { clip-path: inset(30% 0 50% 0); }
-  60% { clip-path: inset(70% 0 20% 0); }
-  80% { clip-path: inset(20% 0 60% 0); }
-  100% { clip-path: inset(50% 0 30% 0); }
+/* Indeterminate-progress highlight sweep (translateX). Apply to an absolutely
+   positioned overlay inside a clipped track; the sweep travels left→right. */
+@keyframes shimmer {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(100%); }
 }
 
 @keyframes stamp-in {
@@ -94,10 +173,50 @@ body {
   to { width: 100%; }
 }
 
-/* Responsive utilities */
+/* ── Focus visibility (keyboard-only) ──────────────────────────────────────
+   Real interactive controls get a high-contrast monochrome focus ring. Mouse
+   clicks don't trigger :focus-visible, so the ring only shows for keyboard nav. */
+.focus-ring:focus-visible,
+.mechanism-btn:focus-visible,
+.action-btn:focus-visible,
+.icon-btn:focus-visible {
+  outline: 2px solid #111111;
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+.focus-ring:focus:not(:focus-visible),
+.mechanism-btn:focus:not(:focus-visible),
+.action-btn:focus:not(:focus-visible),
+.icon-btn:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Responsive utilities — single structural breakpoint at 900px */
 @media (max-width: 899px) {
   .hide-mobile { display: none !important; }
 }
 @media (min-width: 900px) {
   .hide-desktop { display: none !important; }
+}
+
+/* ── Reduced motion ────────────────────────────────────────────────────────
+   Neutralize decorative motion (spin, shimmer, stamp-in, pulse-scale,
+   progress-fill, and every other keyframe animation) for users who ask for it.
+   We collapse animations to ~instant and hold their FINAL state (fill-mode:both)
+   rather than removing them outright, so end states stay visible (e.g. the
+   completion stamp still shows, progress bars still read full). Author
+   `!important` beats components' inline `animation:` shorthands. The reel drive
+   (useReelDrive) freezes spin independently via prefers-reduced-motion. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    animation-fill-mode: both !important;
+    transition-duration: 1ms !important;
+    transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
+  }
 }

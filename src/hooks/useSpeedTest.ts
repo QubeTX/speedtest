@@ -1,12 +1,26 @@
 import { useState, useCallback, useRef } from 'react';
-import type { TestPhase, SpeedTestProgress, SpeedTestResult, Settings, DnsCheckResult, NetworkMetadata } from '../types/speedtest';
+import type {
+  TestPhase, SpeedTestProgress, SpeedTestResult, Settings, DnsCheckResult,
+  NetworkMetadata, TestProfile, LatencyStats,
+} from '../types/speedtest';
 import { initialProgress } from '../types/speedtest';
-import { createProvider } from '../services/provider-factory';
+import { createProvider, resolveProviderPlan } from '../services/provider-factory';
 import type { SpeedTestProvider as IProvider, StabilityMetric } from '../types/speedtest';
 import { runDnsCheck } from '../services/dns-check';
 import { measureLatency } from '../services/latency-engine';
 import { fetchNetworkMetadata } from '../services/network-metadata';
 import { coefficientOfVariation } from '../services/statistics';
+
+/** Which provider (of how many) the run is currently measuring — drives the
+ *  "current source · x/N" progress indicator. */
+export interface ProviderStep {
+  /** 1-based ordinal of the provider currently running. */
+  index: number;
+  /** Total providers this run's plan will visit. */
+  count: number;
+  /** Human-readable label of the current provider. */
+  label: string;
+}
 
 export function useSpeedTest(settings: Settings, onComplete?: (result: SpeedTestResult) => void) {
   const [phase, setPhase] = useState<TestPhase>('idle');
@@ -14,22 +28,40 @@ export function useSpeedTest(settings: Settings, onComplete?: (result: SpeedTest
   const [result, setResult] = useState<SpeedTestResult | null>(null);
   const [dnsCheck, setDnsCheck] = useState<DnsCheckResult | null>(null);
   const [networkMetadata, setNetworkMetadata] = useState<NetworkMetadata | null>(null);
+  const [providerStep, setProviderStep] = useState<ProviderStep | null>(null);
   const providerRef = useRef<IProvider | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+  // Profile actually used for the last run, so RUN AGAIN / RETRY repeats it
+  // rather than silently reverting to the stored default.
+  const lastProfileRef = useRef<TestProfile>(settings.testProfile);
 
-  const startTest = useCallback(async () => {
-    // If NDT7 consent not given, fall back to cloudflare-only
-    const effectiveMode = (settings.providerMode === 'ndt7' || settings.providerMode === 'both') && !settings.dataPolicyAccepted
-      ? 'cloudflare'
-      : settings.providerMode;
+  const startTest = useCallback(async (profileOverride?: TestProfile) => {
+    // FAST vs FULL: an explicit deck action wins; otherwise the stored default.
+    const profile: TestProfile = profileOverride ?? settings.testProfile;
+    lastProfileRef.current = profile;
+    const consent = settings.dataPolicyAccepted;
+
+    // Consent gating: only the *explicit* single M-Lab modes are downgraded here.
+    // The aggregated (`'both'`) path is handled gracefully by the plan resolver,
+    // which drops NDT7/MSAK when consent is absent — no blanket downgrade.
+    let effectiveMode = settings.providerMode;
+    if ((effectiveMode === 'ndt7' || effectiveMode === 'msak') && !consent) {
+      effectiveMode = 'cloudflare';
+    }
+
+    // How many providers this run will visit (for the x/N indicator).
+    const planCount = effectiveMode === 'both'
+      ? Math.max(1, resolveProviderPlan(profile, consent).length)
+      : 1;
 
     setPhase('discovering');
     setResult(null);
     setDnsCheck(null);
     setNetworkMetadata(null);
+    setProviderStep(null);
     setProgress({ ...initialProgress(), phase: 'discovering' });
 
-    const provider = createProvider(effectiveMode);
+    const provider = createProvider(effectiveMode, { profile, consent });
     providerRef.current = provider;
     const abortController = new AbortController();
     abortRef.current = abortController;
@@ -49,6 +81,24 @@ export function useSpeedTest(settings: Settings, onComplete?: (result: SpeedTest
         return null;
       });
 
+    // Derive the current provider ordinal from the progress stream. Each distinct
+    // non-transition provider label the orchestrator emits advances the counter;
+    // "Switching to …" transitions and the dedicated latency engine are skipped.
+    let seenProviders = 0;
+    let lastProviderLabel = '';
+    const handleProviderProgress = (p: SpeedTestProgress) => {
+      const label = p.currentProvider ?? '';
+      const isTransition = label.toLowerCase().startsWith('switching');
+      const isRealProvider = !!label && !isTransition && label !== 'Latency Engine';
+      if (isRealProvider && label !== lastProviderLabel) {
+        lastProviderLabel = label;
+        seenProviders += 1;
+        setProviderStep({ index: Math.min(seenProviders, planCount), count: planCount, label });
+      }
+      setPhase(p.phase);
+      setProgress(p);
+    };
+
     try {
       // ── Phase: Dedicated latency measurement ──────────────────────
       setPhase('latency');
@@ -64,39 +114,37 @@ export function useSpeedTest(settings: Settings, onComplete?: (result: SpeedTest
         sampleCount: latencySamples,
         intervalMs: 50,
         signal: abortController.signal,
-        onSample: (stats, idx) => {
+        onSample: (stats) => {
           setProgress(prev => ({
             ...prev,
             phase: 'latency',
             currentProvider: 'Latency Engine',
-            ping: stats.p50,
-            jitter: stats.jitter,
+            ping: stats.min,
+            // Live PDV = P95 − P50 (the running-stats block has no pdv field yet).
+            jitter: Math.max(0, stats.p95 - stats.p50),
           }));
         },
       });
 
       console.log('[Latency Engine] Complete:', {
+        minRtt: latencyStats.minRttMs.toFixed(1),
         p50: latencyStats.p50.toFixed(1),
         p95: latencyStats.p95.toFixed(1),
-        p99: latencyStats.p99.toFixed(1),
-        jitter: latencyStats.jitter.toFixed(2),
+        pdv: (latencyStats.pdv ?? 0).toFixed(2),
         samples: latencyStats.samples.length,
       });
 
       if (abortController.signal.aborted) throw new Error('Test stopped');
 
       // ── Phase: Provider bandwidth + loaded latency ────────────────
-      const testResult = await provider.start((p) => {
-        setPhase(p.phase);
-        setProgress(p);
-      }, settings.testDuration);
+      const testResult = await provider.start(handleProviderProgress, settings.testDuration);
 
       // Wait for DNS checks and metadata to finish
       const dnsResult = await dnsPromise;
       const metadata = await metadataPromise;
 
       // Compute stability if bandwidth samples available (for single-provider modes)
-      const bandwidthSamples = (testResult as any).bandwidthSamples as { download: number[]; upload: number[] } | undefined;
+      const bandwidthSamples = testResult.bandwidthSamples;
       let stability: StabilityMetric | undefined = testResult.stability;
       if (!stability && bandwidthSamples) {
         const dlSamples = bandwidthSamples.download ?? [];
@@ -113,16 +161,28 @@ export function useSpeedTest(settings: Settings, onComplete?: (result: SpeedTest
         }
       }
 
-      // Merge independent latency engine results with provider results
+      // ── v4 latency reconciliation (METHODOLOGY.md §4) ──────────────
+      // Headline ping = min-RTT: fold the dedicated engine's physical floor into
+      // whatever the orchestrator already derived (engine + kernel MinRTTs).
+      const foldedPing = Math.min(
+        testResult.ping > 0 ? testResult.ping : Infinity,
+        latencyStats.minRttMs > 0 ? latencyStats.minRttMs : Infinity,
+      );
+      const finalPing = Number.isFinite(foldedPing) ? foldedPing : testResult.ping;
+      // Headline jitter = PDV. Prefer the v4 cross-provider blend's PDV; fall back
+      // to the dedicated engine's idle PDV (single-provider modes have no blend).
+      const finalJitter = testResult.latencyStats?.pdv ?? latencyStats.pdv;
+      // Prefer the aggregate's blended latency block for the percentile ladder;
+      // the dense idle engine (with PDV) is the single-provider fallback.
+      const finalLatencyStats: LatencyStats = testResult.latencyStats ?? latencyStats;
+
       const resultWithExtras: SpeedTestResult = {
         ...testResult,
-        // Prefer dedicated latency engine stats (100 samples, precise timing)
-        // over provider-reported latency (fewer samples, less control)
-        latencyStats: latencyStats,
+        ping: finalPing,
+        jitter: finalJitter,
+        latencyStats: finalLatencyStats,
         // Add stability if computed here (single-provider modes)
         ...(stability ? { stability } : {}),
-        // Keep provider's ping/jitter for the headline numbers but
-        // latencyStats provides the full percentile breakdown
         ...(dnsResult ? { dnsCheck: dnsResult } : {}),
         // Network metadata (IP, ISP, geolocation, edge server)
         ...(metadata ? { networkMetadata: metadata, isp: metadata.ispFull ?? undefined } : {}),
@@ -139,57 +199,7 @@ export function useSpeedTest(settings: Settings, onComplete?: (result: SpeedTest
 
       // Copy to clipboard if enabled
       if (settings.autoCopyResults) {
-        let summary = `Speed Test Results\nDownload: ${resultWithExtras.downloadSpeed.toFixed(1)} Mbps`;
-        if (resultWithExtras.downloadEstimate?.ciMargin) {
-          summary += ` (95% CI: ${resultWithExtras.downloadEstimate.ci95Lower.toFixed(1)}\u2013${resultWithExtras.downloadEstimate.ci95Upper.toFixed(1)})`;
-        }
-        summary += `\nUpload: ${resultWithExtras.uploadSpeed.toFixed(1)} Mbps`;
-        if (resultWithExtras.uploadEstimate?.ciMargin) {
-          summary += ` (95% CI: ${resultWithExtras.uploadEstimate.ci95Lower.toFixed(1)}\u2013${resultWithExtras.uploadEstimate.ci95Upper.toFixed(1)})`;
-        }
-        summary += `\nPing: ${resultWithExtras.ping.toFixed(0)} ms (P50: ${latencyStats.p50.toFixed(0)}, P95: ${latencyStats.p95.toFixed(0)}, P99: ${latencyStats.p99.toFixed(0)})`;
-        summary += `\nJitter: ${latencyStats.jitter.toFixed(1)} ms (RFC 3550)`;
-        if (resultWithExtras.jitterBreakdown) {
-          const jb = resultWithExtras.jitterBreakdown;
-          summary += ` (Idle: ${jb.idle.toFixed(1)} | DL: ${jb.duringDownload.toFixed(1)} | UL: ${jb.duringUpload.toFixed(1)})`;
-        }
-
-        if (resultWithExtras.bufferbloat) {
-          summary += `\nBufferbloat: Grade ${resultWithExtras.bufferbloat.grade} (DL ${resultWithExtras.bufferbloat.downloadRatio.toFixed(1)}x / UL ${resultWithExtras.bufferbloat.uploadRatio.toFixed(1)}x)`;
-        }
-
-        if (resultWithExtras.stability) {
-          summary += `\nStability: DL CV=${(resultWithExtras.stability.downloadCV * 100).toFixed(0)}% UL CV=${(resultWithExtras.stability.uploadCV * 100).toFixed(0)}%`;
-        }
-
-        if (resultWithExtras.providerDivergence?.significant) {
-          summary += `\n⚠ Provider divergence: DL ${(resultWithExtras.providerDivergence.download * 100).toFixed(0)}% UL ${(resultWithExtras.providerDivergence.upload * 100).toFixed(0)}%`;
-        }
-
-        if (dnsResult) {
-          summary += `\n\nConnectivity Diagnostics:`;
-          for (const probe of dnsResult.probes) {
-            let probeStr = `\n${probe.domain}: ${probe.status === 'pass' ? `${probe.totalMs}ms` : 'FAIL'}`;
-            if (probe.dnsMs !== null) probeStr += ` (DNS: ${probe.dnsMs}ms)`;
-            summary += probeStr;
-          }
-          const passed = dnsResult.probes.filter(p => p.status === 'pass');
-          summary += `\n${passed.length}/${dnsResult.probes.length} passed`;
-          if (dnsResult.avgTotalMs !== null) {
-            summary += ` • avg ${dnsResult.avgTotalMs}ms`;
-          }
-        }
-
-        if (metadata) {
-          summary += `\n\nNetwork Info:`;
-          if (metadata.ispFull) summary += `\nISP: ${metadata.ispFull}`;
-          if (metadata.ip) summary += `\nIP: ${metadata.ip} (IPv${metadata.ipVersion ?? '?'})`;
-          const location = [metadata.city, metadata.region, metadata.country].filter(Boolean).join(', ');
-          if (location) summary += `\nLocation: ${location}`;
-          if (metadata.coloCity) summary += `\nEdge: ${metadata.coloCity} (${metadata.colo})`;
-        }
-
-        navigator.clipboard?.writeText(summary).catch(() => {});
+        navigator.clipboard?.writeText(formatResultSummary(resultWithExtras, dnsResult, metadata)).catch(() => {});
       }
 
       onComplete?.(resultWithExtras);
@@ -212,6 +222,7 @@ export function useSpeedTest(settings: Settings, onComplete?: (result: SpeedTest
     setPhase('idle');
     setProgress(initialProgress());
     setDnsCheck(null);
+    setProviderStep(null);
   }, []);
 
   const resetTest = useCallback(() => {
@@ -220,7 +231,85 @@ export function useSpeedTest(settings: Settings, onComplete?: (result: SpeedTest
     setProgress(initialProgress());
     setDnsCheck(null);
     setNetworkMetadata(null);
+    setProviderStep(null);
   }, []);
 
-  return { phase, progress, result, dnsCheck, networkMetadata, startTest, stopTest, resetTest };
+  /** Re-run using the profile from the most recent run (RUN AGAIN / RETRY). */
+  const rerunTest = useCallback(() => startTest(lastProfileRef.current), [startTest]);
+
+  return { phase, progress, result, dnsCheck, networkMetadata, providerStep, startTest, rerunTest, stopTest, resetTest };
+}
+
+// ── Clipboard summary (v4 payload) ───────────────────────────────────────────
+
+function formatResultSummary(
+  r: SpeedTestResult,
+  dns: DnsCheckResult | null,
+  metadata: NetworkMetadata | null,
+): string {
+  const lines: string[] = [];
+  const ver = r.methodologyVersion ? ` (methodology ${r.methodologyVersion})` : '';
+  lines.push(`SpeedQX Speed Test${ver}`);
+
+  const dlCi = r.capacityMbps?.downloadCi ?? r.confidenceIntervals?.download;
+  const ulCi = r.capacityMbps?.uploadCi ?? r.confidenceIntervals?.upload;
+  let dl = `Download: ${r.downloadSpeed.toFixed(1)} Mbps`;
+  if (dlCi) dl += ` (95% CI ${dlCi.lower.toFixed(1)}–${dlCi.upper.toFixed(1)})`;
+  lines.push(dl);
+  let ul = `Upload: ${r.uploadSpeed.toFixed(1)} Mbps`;
+  if (ulCi) ul += ` (95% CI ${ulCi.lower.toFixed(1)}–${ulCi.upper.toFixed(1)})`;
+  lines.push(ul);
+
+  lines.push(`Ping: ${r.ping.toFixed(0)} ms (min-RTT) · Jitter: ${r.jitter.toFixed(1)} ms (PDV)`);
+
+  if (r.consensusMbps) {
+    let c = `Consensus: DL ${r.consensusMbps.download.toFixed(0)} / UL ${r.consensusMbps.upload.toFixed(0)} Mbps`;
+    if (r.agreement) {
+      const band = r.agreement.band.replace('-', ' ');
+      const i2 = r.agreement.i2 != null ? ` (I² ${(r.agreement.i2 * 100).toFixed(0)}%)` : '';
+      c += ` · Agreement: ${band}${i2}`;
+    }
+    lines.push(c);
+  }
+
+  if (typeof r.rpm === 'number' && r.rpm > 0) lines.push(`Responsiveness: ${r.rpm.toFixed(0)} RPM`);
+
+  if (r.bufferbloat) {
+    const delta = r.bufferbloat.deltaMs;
+    const d = typeof delta === 'number' ? ` (+${delta.toFixed(0)} ms)` : '';
+    lines.push(`Bufferbloat: Grade ${r.bufferbloat.grade}${d}`);
+  }
+
+  if (r.stability) {
+    lines.push(`Stability: DL CV ${(r.stability.downloadCV * 100).toFixed(0)}% · UL CV ${(r.stability.uploadCV * 100).toFixed(0)}%`);
+  }
+
+  if (r.packetLoss != null) lines.push(`Packet loss: ${r.packetLoss.toFixed(1)}%`);
+
+  const ran = r.providers?.filter((p) => p.availability === 'ran').map((p) => p.name);
+  if (ran && ran.length > 0) lines.push(`Sources: ${ran.join(', ')}`);
+
+  if (dns) {
+    lines.push('', 'Connectivity Diagnostics:');
+    for (const probe of dns.probes) {
+      let probeStr = `${probe.domain}: ${probe.status === 'pass' ? `${probe.totalMs}ms` : 'FAIL'}`;
+      if (probe.dnsMs !== null) probeStr += ` (DNS: ${probe.dnsMs}ms)`;
+      lines.push(probeStr);
+    }
+    const passed = dns.probes.filter((p) => p.status === 'pass');
+    let summary = `${passed.length}/${dns.probes.length} passed`;
+    if (dns.avgTotalMs !== null) summary += ` • avg ${dns.avgTotalMs}ms`;
+    lines.push(summary);
+  }
+
+  if (metadata) {
+    lines.push('', 'Network Info:');
+    if (metadata.ispFull) lines.push(`ISP: ${metadata.ispFull}`);
+    if (metadata.ip) lines.push(`IP: ${metadata.ip} (IPv${metadata.ipVersion ?? '?'})`);
+    const location = [metadata.city, metadata.region, metadata.country].filter(Boolean).join(', ');
+    if (location) lines.push(`Location: ${location}`);
+    if (metadata.coloCity) lines.push(`Edge: ${metadata.coloCity} (${metadata.colo})`);
+  }
+
+  return lines.join('\n');
 }

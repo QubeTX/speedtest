@@ -10,9 +10,28 @@
  * - Loaded latency (concurrent with download/upload for bufferbloat detection)
  */
 
-import { computeLatencyStats, type LatencyStatsResult } from './statistics';
+import { computeLatencyStats, pdv, type LatencyStatsResult } from './statistics';
 
 const LATENCY_ENDPOINT = 'https://speed.cloudflare.com/__down?bytes=0';
+
+/**
+ * The dedicated latency engine's result. Extends the shared stats block with
+ * the v4 canonical jitter (`pdv`) and a `minRttMs` alias so the orchestrator
+ * can feed the physical path floor straight into the min-RTT headline
+ * (METHODOLOGY.md §4) without re-deriving it. `min` (from the base stats) is
+ * already the min-RTT; `minRttMs` is a self-documenting alias.
+ */
+export interface LatencyEngineResult extends LatencyStatsResult {
+  /** Canonical v4 jitter — PDV = P95(RTT) − P50(RTT). */
+  pdv: number;
+  /** Min-RTT (ms) — the physical path floor; equals `min`. */
+  minRttMs: number;
+}
+
+/** Attach the v4 min-RTT / PDV surface to a base stats block. */
+function withMinRtt(stats: LatencyStatsResult): LatencyEngineResult {
+  return { ...stats, pdv: pdv(stats.samples), minRttMs: stats.min };
+}
 
 export interface LatencyEngineOptions {
   /** Number of ping samples to collect. Default: 100 */
@@ -66,7 +85,7 @@ async function measurePing(signal?: AbortSignal): Promise<number> {
  * Run the full latency measurement phase.
  * Collects `sampleCount` pings and returns comprehensive statistics.
  */
-export async function measureLatency(options: LatencyEngineOptions = {}): Promise<LatencyStatsResult> {
+export async function measureLatency(options: LatencyEngineOptions = {}): Promise<LatencyEngineResult> {
   const {
     sampleCount = 100,
     intervalMs = 50,
@@ -122,7 +141,7 @@ export async function measureLatency(options: LatencyEngineOptions = {}): Promis
     }
   }
 
-  return computeLatencyStats(samples);
+  return withMinRtt(computeLatencyStats(samples));
 }
 
 /**

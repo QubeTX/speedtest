@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useLayoutEffect, useId, useCallback, createContext, useContext, type CSSProperties, type ReactNode } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { tooltips, getRangeLabel } from '../../content/tooltips';
-import { useResponsive } from '../../hooks/useResponsive';
+import { useIsWide } from '../../hooks/useResponsive';
 import PretextBlock from './PretextBlock';
 
 /* ─── Shared context: only one tooltip visible at a time ─── */
@@ -61,15 +61,14 @@ export default function Tooltip({ tooltipKey, children, value, variant = 'inline
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const bubbleRef = useRef<HTMLSpanElement>(null);
   const wrapperRef = useRef<HTMLSpanElement>(null);
-  const { isMobile, breakpoint } = useResponsive();
+  const isWide = useIsWide();
+  // Narrow viewports are treated as touch: tap-to-open, ≥44px targets, outside-tap close.
+  const isMobile = !isWide;
+  const bodyVariant: 'wide' | 'narrow' = isWide ? 'wide' : 'narrow';
 
-  const tooltipSizes = {
-    mobile:       { body: '0.65rem', title: '0.6rem',  maxWidth: 240, padding: '0.6rem 0.8rem' },
-    tablet:       { body: '0.7rem',  title: '0.65rem', maxWidth: 280, padding: '0.65rem 0.85rem' },
-    smallDesktop: { body: '0.75rem', title: '0.7rem',  maxWidth: 310, padding: '0.7rem 0.9rem' },
-    desktop:      { body: '0.8rem',  title: '0.75rem', maxWidth: 340, padding: '0.75rem 1rem' },
-  } as const;
-  const sizes = tooltipSizes[breakpoint];
+  const sizes = isWide
+    ? { body: '0.8rem', title: '0.75rem', maxWidth: 340, padding: '0.75rem 1rem' }
+    : { body: '0.65rem', title: '0.6rem', maxWidth: 240, padding: '0.6rem 0.8rem' };
 
   const rangeLabel = getRangeLabel(tooltipKey, value);
 
@@ -242,7 +241,7 @@ export default function Tooltip({ tooltipKey, children, value, variant = 'inline
             <span style={{ fontWeight: 700, display: 'block', marginBottom: '0.25rem', letterSpacing: '0.05em', fontSize: sizes.title, color: 'rgba(255,255,255,0.75)' }}>
               {entry.title}
             </span>
-            <PretextBlock entryId={`tooltip-body-${breakpoint}`} style={{ display: 'block' }}>
+            <PretextBlock entryId={`tooltip-body-${bodyVariant}`} style={{ display: 'block' }}>
               <span style={{ display: 'block' }}>
                 {entry.description}
               </span>

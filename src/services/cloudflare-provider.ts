@@ -1,6 +1,13 @@
 import SpeedTestEngine from '@cloudflare/speedtest';
-import type { SpeedTestProvider, SpeedTestProgress, SpeedTestResult, TestDuration, LatencyStats, BufferbloatResult, BufferbloatGrade, AimScores, JitterBreakdown } from '../types/speedtest';
-import { computeLatencyStats } from './statistics';
+import type { SpeedTestProvider, SpeedTestProgress, SpeedTestResult, TestDuration, BufferbloatResult, AimScores, JitterBreakdown } from '../types/speedtest';
+import { computeLatencyStats, bufferbloatDelta, rpm as computeRpm } from './statistics';
+
+/**
+ * Short-lived TURN credentials for the packet-loss measurement, minted by the
+ * SpeedQX edge function (Cloudflare Realtime TURN). Absolute URL so the same
+ * endpoint works from speedqx.com, localhost dev, and the iOS app's WebView.
+ */
+const TURN_CREDS_API_URL = 'https://speedqx.com/api/turn-credentials';
 
 function buildMeasurements(duration: TestDuration) {
   // Default measurements for 'auto'
@@ -16,7 +23,7 @@ function buildMeasurements(duration: TestDuration) {
     { type: 'download' as const, bytes: 1e8, count: 3 },
     { type: 'download' as const, bytes: 2.5e8, count: 2 },
     { type: 'upload' as const, bytes: 5e7, count: 3 },
-    { type: 'packetLoss' as const, numPackets: 1000 },
+    { type: 'packetLoss' as const, numPackets: 1000, batchSize: 10, batchWaitTime: 10, responsesWaitTime: 3000 },
   ];
 
   if (duration === 'auto') return defaults;
@@ -37,7 +44,7 @@ function buildMeasurements(duration: TestDuration) {
     { type: 'download' as const, bytes: 1e8, count: 3 * factor },
     { type: 'download' as const, bytes: 2.5e8, count: 2 * factor },
     { type: 'upload' as const, bytes: 5e7, count: 3 * factor },
-    { type: 'packetLoss' as const, numPackets: 1000 },
+    { type: 'packetLoss' as const, numPackets: 1000, batchSize: 10, batchWaitTime: 10, responsesWaitTime: 3000 },
   ];
 }
 
@@ -86,6 +93,12 @@ export class CloudflareProvider implements SpeedTestProvider {
         loadedLatencyMaxPoints: 50,
         measureDownloadLoadedLatency: true,
         measureUploadLoadedLatency: true,
+        // Packet loss rides a Cloudflare Realtime TURN relay. The engine's built-in
+        // public TURN server is deprecated (its creds endpoint already CORS-fails), so
+        // short-lived credentials are minted by our edge function. Absolute URL on
+        // purpose: the same endpoint serves speedqx.com, local dev, and the iOS app's
+        // WebView. On any failure the engine degrades packet loss to unavailable.
+        turnServerCredsApiUrl: TURN_CREDS_API_URL,
       });
 
       const engine = this.engine;
@@ -162,24 +175,36 @@ export class CloudflareProvider implements SpeedTestProvider {
 
         // Build bufferbloat result
         let bufferbloat: BufferbloatResult | undefined;
+        // v4 responsiveness figure (60000 / P50 loaded RTT), exposed for the aggregator.
+        let cfRpm: number | null = null;
         const unloadedLat = summary.latency ?? lastPing ?? 0;
         if (unloadedLat > 0 && (dlLoadedLatency || ulLoadedLatency)) {
+          // Legacy v3 ratio secondary (kept for existing UI).
           const dlRatio = dlLoadedLatency && dlLoadedLatency > 0 ? dlLoadedLatency / unloadedLat : 1;
           const ulRatio = ulLoadedLatency && ulLoadedLatency > 0 ? ulLoadedLatency / unloadedLat : 1;
-          const maxRatio = Math.max(dlRatio, ulRatio);
-          let grade: BufferbloatGrade = 'A';
-          if (maxRatio >= 10) grade = 'F';
-          else if (maxRatio >= 5) grade = 'D';
-          else if (maxRatio >= 3) grade = 'C';
-          else if (maxRatio >= 1.5) grade = 'B';
+
+          // v4 canonical: delta-ms grade from raw loaded/idle latency points.
+          const idleRtts = unloadedLatencyPoints.length > 0 ? unloadedLatencyPoints : [unloadedLat];
+          const loadedPooled = [...dlLoadedLatencyPoints, ...ulLoadedLatencyPoints];
+          const delta = bufferbloatDelta(idleRtts, loadedPooled);
+          cfRpm = loadedPooled.length > 0 ? computeRpm(loadedPooled) : null;
+
+          const idleStats = computeLatencyStats(idleRtts);
+          const dlLoadedStats = computeLatencyStats(dlLoadedLatencyPoints);
+          const ulLoadedStats = computeLatencyStats(ulLoadedLatencyPoints);
 
           bufferbloat = {
             unloadedLatency: latencyStats ?? computeLatencyStats(unloadedLat > 0 ? [unloadedLat] : []),
-            downloadLoadedLatency: computeLatencyStats(dlLoadedLatencyPoints),
-            uploadLoadedLatency: computeLatencyStats(ulLoadedLatencyPoints),
-            grade,
+            downloadLoadedLatency: dlLoadedStats,
+            uploadLoadedLatency: ulLoadedStats,
+            // v4 delta-ms grade is the headline grade (superset of the v3 letters).
+            grade: delta.grade,
             downloadRatio: dlRatio,
             uploadRatio: ulRatio,
+            deltaMs: delta.deltaMs,
+            ratio: delta.ratio,
+            unloadedLatencyMs: idleStats.p50,
+            loadedLatencyMs: { download: dlLoadedStats.p95, upload: ulLoadedStats.p95 },
           };
         }
 
@@ -220,7 +245,13 @@ export class CloudflareProvider implements SpeedTestProvider {
           bufferbloat,
           aimScores,
           jitterBreakdown,
+          rpm: cfRpm ?? undefined,
           bandwidthSamples: { download: dlSamples, upload: ulSamples },
+          // Raw loaded/unloaded latency point arrays (ms), exposed so the
+          // aggregator can recompute the v4 bufferbloat delta / RPM headline
+          // from Cloudflare's saturation probes (METHODOLOGY.md §7).
+          unloadedLatencyPoints,
+          loadedLatencyPoints: { download: dlLoadedLatencyPoints, upload: ulLoadedLatencyPoints },
         } as any);
       };
 

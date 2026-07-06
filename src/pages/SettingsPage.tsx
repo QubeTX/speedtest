@@ -1,9 +1,9 @@
 import SettingsView from '../views/SettingsView';
 import AppStoreBadge from '../components/layout/AppStoreBadge';
-import { useResponsive } from '../hooks/useResponsive';
+import { useIsWide } from '../hooks/useResponsive';
 
 export default function SettingsPage() {
-  const { isMobile } = useResponsive();
+  const isWide = useIsWide();
 
   return (
     <div
@@ -12,8 +12,8 @@ export default function SettingsPage() {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        justifyContent: isMobile ? 'flex-start' : 'center',
-        padding: isMobile ? '0.5rem' : '1rem',
+        justifyContent: isWide ? 'center' : 'flex-start',
+        padding: isWide ? '1rem' : '0.5rem',
       }}
     >
       <SettingsView />

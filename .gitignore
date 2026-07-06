@@ -8,3 +8,6 @@ dist/
 .DS_Store
 Thumbs.db
 *.log
+.vercel
+.env*
+TURN_CREDENTIALS.local.md

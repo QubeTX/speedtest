@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode } from 'react';
-import { useResponsive } from '../../hooks/useResponsive';
+import { useIsWide } from '../../hooks/useResponsive';
 import { colors, borders } from '../../theme/tokens';
 
 interface ApparatusProps {
@@ -7,17 +7,23 @@ interface ApparatusProps {
   right: ReactNode;
 }
 
+/** Control-deck padding. Wide: a fluid clamp. Narrow: safe-area-aware insets so
+ *  the deck clears notches/rounded corners on standalone iOS/Android. */
+const DECK_PADDING_WIDE = 'clamp(2rem, 3vw, 3rem)';
+const DECK_PADDING_NARROW =
+  'max(0.75rem, env(safe-area-inset-top)) max(1.5rem, env(safe-area-inset-right)) 0.75rem max(1.5rem, env(safe-area-inset-left))';
+
 export default function Apparatus({ left, right }: ApparatusProps) {
-  const { isDesktop, isSmallDesktop, isMobile } = useResponsive();
+  const isWide = useIsWide();
 
   const style: CSSProperties = {
     width: '100%',
-    maxWidth: isDesktop ? (isSmallDesktop ? '1100px' : '1200px') : '600px',
+    maxWidth: isWide ? '1200px' : '600px',
     backgroundColor: colors.bgDevice,
     border: borders.stroke,
     borderRadius: borders.radiusBox,
     display: 'grid',
-    gridTemplateColumns: isDesktop ? '1fr 1fr' : '1fr',
+    gridTemplateColumns: isWide ? '1fr 1fr' : '1fr',
     overflow: 'visible',
     position: 'relative',
     boxShadow: '0 20px 40px rgba(0,0,0,0.05)',
@@ -25,8 +31,9 @@ export default function Apparatus({ left, right }: ApparatusProps) {
 
   return (
     <div style={style}>
-      {isDesktop && (
+      {isWide && (
         <div
+          aria-hidden="true"
           style={{
             position: 'absolute',
             top: 0,
@@ -41,13 +48,13 @@ export default function Apparatus({ left, right }: ApparatusProps) {
       )}
       <div
         style={{
-          padding: isMobile ? '0.75rem 1.5rem' : isSmallDesktop ? '2rem' : isDesktop ? '3rem' : '2rem',
+          padding: isWide ? DECK_PADDING_WIDE : DECK_PADDING_NARROW,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
           position: 'relative',
-          minHeight: isMobile ? 'auto' : isDesktop ? 'auto' : '400px',
+          minHeight: 'auto',
         }}
       >
         {left}
@@ -57,7 +64,7 @@ export default function Apparatus({ left, right }: ApparatusProps) {
           backgroundColor: colors.bgScreen,
           display: 'flex',
           flexDirection: 'column',
-          borderTop: isDesktop ? 'none' : borders.stroke,
+          borderTop: isWide ? 'none' : borders.stroke,
         }}
       >
         {right}

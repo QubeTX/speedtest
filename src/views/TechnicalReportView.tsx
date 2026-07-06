@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { useResponsive } from '../hooks/useResponsive';
+import { useIsWide } from '../hooks/useResponsive';
 import { colors, borders, typography } from '../theme/tokens';
 import type { CSSProperties, ReactNode } from 'react';
 
@@ -15,10 +15,10 @@ function sectionNumber(n: number): string {
 
 export default function TechnicalReportView() {
   const navigate = useNavigate();
-  const { isMobile, isTablet } = useResponsive();
+  const isWide = useIsWide();
 
-  const compact = isMobile || isTablet;
-  const articlePad = isMobile ? '1.5rem' : isTablet ? '2.5rem' : '3.5rem';
+  const compact = !isWide;
+  const articlePad = 'clamp(1.5rem, 5vw, 3.5rem)';
 
   /* ── base styles ── */
 

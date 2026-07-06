@@ -2,6 +2,107 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.0.0] — 2026-07-06
+
+SpeedQX Methodology v4 + full design overhaul. The measurement engine, the statistical
+core, and the visual system were rebuilt in one release; the same methodology now ships
+(or is shipping) across the website, the iOS app, and the `speedqx` CLI.
+
+### Added — Methodology v4 (see METHODOLOGY.md, `methodologyVersion: "4.0"`)
+
+- **Five new measurement sources** alongside Cloudflare + M-Lab NDT7: **M-Lab MSAK**
+  (2-stream WebSocket, `src/services/msak-provider.ts`), **LibreSpeed**
+  (CORS-verified backend rotation, `librespeed-provider.ts`), **fast.com** (Netflix OCA
+  targets via a Vercel Edge token relay `api/fastcom-targets.ts`; labeled *estimate*,
+  hides on failure, `fastcom-provider.ts`), **CacheFly** (download-only range ladder,
+  `cachefly-provider.ts`), and **Vultr** (download-only, min-RTT selection across 8
+  POPs, `vultr-provider.ts`). Apple networkQuality is registered as a CLI-only source
+  and rendered greyed (`availability: unavailable-platform`) — never silently missing.
+- **The SpeedQX hybrid merge** (`mergeProviders` in `src/services/statistics.ts`):
+  headline **capacity** (capability-weighted top-tier robust mean, priors
+  CF/fast.com 1.0 · LibreSpeed/CacheFly/Vultr 0.95 · MSAK 0.85 · NDT7 0.70) +
+  secondary **consensus** (DerSimonian–Laird random-effects mean), CIs via
+  **Hartung–Knapp–Sidik–Jonkman** (t-table pinned df ≤ 7; k=2 → honest union band),
+  and **I² agreement bands** (High/Moderate/Low/Very-low) replacing the old >30%
+  divergence flag. Per-provider weight cap 0.70; `MIN_MERGE_SAMPLES = 4` with
+  exclusions surfaced in the UI.
+- **v4 statistical core** (`src/services/stat-primitives.ts` + `statistics.ts`):
+  type-7 quantiles, deterministic **PCG32 + Lemire** PRNG, **circular block bootstrap**
+  (ℓ = max(2, round(n^⅓)), B = 2000) with **BCa** 95% intervals, **plateau warm-up
+  detector** (3 consecutive samples within ±10% of the forward median, clamped 10–40%)
+  replacing the fixed 30% slow-start discard, and a Hodges–Lehmann cross-check.
+  Golden-vector fixtures (`golden-vectors.json`) + 54 Vitest tests
+  (`src/services/__tests__/statistics.test.ts`) pin TS↔Rust parity.
+- **New headline metrics**: ping = **min-RTT** (percentile ladder in drill-down);
+  jitter = **PDV** `P95 − P50` (RFC 5481; RFC 3550 EWMA demoted to a compat field);
+  **bufferbloat delta-ms grading** (A+ <5 … F ≥400) with the ratio as secondary;
+  **Responsiveness (RPM)** = 60000 / P50(loaded RTT).
+- **FAST / FULL dual-mode start** — two deck actions (PLAY ≈ 1 min, 3 sources, with
+  **anytime-valid empirical-Bernstein confidence-sequence early stopping**, RTT-gated;
+  DEEP TEST = every browser source, fixed durations) plus a default-profile setting.
+- **Result payload v4**: `providers[]` array with per-source `availability`,
+  `capacityMbps`/`consensusMbps` ± CI, `agreement {i2, band}`, `rpm`,
+  `mergeExclusions`, `methodologyVersion`, `platform`, `providerSet`
+  (`providerResults{}` object retained one release as a deprecated alias).
+- **Packet loss on Cloudflare Realtime TURN** — `api/turn-credentials.ts` Edge function
+  mints short-lived credentials (env: `REALTIME_TURN_TOKEN_ID/SECRET`); replaces the
+  engine's deprecated public TURN server, whose credentials endpoint already fails.
+  Packet loss degrades to *unavailable* (never fabricated) if the relay is unreachable.
+
+### Added — Design overhaul
+
+- **New type system**: **Makira Sans** (display: heroes, headings, buttons, stamp) +
+  **IBM Plex Mono** (instrument voice: units, metric values, percentile ladders,
+  micro-labels), self-hosted woff2 with preloads; Guton retained as fallback.
+- **Canonical cassette reel** (`src/components/mechanism/reel-geometry.ts` +
+  `TapeReel.tsx` rewrite): normalized 100-unit viewBox SVG (strokes scale with size),
+  static flange/tape-pack layers + rotating spool (3 bold spokes, 6 spline teeth),
+  **area-conserving tape transfer** — tape visibly winds supply→take-up on download
+  and rewinds on upload: `R(f) = √(16² + f·(39²−16²))`.
+- **Motion drive** (`src/hooks/useReelDrive.ts`): single self-suspending RAF integrator
+  writing transforms imperatively — spin speed eases toward a log-scaled ω(Mbps)
+  (0.35→2.2 rev/s) with asymmetric motor inertia (τ 0.45 s up / 0.9 s down). Kills the
+  keyframe-restart stutter of the old CSS animation; pauses when the tab is hidden.
+- **Micro-interactions**: 16-segment VU meter (`VuMeter.tsx` — log curve, peak-hold),
+  odometer count-ups (`useCountUp.ts`), press springs, phase-row active-edge lighting,
+  refined TEST COMPLETE stamp physics, progress shimmer, single-backdrop-filter rule.
+- **Mobile overhaul**: one 900 px structural breakpoint (`useIsWide()`), fluid `clamp()`
+  type + reel geometry (no more `scale(0.65)` blur), safe-area insets, ≥44 px targets.
+- **Accessibility**: full `prefers-reduced-motion` support (reels freeze, tape-radius
+  still conveys progress; global animation+transition neutralization), the deck is a
+  real `<button>` with `aria-busy` + focus-visible rings, `aria-live` status region,
+  keyboard-operable DNS bar, decorative SVG hidden from the tree.
+
+### Changed
+
+- `@cloudflare/speedtest` 1.7.0 → **1.11.0** (custom TURN credential support; explicit
+  packet-loss batch parameters).
+- Inter-provider transition 3000 ms → **1000 ms**; provider progress is mapped across
+  the full registry with per-source failure isolation.
+- `ACCURACY.md` rewritten for v4 and now defers to METHODOLOGY.md; the How-It-Works
+  page updated to match.
+- `package.json` version synced to the release (was stuck at 1.0.0).
+
+### Fixed
+
+- **Deep links 404** — `vercel.json` SPA rewrites: direct loads of `/settings` and
+  `/how-it-works` now work (BrowserRouter previously 404'd on refresh/direct entry).
+- FAST-mode early-stop confidence sequence uses a strictly-predictable running mean
+  (the anytime-validity guarantee requires it; the inclusive form was ~2.6%
+  anti-conservative).
+- Vultr POP probing can no longer stall a FULL run on an unreachable POP
+  (per-probe 5 s timeout + `Promise.allSettled`); MSAK no longer opens a fresh upload
+  after Stop; fastcom relay retries the pinned fallback token before failing;
+  provider factory enforces M-Lab consent gating for direct callers.
+- Pretext text measurement now imports the rendered font stack from tokens
+  (was hard-coded Guton → measured wrong widths under the new type system).
+
+### Removed
+
+- `GlitchText` component and its 50 ms `setInterval` transform loop, dead `glitch-anim`
+  keyframes, the four-tier responsive matrix and `mechanismScale`, duplicate inline CRT
+  scanlines (canonical `CRTOverlay` restored).
+
 ## [2.3.0] — 2026-04-21
 
 ### Added

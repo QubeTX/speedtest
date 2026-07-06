@@ -1,17 +1,19 @@
 {
   "name": "qubetx-speedtest",
   "private": true,
-  "version": "1.0.0",
+  "version": "3.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
+    "test": "vitest run",
+    "gen:golden": "vite-node scripts/generate-golden-vectors.ts",
     "postinstall": "node scripts/copy-ndt7-workers.js"
   },
   "dependencies": {
     "@chenglou/pretext": "^0.0.2",
-    "@cloudflare/speedtest": "^1.7.0",
+    "@cloudflare/speedtest": "^1.11.0",
     "@m-lab/ndt7": "^0.1.4",
     "motion": "^12.38.0",
     "react": "^18.3.1",
@@ -19,10 +21,13 @@
     "react-router-dom": "^7.1.1"
   },
   "devDependencies": {
+    "@types/node": "^26.1.0",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
     "@vitejs/plugin-react": "^4.3.4",
     "typescript": "~5.6.2",
-    "vite": "^6.0.5"
+    "vite": "^6.0.5",
+    "vite-node": "^6.0.0",
+    "vitest": "^4.1.9"
   }
 }

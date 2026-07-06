@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import TechnicalReportView from '../views/TechnicalReportView';
 import AppStoreBadge from '../components/layout/AppStoreBadge';
-import { useResponsive } from '../hooks/useResponsive';
+import { useIsWide } from '../hooks/useResponsive';
 
 export default function TechnicalReportPage() {
-  const { isMobile } = useResponsive();
+  const isWide = useIsWide();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -19,7 +19,7 @@ export default function TechnicalReportPage() {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        padding: isMobile ? '0.5rem' : '1rem',
+        padding: isWide ? '1rem' : '0.5rem',
         overflow: 'auto',
         opacity: visible ? 1 : 0,
         transform: visible ? 'translateY(0)' : 'translateY(20px)',

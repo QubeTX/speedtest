@@ -215,8 +215,84 @@ export const tooltips: Record<string, TooltipEntry> = {
   },
   confidenceInterval: {
     title: '95% Confidence Interval',
-    description: 'Computed via bootstrap resampling (1,000 iterations). Your actual speed likely falls within this range. A narrow range means high measurement confidence.',
+    description: 'The ± range your true speed most likely falls within. Built from a block-bootstrap of each provider and combined across providers with a Hartung–Knapp interval. A narrow range means high measurement confidence.',
     unit: 'Mbps',
+  },
+  minRtt: {
+    title: 'Ping (min-RTT)',
+    description: 'Your headline ping is the minimum round-trip time — the physical floor of the path, cross-checked against the servers’ own kernel measurements. The percentiles below (P50/P95/P99) show the full distribution.',
+    unit: 'ms',
+  },
+  pdv: {
+    title: 'Jitter (PDV)',
+    description: 'Packet Delay Variation — the gap between your typical ping (P50) and your slow pings (P95). This is the canonical jitter figure; the RFC 3550 value is kept in the breakdown for compatibility. Lower is smoother.',
+    unit: 'ms',
+    ranges: [
+      { max: 5, label: 'Excellent — very smooth, great for calls and gaming.' },
+      { max: 15, label: 'Good — minor variation, fine for most uses.' },
+      { max: 30, label: 'Fair — noticeable variation under some conditions.' },
+      { max: Infinity, label: 'High — expect choppy calls and inconsistent latency.' },
+    ],
+  },
+  capacity: {
+    title: 'Capacity',
+    description: 'The headline speed — what the tests that can actually saturate your line agree on. Computed as a capability-weighted average of the fastest, most trustworthy providers, so it reflects the real ceiling of your connection.',
+    unit: 'Mbps',
+  },
+  consensus: {
+    title: 'Consensus',
+    description: 'The conservative, all-providers figure — a random-effects average across every source that qualified, including slower single-stream tests. When capacity and consensus are close, all the tests agree; a gap means some providers saw a lower ceiling.',
+    unit: 'Mbps',
+  },
+  agreement: {
+    title: 'Provider Agreement (I²)',
+    description: 'How much the providers disagree, measured as I² (the share of spread beyond normal measurement noise). Low agreement isn’t a failure — fair-queuing and single- vs multi-stream behavior legitimately produce spread — it just means we show the range instead of one number.',
+    unit: '%',
+    ranges: [
+      { max: 25, label: 'High agreement — providers closely match.' },
+      { max: 50, label: 'Moderate agreement — minor spread between providers.' },
+      { max: 75, label: 'Low agreement — interpret the headline with the range in mind.' },
+      { max: Infinity, label: 'Very low agreement — the range is more meaningful than a single number.' },
+    ],
+  },
+  rpm: {
+    title: 'Responsiveness (RPM)',
+    description: 'Round-trips per minute under load — an IETF-adjacent measure of how responsive your connection stays while it’s busy. Higher is better. Labeled approximate because browser probes are same-origin.',
+    unit: 'RPM',
+    ranges: [
+      { max: 100, label: 'Poor — connection stalls badly under load.' },
+      { max: 300, label: 'Fair — noticeable slowdown when busy.' },
+      { max: 1000, label: 'Good — stays responsive under load.' },
+      { max: Infinity, label: 'Excellent — near-instant even when saturated.' },
+    ],
+  },
+  bufferbloatDelta: {
+    title: 'Bufferbloat (delta)',
+    description: 'How many milliseconds your latency climbs when the connection is under load (P95 loaded − P50 idle). This is the canonical bufferbloat measure — the raw latency penalty, not just a ratio.',
+    unit: 'ms',
+    ranges: [
+      { max: 5, label: 'Grade A+ — latency barely moves under load.' },
+      { max: 30, label: 'Grade A — excellent, minimal buffering.' },
+      { max: 60, label: 'Grade B — good, acceptable for most uses.' },
+      { max: 200, label: 'Grade C — noticeable; calls may degrade under load.' },
+      { max: 400, label: 'Grade D — significant bufferbloat, real-time apps suffer.' },
+      { max: Infinity, label: 'Grade F — severe. Fast on paper, miserable in practice.' },
+    ],
+  },
+  packetLoss: {
+    title: 'Packet Loss',
+    description: 'The share of probe packets that never arrived, measured over UDP. Even small amounts cause retransmits, stutter, and rubber-banding.',
+    unit: '%',
+    ranges: [
+      { max: 0.5, label: 'Excellent — essentially lossless.' },
+      { max: 2, label: 'Acceptable — minor loss, usually unnoticed.' },
+      { max: 5, label: 'Elevated — expect retransmits and occasional stutter.' },
+      { max: Infinity, label: 'High — significant loss; calls and gaming will suffer.' },
+    ],
+  },
+  methodologyVersion: {
+    title: 'SpeedQX Methodology',
+    description: 'The exact version of the measurement algorithm that produced this result. The same methodology runs byte-for-byte across the website, the iOS app, and the command-line tool, so any result can be traced to the precise math behind it.',
   },
   dynamicWeights: {
     title: 'Dynamic Provider Weights',

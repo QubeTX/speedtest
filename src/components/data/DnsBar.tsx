@@ -1,8 +1,7 @@
 import { useState, type CSSProperties } from 'react';
 import type { TestPhase, DnsCheckResult } from '../../types/speedtest';
-import { colors, borders, typography } from '../../theme/tokens';
-import { responsive } from '../../theme/responsive';
-import { useResponsive } from '../../hooks/useResponsive';
+import { colors, borders, typography, fontWeights } from '../../theme/tokens';
+import { useIsWide } from '../../hooks/useResponsive';
 import Tooltip from '../ui/Tooltip';
 
 interface DnsBarProps {
@@ -14,8 +13,8 @@ const TOTAL_DOMAINS = 12;
 
 export default function DnsBar({ dnsCheck, phase }: DnsBarProps) {
   const [showDetail, setShowDetail] = useState(false);
-  const { breakpoint, isMobile, isSmallDesktop } = useResponsive();
-  const r = responsive[breakpoint];
+  const isWide = useIsWide();
+  const isMobile = !isWide;
 
   const isIdle = phase === 'idle';
 
@@ -46,7 +45,7 @@ export default function DnsBar({ dnsCheck, phase }: DnsBarProps) {
   const barStyle: CSSProperties = {
     flex: 'none',
     borderTop: borders.stroke,
-    padding: isMobile ? '0.5rem 1.5rem' : isSmallDesktop ? '0.6rem 2rem' : '0.6rem 3rem',
+    padding: isWide ? '0.6rem 3rem' : '0.5rem 1.5rem',
     display: 'flex',
     alignItems: 'center',
     gap: isMobile ? '0.5rem' : '0.75rem',
@@ -69,7 +68,7 @@ export default function DnsBar({ dnsCheck, phase }: DnsBarProps) {
 
   const summaryStyle: CSSProperties = {
     fontSize,
-    fontWeight: 500,
+    fontWeight: fontWeights.medium,
     letterSpacing: '0.05em',
     color: colors.ink,
     opacity: 0.7,
@@ -114,7 +113,7 @@ export default function DnsBar({ dnsCheck, phase }: DnsBarProps) {
         backdropFilter: 'blur(12px)',
         WebkitBackdropFilter: 'blur(12px)',
         borderTop: borders.stroke,
-        padding: isMobile ? '0.75rem 1.5rem' : isSmallDesktop ? '1rem 2rem' : '1rem 3rem',
+        padding: isWide ? '1rem 3rem' : '0.75rem 1.5rem',
         zIndex: 20,
         animation: 'fade-in 0.2s ease',
         boxShadow: '0 -8px 24px rgba(0,0,0,0.08)',
@@ -136,7 +135,7 @@ export default function DnsBar({ dnsCheck, phase }: DnsBarProps) {
           gridTemplateColumns: '16px 1fr 55px 50px 45px 50px 50px',
           gap: '0.3rem',
           fontSize: '0.5rem',
-          fontWeight: 700,
+          fontWeight: fontWeights.bold,
           letterSpacing: '0.1em',
           opacity: 0.35,
           marginBottom: '0.3rem',
@@ -175,11 +174,11 @@ export default function DnsBar({ dnsCheck, phase }: DnsBarProps) {
                 backgroundColor: probe.status === 'pass' ? '#22c55e' : colors.error,
                 flexShrink: 0,
               }} />
-              <span style={{ letterSpacing: '0.05em', fontWeight: 500, flex: 1 }}>
+              <span style={{ letterSpacing: '0.05em', fontWeight: fontWeights.medium, flex: 1 }}>
                 {probe.domain}
               </span>
               <span style={{
-                opacity: 0.6, fontWeight: 500,
+                opacity: 0.6, fontWeight: fontWeights.medium,
                 color: probe.status === 'fail' ? colors.error : colors.ink,
               }}>
                 {probe.status === 'pass' ? `${probe.totalMs}ms` : 'FAIL'}
@@ -201,10 +200,10 @@ export default function DnsBar({ dnsCheck, phase }: DnsBarProps) {
                 width: 5, height: 5, borderRadius: '50%',
                 backgroundColor: probe.status === 'pass' ? '#22c55e' : colors.error,
               }} />
-              <span style={{ letterSpacing: '0.05em', fontWeight: 500 }}>
+              <span style={{ letterSpacing: '0.05em', fontWeight: fontWeights.medium }}>
                 {probe.domain}
               </span>
-              <span style={{ textAlign: 'right', opacity: 0.6, fontWeight: 500, color: probe.status === 'fail' ? colors.error : colors.ink }}>
+              <span style={{ textAlign: 'right', opacity: 0.6, fontWeight: fontWeights.medium, color: probe.status === 'fail' ? colors.error : colors.ink }}>
                 {probe.status === 'pass' ? `${probe.totalMs}ms` : 'FAIL'}
               </span>
               <span style={{ textAlign: 'right', opacity: 0.4 }}>
@@ -230,7 +229,7 @@ export default function DnsBar({ dnsCheck, phase }: DnsBarProps) {
           paddingTop: '0.4rem',
           borderTop: '1px solid rgba(0,0,0,0.08)',
           fontSize: isMobile ? '0.5rem' : '0.55rem',
-          fontWeight: 600,
+          fontWeight: fontWeights.semibold,
           letterSpacing: '0.1em',
           opacity: 0.5,
           display: 'flex',
@@ -248,12 +247,32 @@ export default function DnsBar({ dnsCheck, phase }: DnsBarProps) {
     </div>
   ) : null;
 
+  const interactive = probesDone > 0;
+
   return (
     <div
       style={barStyle}
-      onClick={() => probesDone > 0 && setShowDetail(prev => !prev)}
+      role={interactive ? 'button' : undefined}
+      tabIndex={interactive ? 0 : undefined}
+      aria-expanded={interactive ? showDetail : undefined}
+      aria-label={
+        interactive
+          ? `DNS diagnostics — ${summaryText}. Activate to ${showDetail ? 'collapse' : 'expand'} the per-domain breakdown.`
+          : undefined
+      }
+      onClick={() => interactive && setShowDetail(prev => !prev)}
+      onKeyDown={(e) => {
+        if (!interactive) return;
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          setShowDetail(prev => !prev);
+        } else if (e.key === 'Escape' && showDetail) {
+          e.preventDefault();
+          setShowDetail(false);
+        }
+      }}
       onMouseEnter={(e) => {
-        if (probesDone > 0) e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.5)';
+        if (interactive) e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.5)';
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.backgroundColor = 'transparent';

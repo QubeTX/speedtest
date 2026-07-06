@@ -209,6 +209,12 @@ export class NDT7Provider implements SpeedTestProvider {
       rttSamples: rttSamples.length,
     });
 
+    // Kernel MinRTT (µs→ms) samples from the server TCP stack — the physical
+    // path floor. Exposed so the aggregator can fold NDT7's kernel min into the
+    // cross-source min-RTT headline (METHODOLOGY.md §4). MinRTT is monotonic-
+    // non-increasing, so it feeds ping only, never jitter.
+    const kernelMinRttMs = rttSamples.length > 0 ? Math.min(...rttSamples) : null;
+
     return {
       provider: 'ndt7',
       ping: avgPing,
@@ -220,6 +226,11 @@ export class NDT7Provider implements SpeedTestProvider {
       timestamp: Date.now(),
       latencyStats,
       bandwidthSamples: { download: dlBandwidthSamples, upload: ulBandwidthSamples },
+      // Extra fields beyond the current SpeedTestResult type (attached via the
+      // `as any` cast, matching the other v4 providers). `rttSamples` are kernel
+      // TCPInfo.MinRTT values (ms); `kernelMinRttMs` is their minimum.
+      rttSamples: [...rttSamples],
+      kernelMinRttMs,
     } as any;
   }
 

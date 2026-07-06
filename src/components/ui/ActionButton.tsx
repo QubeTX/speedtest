@@ -1,5 +1,6 @@
-import { useState, type CSSProperties, type ReactNode } from 'react';
-import { colors, borders } from '../../theme/tokens';
+import type { CSSProperties, ReactNode } from 'react';
+import { motion } from 'motion/react';
+import { colors, borders, textStyles } from '../../theme/tokens';
 
 interface ActionButtonProps {
   onClick: () => void;
@@ -8,51 +9,51 @@ interface ActionButtonProps {
   disabled?: boolean;
 }
 
-export default function ActionButton({ onClick, children, variant = 'primary', disabled }: ActionButtonProps) {
-  const [hover, setHover] = useState(false);
-  const [active, setActive] = useState(false);
+/** Shared spring for both the hover lift and the tap press. */
+const BUTTON_SPRING = { type: 'spring', stiffness: 400, damping: 25 } as const;
 
+export default function ActionButton({ onClick, children, variant = 'primary', disabled }: ActionButtonProps) {
   const isPrimary = variant === 'primary';
 
   const style: CSSProperties = {
     width: '240px',
     height: '60px',
-    backgroundColor: isPrimary
-      ? (hover ? '#333' : colors.ink)
-      : (hover ? colors.ink : 'transparent'),
-    color: isPrimary
-      ? colors.paper
-      : (hover ? colors.paper : colors.ink),
+    backgroundColor: isPrimary ? colors.ink : 'transparent',
+    color: isPrimary ? colors.paper : colors.ink,
     border: isPrimary ? 'none' : borders.stroke,
     borderRadius: borders.radiusPill,
-    fontFamily: "'Guton', -apple-system, BlinkMacSystemFont, sans-serif",
+    ...textStyles.button,
     fontSize: '1rem',
-    fontWeight: 600,
-    letterSpacing: '0.1em',
+    textTransform: 'uppercase',
     cursor: disabled ? 'default' : 'pointer',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     gap: '0.75rem',
-    transition: 'transform 0.1s ease, background-color 0.2s, color 0.2s',
-    transform: active ? 'scale(0.96)' : 'scale(1)',
     opacity: disabled ? 0.5 : 1,
     touchAction: 'manipulation',
-    textTransform: 'uppercase',
   };
 
+  // Primary: darken on hover. Outline: invert to filled ink (matches the
+  // previous hover treatment), both now layered with the new lift.
+  const hoverAnimation = disabled
+    ? undefined
+    : isPrimary
+      ? { y: -1, backgroundColor: '#333333' }
+      : { y: -1, backgroundColor: colors.ink, color: colors.paper };
+
   return (
-    <button
+    <motion.button
+      type="button"
+      className="action-btn"
       style={style}
-      onClick={() => { if (!disabled) onClick(); }}
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => { setHover(false); setActive(false); }}
-      onMouseDown={() => { if (!disabled) setActive(true); }}
-      onMouseUp={() => setActive(false)}
-      onTouchStart={() => { if (!disabled) setActive(true); }}
-      onTouchEnd={() => setActive(false)}
+      onClick={onClick}
+      disabled={disabled}
+      whileHover={hoverAnimation}
+      whileTap={disabled ? undefined : { scale: 0.94 }}
+      transition={BUTTON_SPRING}
     >
       {children}
-    </button>
+    </motion.button>
   );
 }
