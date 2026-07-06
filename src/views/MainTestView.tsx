@@ -26,7 +26,7 @@ const captionStyle: CSSProperties = {
 export default function MainTestView() {
   const {
     phase, progress, result, dnsCheck, networkMetadata, providerStep, settings,
-    startTest, rerunTest, resetTest, updateSettings,
+    startTest, rerunTest, resetTest, updateSettings, lastProfile,
   } = useSpeedTestContext();
   const navigate = useNavigate();
   const isWide = useIsWide();
@@ -209,12 +209,32 @@ export default function MainTestView() {
         )}
 
         {isComplete && (
-          <ActionButton onClick={rerunTest}>
-            <svg width="20" height="20" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true">
-              <path d="m15.99 0.44c-8.51 0-15.51 6.93-15.51 15.56h3.49c0-6.71 5.61-12.01 12-12.01 6.78 0 12.04 5.53 12.04 12.02 0 6.72-5.49 11.98-12.13 11.98-3 0-5.51-1.05-7.45-2.72l3.15-2.05-9.4-4.12 0.01 10.21 3.18-2.07c2.87 2.7 6.31 4.32 10.51 4.32 8.63 0 15.69-7.07 15.69-15.55 0-8.5-7.06-15.57-15.58-15.57z" />
-            </svg>
-            RUN AGAIN
-          </ActionButton>
+          <>
+            <ActionButton onClick={rerunTest}>
+              <svg width="20" height="20" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true">
+                <path d="m15.99 0.44c-8.51 0-15.51 6.93-15.51 15.56h3.49c0-6.71 5.61-12.01 12-12.01 6.78 0 12.04 5.53 12.04 12.02 0 6.72-5.49 11.98-12.13 11.98-3 0-5.51-1.05-7.45-2.72l3.15-2.05-9.4-4.12 0.01 10.21 3.18-2.07c2.87 2.7 6.31 4.32 10.51 4.32 8.63 0 15.69-7.07 15.69-15.55 0-8.5-7.06-15.57-15.58-15.57z" />
+              </svg>
+              RUN AGAIN
+            </ActionButton>
+            {/* Alternate-mode re-run: always offers the OTHER profile, so it's
+                never redundant with RUN AGAIN (which repeats the last run). */}
+            {lastProfile === 'fast' ? (
+              <ActionButton variant="outline" size="small" onClick={() => startTest('full')}>
+                <svg width="14" height="12" viewBox="0 0 28 24" fill="currentColor" aria-hidden="true">
+                  <path d="M4 5v14l9-7z" />
+                  <path d="M15 5v14l9-7z" />
+                </svg>
+                DEEP TEST
+              </ActionButton>
+            ) : (
+              <ActionButton variant="outline" size="small" onClick={() => startTest('fast')}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+                QUICK TEST
+              </ActionButton>
+            )}
+          </>
         )}
 
         {isError && (

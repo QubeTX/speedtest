@@ -18,6 +18,8 @@ interface SpeedTestContextValue {
   startTest: (profile?: TestProfile) => Promise<void>;
   /** Re-run using the most recent run's profile. */
   rerunTest: () => Promise<void>;
+  /** Profile used by the most recent run (drives the alternate re-run button). */
+  lastProfile: TestProfile;
   stopTest: () => void;
   resetTest: () => void;
 
@@ -30,7 +32,7 @@ const Ctx = createContext<SpeedTestContextValue | null>(null);
 
 export function SpeedTestProvider({ children }: { children: ReactNode }) {
   const { settings, updateSettings } = useSettings();
-  const { phase, progress, result, dnsCheck, networkMetadata, providerStep, startTest, rerunTest, stopTest, resetTest } = useSpeedTest(settings);
+  const { phase, progress, result, dnsCheck, networkMetadata, providerStep, startTest, rerunTest, stopTest, resetTest, lastProfile } = useSpeedTest(settings);
 
   const value: SpeedTestContextValue = {
     phase,
@@ -41,6 +43,7 @@ export function SpeedTestProvider({ children }: { children: ReactNode }) {
     providerStep,
     startTest,
     rerunTest,
+    lastProfile,
     stopTest,
     resetTest,
     settings,

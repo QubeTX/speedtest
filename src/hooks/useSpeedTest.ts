@@ -260,8 +260,12 @@ export function useSpeedTest(settings: Settings, onComplete?: (result: SpeedTest
 
   /** Re-run using the profile from the most recent run (RUN AGAIN / RETRY). */
   const rerunTest = useCallback(() => startTest(lastProfileRef.current), [startTest]);
+  // Read at render time (phase changes re-render consumers, so this is fresh
+  // whenever the completion controls need it): which profile the last run used,
+  // so the UI can offer the ALTERNATE mode as the secondary re-run.
+  const lastProfile = lastProfileRef.current;
 
-  return { phase, progress, result, dnsCheck, networkMetadata, providerStep, startTest, rerunTest, stopTest, resetTest };
+  return { phase, progress, result, dnsCheck, networkMetadata, providerStep, startTest, rerunTest, stopTest, resetTest, lastProfile };
 }
 
 // ── Clipboard summary (v4 payload) ───────────────────────────────────────────

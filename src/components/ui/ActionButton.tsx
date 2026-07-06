@@ -6,24 +6,27 @@ interface ActionButtonProps {
   onClick: () => void;
   children: ReactNode;
   variant?: 'primary' | 'outline';
+  /** 'small' renders a compact secondary action (e.g. the alternate re-run). */
+  size?: 'default' | 'small';
   disabled?: boolean;
 }
 
 /** Shared spring for both the hover lift and the tap press. */
 const BUTTON_SPRING = { type: 'spring', stiffness: 400, damping: 25 } as const;
 
-export default function ActionButton({ onClick, children, variant = 'primary', disabled }: ActionButtonProps) {
+export default function ActionButton({ onClick, children, variant = 'primary', size = 'default', disabled }: ActionButtonProps) {
   const isPrimary = variant === 'primary';
+  const isSmall = size === 'small';
 
   const style: CSSProperties = {
-    width: '240px',
-    height: '60px',
+    width: isSmall ? '180px' : '240px',
+    height: isSmall ? '44px' : '60px',
     backgroundColor: isPrimary ? colors.ink : 'transparent',
     color: isPrimary ? colors.paper : colors.ink,
-    border: isPrimary ? 'none' : borders.stroke,
+    border: isPrimary ? 'none' : (isSmall ? borders.strokeThin : borders.stroke),
     borderRadius: borders.radiusPill,
     ...textStyles.button,
-    fontSize: '1rem',
+    fontSize: isSmall ? '0.75rem' : '1rem',
     textTransform: 'uppercase',
     cursor: disabled ? 'default' : 'pointer',
     display: 'flex',

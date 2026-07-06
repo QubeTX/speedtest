@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.0.8] — 2026-07-06
+
+### Added
+
+- **Alternate-mode re-run after completion** — RUN AGAIN repeats the exact test
+  you just ran; a compact secondary button beneath it offers the *other* mode
+  (DEEP TEST after a quick run, QUICK TEST after a deep run), so it's never
+  redundant. `ActionButton` gains a `small` size; the last-used profile is
+  exposed through the speed-test context.
+
 ## [3.0.7] — 2026-07-06
 
 ### Changed
