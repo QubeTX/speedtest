@@ -108,6 +108,13 @@ export interface SpeedTestResult {
   confidenceIntervals?: ConfidenceIntervals;
   /** Single-stream (NDT7) vs multi-stream flow-count disclosure (METHODOLOGY.md §6). */
   flowDisclosure?: FlowDisclosure;
+  /**
+   * Measurement-integrity notices: non-network conditions that may have
+   * affected this run (a stalled source that was cut off, samples collected
+   * while the page was hidden/throttled, a source whose readings were wildly
+   * inconsistent with the others). Disclosed, never silently absorbed.
+   */
+  warnings?: string[];
 
   // ── Shared raw provider extras (previously attached via `as any`) ──────────
   /** Raw, time-ordered per-tick Mbps samples for orchestrator reprocessing. */

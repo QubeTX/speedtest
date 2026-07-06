@@ -41,6 +41,29 @@ export function useSpeedTest(settings: Settings, onComplete?: (result: SpeedTest
     lastProfileRef.current = profile;
     const consent = settings.dataPolicyAccepted;
 
+    // Screen wake lock for the duration of the run: a phone screen locking
+    // mid-test makes the browser throttle every transfer, poisoning all
+    // readings (the orchestrator additionally detects and discloses hidden
+    // runs). Best-effort — unsupported browsers just skip it.
+    let wakeLock: { release(): Promise<void> } | null = null;
+    const acquireWakeLock = async () => {
+      try {
+        const wl = (navigator as any).wakeLock;
+        if (wl?.request) wakeLock = await wl.request('screen');
+      } catch { /* denied or unsupported — fine */ }
+    };
+    const onVisibleReacquire = () => {
+      // Wake locks auto-release when the page hides; re-acquire on return.
+      if (!document.hidden && providerRef.current) void acquireWakeLock();
+    };
+    await acquireWakeLock();
+    document.addEventListener('visibilitychange', onVisibleReacquire);
+    const releaseWakeLock = () => {
+      document.removeEventListener('visibilitychange', onVisibleReacquire);
+      try { void wakeLock?.release(); } catch { /* already released */ }
+      wakeLock = null;
+    };
+
     // Consent gating: only the *explicit* single M-Lab modes are downgraded here.
     // The aggregated (`'both'`) path is handled gracefully by the plan resolver,
     // which drops NDT7/MSAK when consent is absent — no blanket downgrade.
@@ -209,6 +232,7 @@ export function useSpeedTest(settings: Settings, onComplete?: (result: SpeedTest
       setPhase('error');
       setProgress(prev => ({ ...prev, phase: 'error', error: message }));
     } finally {
+      releaseWakeLock();
       providerRef.current = null;
       abortRef.current = null;
     }

@@ -259,6 +259,25 @@ export default function DataPanel({ phase, progress, result, speedUnit, dnsCheck
       {/* L2 — Per-provider breakdown */}
       {isComplete && result && <ProviderBreakdown result={result} speedUnit={speedUnit} />}
 
+      {/* Measurement-integrity notices (stalled/cut-off sources, hidden-page
+          throttling, incoherent-source diagnostics) — disclosed, never silent */}
+      {isComplete && result?.warnings && result.warnings.length > 0 && (
+        <div style={{
+          padding: '0.7rem clamp(1.5rem, 3vw, 3rem)',
+          borderTop: '1px solid rgba(17,17,17,0.1)',
+          backgroundColor: 'rgba(17,17,17,0.03)',
+        }}>
+          <span style={{ ...textStyles.microLabel, fontSize: '0.55rem', display: 'block', marginBottom: '0.35rem', opacity: 0.6 }}>
+            MEASUREMENT NOTICES
+          </span>
+          {result.warnings.map((w, i) => (
+            <div key={i} style={{ ...textStyles.metricValue, fontSize: '0.62rem', opacity: 0.55, lineHeight: 1.6 }}>
+              ▸ {w}
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* DNS Connectivity */}
       <DnsBar dnsCheck={dnsCheck} phase={phase} />
     </div>

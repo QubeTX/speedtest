@@ -121,24 +121,24 @@ export default function Tooltip({ tooltipKey, children, value, variant = 'inline
     if (!bubbleRef.current || !wrapperRef.current) return;
 
     const wrapperRect = wrapperRef.current.getBoundingClientRect();
-    const bubbleRect = bubbleRef.current.getBoundingClientRect();
+    // Measure the bubble with offsetWidth/Height, NOT getBoundingClientRect:
+    // the entrance animation starts at scale 0.92 / translated, and a
+    // transformed rect under-measures — every position was being computed
+    // from a slightly-wrong size (visible as misaligned tooltips on desktop).
+    // offset* report the untransformed layout box.
+    const bubbleW = bubbleRef.current.offsetWidth;
+    const bubbleH = bubbleRef.current.offsetHeight;
     const margin = 8;
     const gap = 10;
 
     const placement: 'above' | 'below' =
-      wrapperRect.top - bubbleRect.height - gap < margin ? 'below' : 'above';
-    const top =
-      placement === 'above'
-        ? wrapperRect.top - bubbleRect.height - gap
-        : wrapperRect.bottom + gap;
+      wrapperRect.top - bubbleH - gap < margin ? 'below' : 'above';
+    const top = placement === 'above' ? wrapperRect.top - bubbleH - gap : wrapperRect.bottom + gap;
 
     const triggerCenter = wrapperRect.left + wrapperRect.width / 2;
-    let left = triggerCenter - bubbleRect.width / 2;
-    left = Math.min(Math.max(left, margin), window.innerWidth - bubbleRect.width - margin);
-    const arrowLeft = Math.min(
-      Math.max(triggerCenter - left - 5, 10),
-      bubbleRect.width - 20,
-    );
+    let left = triggerCenter - bubbleW / 2;
+    left = Math.min(Math.max(left, margin), window.innerWidth - bubbleW - margin);
+    const arrowLeft = Math.min(Math.max(triggerCenter - left - 5, 10), bubbleW - 20);
 
     setCoords({ top, left, arrowLeft, placement });
   }, [isActive]);

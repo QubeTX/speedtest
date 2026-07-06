@@ -49,6 +49,7 @@ import {
   bufferbloatDelta,
   rpm as computeRpm,
   type MergeProviderInput,
+  leaveOneOutOutlier,
   type MergeResult,
 } from './statistics';
 import { PCG32 } from './stat-primitives';
@@ -63,6 +64,15 @@ const TRANSITION_MS = 1000;
 const HARD_CAP_MS = 25_000;
 /** Grace period for a stopped provider's own promise to resolve before we synthesize. */
 const GRACE_MS = 1500;
+/**
+ * Per-source liveness watchdog: no progress events for this long means the
+ * source is wedged on something other than the network under test (rate
+ * limiting, a silent socket, a dead service) — cut it off, keep its partial
+ * data, continue the run. Honest paths emit progress at seconds scale.
+ */
+const STALL_MS = 30_000;
+/** Longest we pause between sources waiting for a hidden page to become visible. */
+const VISIBILITY_WAIT_MS = 5 * 60_000;
 /** Flow-count / divergence "material" threshold. */
 const DIVERGENCE_THRESHOLD = 0.30;
 /** Cross-provider latency blend weight for Cloudflare (NDT7 gets the rest). */
@@ -168,6 +178,8 @@ export class AggregatedProvider implements SpeedTestProvider {
   private consent: boolean;
   private stopped = false;
   private active: SpeedTestProvider | null = null;
+  /** Measurement-integrity notices accumulated during the run (see types). */
+  private runWarnings: string[] = [];
 
   constructor(opts: AggregatedProviderOptions = {}) {
     this.profile = opts.profile ?? 'full';
@@ -179,6 +191,7 @@ export class AggregatedProvider implements SpeedTestProvider {
     duration: TestDuration = 'auto',
   ): Promise<SpeedTestResult> {
     this.stopped = false;
+    this.runWarnings = [];
 
     const fast = this.profile === 'fast';
     const plan = resolveProviderPlan(this.profile, this.consent);
@@ -199,6 +212,13 @@ export class AggregatedProvider implements SpeedTestProvider {
         await delay(TRANSITION_MS);
         if (this.stopped) break;
       }
+
+      // Don't START a source while the page is hidden — the browser throttles
+      // background transfers and every reading would be garbage-low. Wait for
+      // visibility (bounded); if the page stays hidden, run anyway and let the
+      // per-source hidden flag disclose it.
+      await this.waitUntilVisible();
+      if (this.stopped) break;
 
       const instance = make();
       this.active = instance;
@@ -229,6 +249,51 @@ export class AggregatedProvider implements SpeedTestProvider {
     this.active = null;
   }
 
+  /**
+   * Assemble the run's measurement-integrity notices: per-source stall/hidden
+   * warnings plus the leave-one-out influence diagnostic — when very-low
+   * agreement is explained by a single incoherent source, name it (source-side
+   * throttling or an overloaded test server, not your network).
+   */
+  private collectWarnings(
+    dlInputs: MergeProviderInput[],
+    ulInputs: MergeProviderInput[],
+  ): string[] | undefined {
+    const warnings = [...this.runWarnings];
+    for (const [dir, inputs] of [['download', dlInputs], ['upload', ulInputs]] as const) {
+      const outlier = leaveOneOutOutlier(inputs);
+      if (outlier) {
+        warnings.push(
+          `${PROVIDER_LABELS[outlier.name] ?? outlier.name} disagreed strongly with every other ${dir} source ` +
+          `(agreement recovers from I² ${(outlier.i2With * 100).toFixed(0)}% to ${(outlier.i2Without * 100).toFixed(0)}% without it) — ` +
+          `likely source-side throttling or an overloaded test server, not your network`,
+        );
+      }
+    }
+    return warnings.length > 0 ? warnings : undefined;
+  }
+
+  /** Resolve when the page is visible (immediately if it already is, or if the
+   *  wait cap expires — the caller's hidden flag then discloses the condition). */
+  private waitUntilVisible(): Promise<void> {
+    if (typeof document === 'undefined' || !document.hidden) return Promise.resolve();
+    this.runWarnings.push(
+      'the test paused between sources while the page was hidden (background transfers are throttled by the browser)',
+    );
+    return new Promise((resolve) => {
+      const timer = setTimeout(finish, VISIBILITY_WAIT_MS);
+      function finish() {
+        clearTimeout(timer);
+        document.removeEventListener('visibilitychange', onVis);
+        resolve();
+      }
+      function onVis() {
+        if (!document.hidden) finish();
+      }
+      document.addEventListener('visibilitychange', onVis);
+    });
+  }
+
   // ── Single-provider run with CS early stop + hard cap + graceful stop ──────
 
   private async runOne(
@@ -255,8 +320,31 @@ export class AggregatedProvider implements SpeedTestProvider {
       };
     });
 
+    // Liveness watchdog: a source that emits no progress events for this long
+    // is wedged on something other than the network under test (rate limiter,
+    // silent socket, dead service). Cut it off and keep what it measured; the
+    // aggregated run continues on the other sources. Honest paths emit progress
+    // at seconds scale even on badly degraded links.
+    let stallTimer: ReturnType<typeof setTimeout> | null = null;
+    let resolveStall!: (v: 'stalled') => void;
+    const stallPromise = new Promise<'stalled'>((resolve) => { resolveStall = resolve; });
+    const armStall = () => {
+      if (stallTimer) clearTimeout(stallTimer);
+      stallTimer = setTimeout(() => {
+        try { instance.stop(); } catch { /* noop */ }
+        resolveStall('stalled');
+      }, STALL_MS);
+    };
+    armStall();
+
+    // Browser throttling detection: samples collected while the page is hidden
+    // (locked phone, background tab) are throttled by the browser and read low.
+    let sawHidden = false;
+
     const wrapped = (p: SpeedTestProgress) => {
       if (this.stopped) return;
+      armStall();
+      if (typeof document !== 'undefined' && document.hidden) sawHidden = true;
       lastProgress = p;
       if (p.ping != null && p.ping > 0 && p.ping < ctx.minRtt) ctx.minRtt = p.ping;
 
@@ -291,16 +379,32 @@ export class AggregatedProvider implements SpeedTestProvider {
       }, HARD_CAP_MS);
     });
 
-    const outcome = await Promise.race([started, stopSignal, capPromise]);
+    const outcome = await Promise.race([started, stopSignal, capPromise, stallPromise]);
     if (capTimer) clearTimeout(capTimer);
+    if (stallTimer) clearTimeout(stallTimer);
+
+    if (sawHidden) {
+      this.runWarnings.push(
+        `${label} ran while the page was hidden — the browser throttles background transfers, so its readings may be low`,
+      );
+    }
 
     if (typeof outcome === 'object') {
       if (outcome.kind === 'result') return outcome.result;
       throw outcome.error;
     }
 
-    // 'stopped' or 'cap' — give start() a brief grace period to resolve with
-    // real partial data; otherwise synthesize from accumulated live samples.
+    if (outcome === 'stalled') {
+      this.runWarnings.push(
+        `${label} stopped responding (no progress for ${STALL_MS / 1000}s — possibly rate-limited or a source-side outage) and was cut off`,
+      );
+      if (liveDl.length === 0 && liveUl.length === 0) {
+        throw new Error(`stalled — no progress for ${STALL_MS / 1000}s`);
+      }
+    }
+
+    // 'stopped', 'cap', or 'stalled' — give start() a brief grace period to
+    // resolve with real partial data; otherwise synthesize from live samples.
     const graced = await Promise.race([
       started,
       delay(GRACE_MS).then(() => ({ kind: 'timeout' as const })),
@@ -555,6 +659,7 @@ export class AggregatedProvider implements SpeedTestProvider {
       mergeExclusions,
       confidenceIntervals: { download: dlMerge.capacityCi, upload: ulMerge.capacityCi, confidenceLevel: 0.95 },
       flowDisclosure,
+      warnings: this.collectWarnings(dlInputs, ulInputs),
 
       // stats blocks / legacy surfaces
       latencyStats,

@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.0.5] — 2026-07-06
+
+### Added
+
+- **Non-network failure isolation, systemically** — a failed or throttled test
+  service can no longer freeze a run or silently poison accuracy:
+  - every source now runs under a 30 s liveness watchdog (no progress → cut off,
+    partial data kept, run continues);
+  - a **screen wake lock** is held for the duration of a run, and the
+    orchestrator pauses between sources while the page is hidden — a locked
+    phone or background tab makes the browser throttle transfers, which was
+    reading as garbage-low speeds on mobile;
+  - a **leave-one-out agreement diagnostic** names the single source whose
+    readings are wildly inconsistent with all the others (source-side
+    throttling or an overloaded test server, not your network);
+  - all of the above surface as **measurement notices** in the results panel —
+    disclosed, never silently absorbed. (`warnings` field on the result payload.)
+
+### Fixed
+
+- **Desktop tooltip alignment** — bubbles were measured mid-entrance-animation
+  (scale 0.92), so every position was computed from a slightly-wrong size;
+  now measured from the untransformed layout box and centered on the trigger
+  with the arrow pointing at it (viewport-clamped at edges).
+
 ## [3.0.4] — 2026-07-06
 
 ### Fixed

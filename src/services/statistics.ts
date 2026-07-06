@@ -847,3 +847,71 @@ export function empiricalBernsteinCS(
   const stop = !gated && t >= 12 && halfWidthMbps <= Math.max(0.05 * muHatMbps, 2.0);
   return { t, U, muHatMbps, halfWidthMbps, width, stop };
 }
+
+// ─── Leave-one-out agreement diagnostic (observability only) ─────────────────
+//
+// Names the single source whose reading is wildly inconsistent with all the
+// others — the signature of a source-side problem (throttling, an overloaded
+// test server) rather than the network under test. Deliberately NOT part of
+// the pinned v4 merge (no golden-vector impact): it produces a disclosed
+// warning, never a changed number. A future methodology revision may act on it.
+
+export interface InfluenceOutlier {
+  /** Provider name whose removal collapses the heterogeneity. */
+  name: string;
+  /** I² across all qualifying sources. */
+  i2With: number;
+  /** I² with the named source removed. */
+  i2Without: number;
+}
+
+function i2OfPoints(points: Array<{ y: number; v: number }>): number | null {
+  const k = points.length;
+  if (k < 2) return null;
+  let sumW = 0;
+  let sumWy = 0;
+  for (let i = 0; i < k; i++) {
+    const w = 1 / points[i].v;
+    sumW += w;
+    sumWy += w * points[i].y;
+  }
+  if (sumW <= 0) return null;
+  const muF = sumWy / sumW;
+  let q = 0;
+  for (let i = 0; i < k; i++) {
+    const w = 1 / points[i].v;
+    const d = points[i].y - muF;
+    q += w * d * d;
+  }
+  if (q <= 0) return 0;
+  return Math.max(0, (q - (k - 1)) / q);
+}
+
+/**
+ * With ≥4 qualifying sources and very-low agreement (I² > 0.75), find the one
+ * source whose removal restores coherence (I² ≤ 0.35 without it). Returns null
+ * when agreement is fine, when no single source explains the disagreement, or
+ * when there are too few sources for the diagnostic to mean anything.
+ */
+export function leaveOneOutOutlier(inputs: MergeProviderInput[]): InfluenceOutlier | null {
+  const pts = inputs
+    .filter((p) => p.samples >= MIN_MERGE_SAMPLES && Number.isFinite(p.v) && p.v > 0 && Number.isFinite(p.y))
+    .map((p) => ({ name: p.name, y: p.y, v: p.v }));
+  if (pts.length < 4) return null;
+
+  const i2With = i2OfPoints(pts);
+  if (i2With == null || i2With <= 0.75) return null;
+
+  let best: { name: string; i2: number } | null = null;
+  for (let j = 0; j < pts.length; j++) {
+    const rest = pts.filter((_, idx) => idx !== j);
+    const i2 = i2OfPoints(rest);
+    if (i2 != null && (best == null || i2 < best.i2)) {
+      best = { name: pts[j].name, i2 };
+    }
+  }
+  if (best && best.i2 <= 0.35) {
+    return { name: best.name, i2With, i2Without: best.i2 };
+  }
+  return null;
+}
