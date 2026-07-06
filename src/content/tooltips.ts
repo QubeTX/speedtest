@@ -245,15 +245,19 @@ export const tooltips: Record<string, TooltipEntry> = {
     unit: 'Mbps',
   },
   agreement: {
-    title: 'Provider Agreement (I²)',
-    description: 'How much the providers disagree, measured as I² (the share of spread beyond normal measurement noise). Low agreement isn’t a failure — fair-queuing and single- vs multi-stream behavior legitimately produce spread — it just means we show the range instead of one number.',
+    title: 'Source Agreement',
+    description: 'Your speed is measured by several independent services with different designs — some open one connection, some open many, and they use different servers. This badge shows how closely their readings matched (the I² statistic). Disagreement is NOT a failed test: a single-connection test legitimately reads lower than a multi-connection one on a busy line or a router that shares bandwidth per connection. When agreement is low, read the headline as what your line demonstrated it can do, CONSENSUS as the cautious average, and the ± range as the honest spread.',
     unit: '%',
     ranges: [
-      { max: 25, label: 'High agreement — providers closely match.' },
-      { max: 50, label: 'Moderate agreement — minor spread between providers.' },
-      { max: 75, label: 'Low agreement — interpret the headline with the range in mind.' },
-      { max: Infinity, label: 'Very low agreement — the range is more meaningful than a single number.' },
+      { max: 25, label: 'HIGH — sources closely match; the headline is rock-solid.' },
+      { max: 50, label: 'MODERATE — minor spread between sources; the headline is reliable.' },
+      { max: 75, label: 'LOW — sources saw different speeds; check the ± range and CONSENSUS.' },
+      { max: Infinity, label: 'VERY LOW — sources saw very different speeds (common on busy networks and per-connection bandwidth sharing). The test worked fine — the ± range and per-source breakdown tell the full story.' },
     ],
+  },
+  measurementQuality: {
+    title: 'Measurement Quality',
+    description: 'How much to trust the numbers above, and why. CONSENSUS is the cautious average across every source (the headline shows demonstrated capacity, which is usually higher). AGREEMENT shows how closely the independent sources matched each other. STABILITY shows how steady your speed held during the test. None of these are pass/fail grades — they are the context an honest measurement owes you.',
   },
   rpm: {
     title: 'Responsiveness (RPM)',

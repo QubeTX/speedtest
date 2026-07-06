@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useLayoutEffect, useId, useCallback, createContext, useContext, type CSSProperties, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'motion/react';
 import { tooltips, getRangeLabel } from '../../content/tooltips';
 import { useIsWide } from '../../hooks/useResponsive';
@@ -55,8 +56,15 @@ export default function Tooltip({ tooltipKey, children, value, variant = 'inline
   const { activeId, open, close } = useContext(TooltipContext);
   const isActive = activeId === id;
 
-  const [position, setPosition] = useState<'above' | 'below'>('above');
-  const [align, setAlign] = useState<'left' | 'right'>('left');
+  // Fixed viewport coords for the portaled bubble. The bubble is rendered into
+  // document.body so ancestor overflow:hidden (expander animations, panel
+  // borders) can never clip it; null = "measuring" (rendered but invisible).
+  const [coords, setCoords] = useState<{
+    top: number;
+    left: number;
+    arrowLeft: number;
+    placement: 'above' | 'below';
+  } | null>(null);
   const showTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const bubbleRef = useRef<HTMLSpanElement>(null);
@@ -84,9 +92,10 @@ export default function Tooltip({ tooltipKey, children, value, variant = 'inline
   useEffect(() => {
     if (!isActive || !isMobile) return;
     const handler = (e: MouseEvent) => {
-      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
-        close(id);
-      }
+      const target = e.target as Node;
+      const inTrigger = wrapperRef.current?.contains(target);
+      const inBubble = bubbleRef.current?.contains(target); // portaled — not inside wrapper
+      if (!inTrigger && !inBubble) close(id);
     };
     document.addEventListener('click', handler, true);
     return () => document.removeEventListener('click', handler, true);
@@ -102,27 +111,46 @@ export default function Tooltip({ tooltipKey, children, value, variant = 'inline
     return () => document.removeEventListener('keydown', handler);
   }, [isActive, close, id]);
 
-  // Reposition bubble on show
+  // Position the portaled bubble on show: render invisibly, measure both rects,
+  // then place with viewport clamping (fixed coords, so no ancestor can clip it).
   useLayoutEffect(() => {
-    if (!isActive || !bubbleRef.current || !wrapperRef.current) return;
+    if (!isActive) {
+      setCoords(null);
+      return;
+    }
+    if (!bubbleRef.current || !wrapperRef.current) return;
 
     const wrapperRect = wrapperRef.current.getBoundingClientRect();
     const bubbleRect = bubbleRef.current.getBoundingClientRect();
+    const margin = 8;
+    const gap = 10;
 
-    // Vertical: flip below if not enough room above
-    if (wrapperRect.top - bubbleRect.height - 12 < 8) {
-      setPosition('below');
-    } else {
-      setPosition('above');
-    }
+    const placement: 'above' | 'below' =
+      wrapperRect.top - bubbleRect.height - gap < margin ? 'below' : 'above';
+    const top =
+      placement === 'above'
+        ? wrapperRect.top - bubbleRect.height - gap
+        : wrapperRect.bottom + gap;
 
-    // Horizontal: shift right-aligned if overflowing right edge
-    if (wrapperRect.left + bubbleRect.width > window.innerWidth - 12) {
-      setAlign('right');
-    } else {
-      setAlign('left');
-    }
+    const triggerCenter = wrapperRect.left + wrapperRect.width / 2;
+    let left = triggerCenter - bubbleRect.width / 2;
+    left = Math.min(Math.max(left, margin), window.innerWidth - bubbleRect.width - margin);
+    const arrowLeft = Math.min(
+      Math.max(triggerCenter - left - 5, 10),
+      bubbleRect.width - 20,
+    );
+
+    setCoords({ top, left, arrowLeft, placement });
   }, [isActive]);
+
+  // Fixed positioning goes stale the moment anything scrolls — close instead
+  // of chasing the trigger (capture-phase so inner scroll containers count).
+  useEffect(() => {
+    if (!isActive) return;
+    const onScroll = () => close(id);
+    window.addEventListener('scroll', onScroll, { capture: true, passive: true });
+    return () => window.removeEventListener('scroll', onScroll, { capture: true });
+  }, [isActive, close, id]);
 
   const cancelTimers = useCallback(() => {
     if (showTimer.current) { clearTimeout(showTimer.current); showTimer.current = null; }
@@ -165,12 +193,13 @@ export default function Tooltip({ tooltipKey, children, value, variant = 'inline
     } : {}),
   };
 
+  const placement = coords?.placement ?? 'above';
+
   const bubbleStyle: CSSProperties = {
-    position: 'absolute',
-    ...(position === 'above'
-      ? { bottom: 'calc(100% + 10px)' }
-      : { top: 'calc(100% + 10px)' }),
-    ...(align === 'left' ? { left: 0 } : { right: 0 }),
+    position: 'fixed',
+    top: coords?.top ?? 0,
+    left: coords?.left ?? 0,
+    visibility: coords ? 'visible' : 'hidden',
     width: 'max-content',
     maxWidth: sizes.maxWidth,
     backgroundColor: '#111111',
@@ -181,23 +210,21 @@ export default function Tooltip({ tooltipKey, children, value, variant = 'inline
     letterSpacing: '0.02em',
     padding: sizes.padding,
     borderRadius: 0,
-    zIndex: 30,
+    zIndex: 1000,
     pointerEvents: 'auto' as const,
     textTransform: 'none' as const,
-    transformOrigin: position === 'above' ? 'bottom center' : 'top center',
+    transformOrigin: placement === 'above' ? 'bottom center' : 'top center',
   };
 
   const arrowStyle: CSSProperties = {
     position: 'absolute',
-    ...(position === 'above'
-      ? { top: '100%' }
-      : { bottom: '100%' }),
-    ...(align === 'left' ? { left: 12 } : { right: 12 }),
+    ...(placement === 'above' ? { top: '100%' } : { bottom: '100%' }),
+    left: coords?.arrowLeft ?? 12,
     width: 0,
     height: 0,
     borderLeft: '5px solid transparent',
     borderRight: '5px solid transparent',
-    ...(position === 'above'
+    ...(placement === 'above'
       ? { borderTop: '5px solid #111111' }
       : { borderBottom: '5px solid #111111' }),
   };
@@ -220,6 +247,7 @@ export default function Tooltip({ tooltipKey, children, value, variant = 'inline
       >
         {children}
       </span>
+      {createPortal(
       <AnimatePresence>
         {isActive && (
           <motion.span
@@ -227,9 +255,9 @@ export default function Tooltip({ tooltipKey, children, value, variant = 'inline
             id={id}
             role="tooltip"
             style={bubbleStyle}
-            initial={{ opacity: 1, scale: 0.92, y: position === 'above' ? 6 : -6 }}
+            initial={{ opacity: 1, scale: 0.92, y: placement === 'above' ? 6 : -6 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: position === 'above' ? 4 : -4 }}
+            exit={{ opacity: 0, scale: 0.95, y: placement === 'above' ? 4 : -4 }}
             transition={{
               opacity: { duration: 0.1 },
               scale: { type: 'spring', stiffness: 500, damping: 30, mass: 0.8 },
@@ -261,7 +289,9 @@ export default function Tooltip({ tooltipKey, children, value, variant = 'inline
             <span style={arrowStyle} />
           </motion.span>
         )}
-      </AnimatePresence>
+      </AnimatePresence>,
+      document.body,
+      )}
     </span>
   );
 }

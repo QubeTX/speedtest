@@ -142,7 +142,9 @@ export default function MeasurementQuality({ result, speedUnit }: MeasurementQua
           <span style={{ ...detailStyle, transform: open ? 'rotate(90deg)' : 'none', transition: 'transform 0.2s ease' }}>&#9656;</span>
         </span>
         <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-          <span style={bandChipStyle(band)}>{BAND_LABEL[band]}</span>
+          <Tooltip tooltipKey="measurementQuality" variant="badge">
+            <span style={bandChipStyle(band)}>{BAND_LABEL[band]}</span>
+          </Tooltip>
           {methodology && (
             <Tooltip tooltipKey="methodologyVersion" variant="badge">
               <span style={chipStyle}>{methodology}</span>

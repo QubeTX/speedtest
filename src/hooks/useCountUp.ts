@@ -39,14 +39,33 @@ function easeOutExpo(t: number): number {
 export function useCountUp<T extends HTMLElement = HTMLSpanElement>(
   value: number,
   options: UseCountUpOptions = {},
-): React.RefObject<T> {
+): React.RefCallback<T> {
   const { durationMs = COUNT_UP_DURATION_MS, decimals = 0, format, reduced } = options;
   const autoReduced = useReducedMotion();
   const effectiveReduced = reduced ?? !!autoReduced;
 
-  const elRef = useRef<T>(null);
+  const elRef = useRef<T | null>(null);
   const displayRef = useRef(value);
   const rafRef = useRef<number | null>(null);
+
+  // Latest formatting inputs, readable from the mount callback without
+  // re-creating it (a new callback ref each render would detach/reattach).
+  const latestRef = useRef({ value, format, decimals });
+  latestRef.current = { value, format, decimals };
+
+  // Callback ref: write the current value the moment the element mounts.
+  // The effect below only re-runs when `value` CHANGES — if the numeral span
+  // mounts late (e.g. it renders as "--" until a result exists) with the same
+  // value it had before (jitter of exactly 0 on a rock-stable line), the
+  // effect never fires again and the span would stay empty without this.
+  const attachRef = useRef<React.RefCallback<T>>((el: T | null) => {
+    elRef.current = el;
+    if (el) {
+      const { value: v, format: f, decimals: d } = latestRef.current;
+      displayRef.current = v;
+      el.textContent = f ? f(v) : v.toFixed(d);
+    }
+  });
 
   useEffect(() => {
     const el = elRef.current;
@@ -93,5 +112,5 @@ export function useCountUp<T extends HTMLElement = HTMLSpanElement>(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value, effectiveReduced, durationMs]);
 
-  return elRef;
+  return attachRef.current;
 }

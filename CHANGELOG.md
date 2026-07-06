@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.0.1] — 2026-07-06
+
+### Fixed
+
+- **Jitter showing blank instead of 0** — the count-up numeral never wrote its text when
+  the value at mount equaled its initial value (exactly the case on a rock-stable line
+  where PDV = 0). The count-up ref now writes the current value the moment the element
+  mounts ( returns a callback ref).
+- **Tooltips clipped by panel edges** — bubbles now render in a portal to   with viewport-clamped fixed positioning (the MEASUREMENT QUALITY expander's
+   was cutting them off). Tooltips close on scroll and are tappable
+  without dismissing on mobile.
+- **“VERY LOW” agreement explained** — the quality band pill now opens a plain-language
+  Measurement Quality explainer; the Source Agreement tooltip copy was rewritten to say
+  what disagreement means, why it happens, and what to trust.
+
 ## [3.0.0] — 2026-07-06
 
 SpeedQX Methodology v4 + full design overhaul. The measurement engine, the statistical
