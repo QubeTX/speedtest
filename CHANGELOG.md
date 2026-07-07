@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.0.11] — 2026-07-06
+
+### Changed
+
+- **NDT7 makes ONE M-Lab Locate call per run** — verified live that M-Lab's
+  signed access tokens are time-limited but not single-use, so the provider
+  discovers once and feeds every 20 s cycle through the library's
+  `downloadTest`/`uploadTest` with the shared tokened URLs. A 60 s DEEP run
+  costs 1 Locate call instead of 3, and discovery failures surface once with
+  the honest rate-limit message. Mirrored in the iOS app (2.1.0).
+
+### Fixed
+
+- **k=2 agreement self-contradiction** — with fewer than 3 qualifying sources
+  the merge declines to grade agreement, but the quality panel showed an N/A
+  chip right next to a concrete "I² X%" (and the copy text printed
+  "Agreement: insufficient (I² X%)"). The numeric I² is now withheld whenever
+  the band is `insufficient`. Found by the app's pre-submission robustness
+  sweep; the same fix ships in the app and the CLI (3.5.2).
+
 ## [3.0.10] — 2026-07-06
 
 ### Fixed

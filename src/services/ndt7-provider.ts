@@ -32,6 +32,50 @@ export class NDT7Provider implements SpeedTestProvider {
     const allUlSpeeds: number[] = [];
     const allPings: number[] = [];
 
+    // ── ONE Locate call per run ──
+    // M-Lab access tokens are time-limited, not single-use (verified live
+    // 2026-07-06: three sequential connections on one token were all served),
+    // so a single discovery feeds every cycle — a 60 s DEEP run costs 1 Locate
+    // call instead of 3 and can't trip the per-IP limiter mid-run. Discovery
+    // failure surfaces here, once, with an honest message.
+    const urlPromise: Promise<Record<string, string>> = Promise.resolve(
+      ndt7.discoverServerURLs(
+        {
+          userAcceptedDataPolicy: true,
+          metadata: { client_name: 'qubetx-speedtest', client_version: '1.0.0' },
+        },
+        {
+          serverChosen: (server: { machine?: string }) => {
+            serverName = server?.machine || 'M-Lab Server';
+            console.log('[NDT7] Server:', serverName);
+            onProgress({
+              phase: 'discovering',
+              currentProvider: 'M-Lab NDT7',
+              ping: null,
+              jitter: null,
+              downloadSpeed: null,
+              uploadSpeed: null,
+              packetLoss: null,
+              downloadProgress: 0,
+              uploadProgress: 0,
+              serverName,
+              error: null,
+            });
+          },
+          error: (err: string | Error) => {
+            let msg = typeof err === 'string' ? err : err.message;
+            // ndt7-js surfaces a Locate rejection (e.g. HTTP 429) as an opaque
+            // "Could not understand response" parse failure — name it.
+            if (/could not understand response/i.test(msg) && /locate\.measurementlab/i.test(msg)) {
+              msg = 'M-Lab server discovery was refused (rate-limited — too many tests from this network recently)';
+            }
+            throw new Error(msg);
+          },
+        },
+      ),
+    );
+    await urlPromise;
+
     for (let iter = 0; iter < iterations; iter++) {
       if (this.aborted) break;
 
@@ -39,35 +83,16 @@ export class NDT7Provider implements SpeedTestProvider {
         const dlStartTime = Date.now();
         let ulStartTime = 0;
 
-        ndt7.test(
-          {
-            userAcceptedDataPolicy: true,
-            downloadworkerfile: '/ndt7-download-worker.js',
-            uploadworkerfile: '/ndt7-upload-worker.js',
-            metadata: {
-              client_name: 'qubetx-speedtest',
-              client_version: '1.0.0',
-            },
+        const ndt7Config = {
+          userAcceptedDataPolicy: true,
+          downloadworkerfile: '/ndt7-download-worker.js',
+          uploadworkerfile: '/ndt7-upload-worker.js',
+          metadata: {
+            client_name: 'qubetx-speedtest',
+            client_version: '1.0.0',
           },
-          {
-            serverChosen: (server: { machine: string }) => {
-              serverName = server.machine || 'M-Lab Server';
-              console.log('[NDT7] Server:', serverName);
-              onProgress({
-                phase: 'discovering',
-                currentProvider: 'M-Lab NDT7',
-                ping: null,
-                jitter: null,
-                downloadSpeed: null,
-                uploadSpeed: null,
-                packetLoss: null,
-                downloadProgress: 0,
-                uploadProgress: 0,
-                serverName,
-                error: null,
-              });
-            },
-
+        };
+        const ndt7Callbacks = {
             downloadMeasurement: (data: {
               Source: string;
               Data: {
@@ -197,8 +222,13 @@ export class NDT7Provider implements SpeedTestProvider {
               console.warn('[NDT7] Error:', msg);
               reject(new Error(msg));
             },
-          },
-        );
+        };
+        // Both directions of every cycle ride the single pre-discovered,
+        // tokened URL set — no per-cycle Locate calls (see urlPromise above).
+        void ndt7
+          .downloadTest(ndt7Config, ndt7Callbacks, urlPromise)
+          .then(() => (this.aborted ? 0 : ndt7.uploadTest(ndt7Config, ndt7Callbacks, urlPromise)))
+          .catch((err: unknown) => reject(err instanceof Error ? err : new Error(String(err))));
       });
     }
 

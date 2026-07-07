@@ -294,7 +294,11 @@ function formatResultSummary(
     let c = `Consensus: DL ${r.consensusMbps.download.toFixed(0)} / UL ${r.consensusMbps.upload.toFixed(0)} Mbps`;
     if (r.agreement) {
       const band = r.agreement.band.replace('-', ' ');
-      const i2 = r.agreement.i2 != null ? ` (I² ${(r.agreement.i2 * 100).toFixed(0)}%)` : '';
+      // 'insufficient' means the merge declined to grade agreement (< 3
+      // sources) — pairing it with a concrete I² would contradict that call.
+      const i2 = r.agreement.band !== 'insufficient' && r.agreement.i2 != null
+        ? ` (I² ${(r.agreement.i2 * 100).toFixed(0)}%)`
+        : '';
       c += ` · Agreement: ${band}${i2}`;
     }
     lines.push(c);

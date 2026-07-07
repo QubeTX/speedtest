@@ -75,15 +75,20 @@ export default function MeasurementQuality({ result, speedUnit }: MeasurementQua
     });
   }
   if (agreement) {
+    // With < 3 qualifying sources the merge declines to grade agreement (band
+    // 'insufficient') — showing a numeric I² next to an N/A chip (and letting
+    // the tooltip grade it) would contradict that call, so the number is
+    // withheld along with the grade.
+    const showI2 = band !== 'insufficient' && agreement.i2 != null;
     rows.push({
       key: 'agreement',
       label: 'AGREEMENT',
       node: (
         <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <Tooltip tooltipKey="agreement" variant="badge" value={agreement.i2 != null ? agreement.i2 * 100 : undefined}>
+          <Tooltip tooltipKey="agreement" variant="badge" value={showI2 ? (agreement.i2 as number) * 100 : undefined}>
             <span style={bandChipStyle(band)}>{BAND_LABEL[band]}</span>
           </Tooltip>
-          {agreement.i2 != null && <span style={detailStyle}>I² {(agreement.i2 * 100).toFixed(0)}%</span>}
+          {showI2 && <span style={detailStyle}>I² {((agreement.i2 as number) * 100).toFixed(0)}%</span>}
         </span>
       ),
     });
