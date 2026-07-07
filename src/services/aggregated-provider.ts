@@ -231,8 +231,13 @@ export class AggregatedProvider implements SpeedTestProvider {
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
         if (message === 'Test stopped' || this.stopped) break;
-        console.warn(`[Aggregated] ${label} failed:`, message);
-        runs.push({ key, label, result: null, availability: 'failed', error: message });
+        // Normalize rate-limit failures (M-Lab Locate / Cloudflare 429s) so
+        // the sources drilldown names the real condition, not a generic FAILED.
+        const disclosed = /\b429\b|rate.?limited|too many/i.test(message) && !/^rate-limited/i.test(message)
+          ? `Rate-limited — ${message}`
+          : message;
+        console.warn(`[Aggregated] ${label} failed:`, disclosed);
+        runs.push({ key, label, result: null, availability: 'failed', error: disclosed });
       } finally {
         this.active = null;
       }

@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.0.10] — 2026-07-06
+
+### Fixed
+
+- **Rate-limit disclosure** — a source refused with HTTP 429 (M-Lab Locate,
+  Cloudflare) now reads "Rate-limited — …" in the sources drilldown instead of
+  a generic failure, and ndt7-js's opaque "Could not understand response"
+  Locate error is mapped to an honest rate-limited message. Found by the
+  three-repo M-Lab integration audit after M-Lab's "too many periodic requests"
+  throttle surfaced as inexplicable FAILED rows.
+
 ## [3.0.9] — 2026-07-06
 
 ### Fixed

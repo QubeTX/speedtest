@@ -187,7 +187,13 @@ export class NDT7Provider implements SpeedTestProvider {
             },
 
             error: (err: string | Error) => {
-              const msg = typeof err === 'string' ? err : err.message;
+              let msg = typeof err === 'string' ? err : err.message;
+              // ndt7-js surfaces a Locate rejection (e.g. HTTP 429) as an
+              // opaque "Could not understand response" parse failure — name
+              // the real condition so the sources list can disclose it.
+              if (/could not understand response/i.test(msg) && /locate\.measurementlab/i.test(msg)) {
+                msg = 'M-Lab server discovery was refused (rate-limited — too many tests from this network recently)';
+              }
               console.warn('[NDT7] Error:', msg);
               reject(new Error(msg));
             },
