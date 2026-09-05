@@ -2,6 +2,7 @@
 import { execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
+import { gunzipSync } from 'node:zlib';
 import { estimateTrace, summarizeTraces, type MeasurementTrace } from '../src/services/measurement-v5';
 import { plateauStart, filterOutliersIQR, modifiedTrimean } from '../src/services/statistics';
 
@@ -24,7 +25,10 @@ for (const scenario of ['fixed', 'asymmetric', 'alternating', 'stalls', 'ramp', 
   const truth = (bytes - points[boundary].bytes) * .008 / (t - points[boundary].t);
   records.push({ name: `${scenario}-${direction}`, trace: { provider: 'cloudflare', endpoint: 'https://reference.invalid/test', direction, streams: 2, transport: 'https', accounting: direction === 'upload' ? 'completed-request' : 'received', warmupMs: 2000, points, stopReason: 'complete' }, truth });
 }
-const traces = [...existing.map((f: { trace: MeasurementTrace }) => f.trace), ...records.map(r => r.trace)];
+const live = JSON.parse(readFileSync('evidence/v5/live-cloudflare.json', 'utf8'));
+const netem = JSON.parse(gunzipSync(readFileSync('evidence/v5/netem-fresh-clients.json.gz')).toString('utf8'));
+const recorded: MeasurementTrace[] = [...live.rows.flatMap((r: any) => r.measurement.traces), ...netem.outcomes.filter((r: any) => r.kind === 'v5-acquisition').map((r: any) => r.trace)];
+const traces = [...recorded, ...existing.map((f: { trace: MeasurementTrace }) => f.trace), ...records.map(r => r.trace)];
 const ts = { estimates: traces.map(estimateTrace), download: summarizeTraces(traces, 'download'), upload: summarizeTraces(traces, 'upload') };
 const rs = JSON.parse(execFileSync(rust, [], { input: JSON.stringify(traces), encoding: 'utf8' }));
 function compare(a: any, b: any, key = '') {
@@ -33,6 +37,14 @@ function compare(a: any, b: any, key = '') {
   if (a !== b) throw new Error(`Parity mismatch ${key}: ${a} / ${b}`);
 }
 compare(ts, rs);
+// Different evidence availability must not leave a lower ceiling at either aggregation level.
+for (const provider of ['cloudflare', 'msak']) {
+  const pair = [existing[0].trace, { ...existing.at(-1).trace, provider }];
+  const expected = { estimates: pair.map(estimateTrace), download: summarizeTraces(pair, 'download'), upload: summarizeTraces(pair, 'upload') };
+  compare(expected, JSON.parse(execFileSync(rust, [], { input: JSON.stringify(pair), encoding: 'utf8' })));
+  if (expected.download.estimate.ceilingMbps !== null) throw new Error('Lower ceiling was not withheld');
+}
+for (const e of ts.estimates) if (e.ceilingMbps !== null && e.ceilingMbps < e.sustainedMbps!) throw new Error('Ceiling below sustained throughput');
 const comparisons = records.map(({ name, trace, truth }) => {
   const raw = trace.points.slice(1).map((p, i) => (p.bytes - trace.points[i].bytes) * .008 / (p.t - trace.points[i].t));
   const after = raw.slice(plateauStart(raw));
@@ -41,7 +53,7 @@ const comparisons = records.map(({ name, trace, truth }) => {
   const v4 = modifiedTrimean(filterOutliersIQR(selected, 1.5)), v5 = estimateTrace(trace).sustainedMbps!;
   return { name, truthMbps: truth, v4Mbps: v4, v5Mbps: v5, v4ErrorPct: Math.abs(v4 / truth - 1) * 100, v5ErrorPct: Math.abs(v5 / truth - 1) * 100 };
 });
-const report = { kind: 'deterministic-estimator-and-full-trace-parity', limitations: 'Synthetic counter traces validate estimators, not physical network accuracy. Transport and device acceptance are separate.', traces: traces.length, compared: 'Every estimate field, both primary aggregations, warnings, qualifications, ranges, ceilings and provider identities', comparisons, meanAbsoluteErrorPct: { v4: comparisons.reduce((n, c) => n + c.v4ErrorPct, 0) / comparisons.length, v5: comparisons.reduce((n, c) => n + c.v5ErrorPct, 0) / comparisons.length } };
+const report = { kind: 'deterministic-estimator-and-full-trace-parity', limitations: 'Synthetic counter truth validates arithmetic. Replaying recorded production and netem counters validates language agreement, not absolute acquisition accuracy. Transport and device acceptance are separate.', traces: traces.length, compared: 'Every estimate field, both primary aggregations, warnings, qualifications, ranges, ceilings and provider identities', comparisons, meanAbsoluteErrorPct: { v4: comparisons.reduce((n, c) => n + c.v4ErrorPct, 0) / comparisons.length, v5: comparisons.reduce((n, c) => n + c.v5ErrorPct, 0) / comparisons.length } };
 mkdirSync('evidence/v5', { recursive: true });
 writeFileSync('evidence/v5/deterministic-parity.json', JSON.stringify(report, null, 2) + '\n');
 console.log(JSON.stringify(report, null, 2));

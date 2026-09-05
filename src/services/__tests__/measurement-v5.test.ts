@@ -24,4 +24,14 @@ describe('v5 recorded-counter replay', () => {
     const msak = { ...base, provider: 'msak', points: base.points.map(p => ({ ...p, bytes: p.bytes * 2 })) };
     expect(summarizeTraces([base, msak, msak], 'download').estimate.sustainedMbps).toBe(90);
   });
+  it('withholds a lower ceiling after repeated-session and primary-network aggregation', () => {
+    const steady = fixtures[0].trace as MeasurementTrace;
+    const shortHigh = fixtures[fixtures.length - 1].trace as MeasurementTrace;
+    const repeated = summarizeTraces([steady, shortHigh], 'download').estimate;
+    expect(repeated.sustainedMbps).toBe(100);
+    expect(repeated.ceilingMbps).toBeNull();
+    const networks = summarizeTraces([steady, { ...shortHigh, provider: 'msak' }], 'download').estimate;
+    expect(networks.sustainedMbps).toBe(120);
+    expect(networks.ceilingMbps).toBeNull();
+  });
 });

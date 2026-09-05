@@ -1,0 +1,235 @@
+{
+  "run": "https://github.com/QubeTX/speedtest/actions/runs/33943631436",
+  "websiteRevision": "03971d72fc49e348a7a2f57b775dcad2e924de3a",
+  "rustRevision": "306611941883228e55b4714cfb171e6d0080160d",
+  "records": 60,
+  "differenceDefinition": "absolute browser minus Rust divided by their mean, percent",
+  "rawSha256": "3e7e0eaa49b4d0b620c806ef48a5852597ad938424f43a07f27dfd0efa79ee02",
+  "conditions": {
+    "clean": {
+      "download": {
+        "pairs": [
+          {
+            "repetition": 0,
+            "browserMbps": 19.12225888705566,
+            "rustMbps": 19.12335166423972,
+            "differencePct": 0.005714523409652766
+          },
+          {
+            "repetition": 1,
+            "browserMbps": 19.123012887016763,
+            "rustMbps": 19.123281088715974,
+            "differencePct": 0.0014024977132715323
+          },
+          {
+            "repetition": 2,
+            "browserMbps": 19.12233688315579,
+            "rustMbps": 19.12482495326319,
+            "differencePct": 0.013010482283844825
+          }
+        ],
+        "medianDifferencePct": 0.005714523409652766,
+        "withinSurfaceCoefficientOfVariationPct": {
+          "browser": 0.002168355349830685,
+          "rust": 0.00455814685100188
+        }
+      },
+      "upload": {
+        "pairs": [
+          {
+            "repetition": 0,
+            "browserMbps": 18.75131300184716,
+            "rustMbps": 19.39631661569095,
+            "differencePct": 3.3816183092396126
+          },
+          {
+            "repetition": 1,
+            "browserMbps": 18.971283170851112,
+            "rustMbps": 19.21897039799761,
+            "differencePct": 1.2971227158781238
+          },
+          {
+            "repetition": 2,
+            "browserMbps": 19.04250176038631,
+            "rustMbps": 19.22029599220269,
+            "differencePct": 0.929332104599442
+          }
+        ],
+        "medianDifferencePct": 1.2971227158781238,
+        "withinSurfaceCoefficientOfVariationPct": {
+          "browser": 0.8022257199034164,
+          "rust": 0.5291398566734811
+        }
+      }
+    },
+    "asymmetric": {
+      "download": {
+        "pairs": [
+          {
+            "repetition": 0,
+            "browserMbps": 38.23421828908571,
+            "rustMbps": 38.24912956456406,
+            "differencePct": 0.0389922143755526
+          },
+          {
+            "repetition": 1,
+            "browserMbps": 38.23308825919033,
+            "rustMbps": 38.2321327410047,
+            "differencePct": 0.0024992229751922947
+          },
+          {
+            "repetition": 2,
+            "browserMbps": 38.24946664500059,
+            "rustMbps": 38.25028234804218,
+            "differencePct": 0.0021325639687077066
+          }
+        ],
+        "medianDifferencePct": 0.0024992229751922947,
+        "withinSurfaceCoefficientOfVariationPct": {
+          "browser": 0.023921490383236956,
+          "rust": 0.026572273356034147
+        }
+      },
+      "upload": {
+        "pairs": [
+          {
+            "repetition": 0,
+            "browserMbps": 4.739959237261644,
+            "rustMbps": 4.856347684507906,
+            "differencePct": 2.425692470969864
+          },
+          {
+            "repetition": 1,
+            "browserMbps": 4.697969115348513,
+            "rustMbps": 4.852367425719149,
+            "differencePct": 3.233358525256235
+          },
+          {
+            "repetition": 2,
+            "browserMbps": 4.730654462700433,
+            "rustMbps": 4.85380004407579,
+            "differencePct": 2.56969410806411
+          }
+        ],
+        "medianDifferencePct": 2.56969410806411,
+        "withinSurfaceCoefficientOfVariationPct": {
+          "browser": 0.46694732885491547,
+          "rust": 0.041531109407458064
+        }
+      }
+    },
+    "latency": {
+      "download": {
+        "pairs": [
+          {
+            "repetition": 0,
+            "browserMbps": 19.119256027898846,
+            "rustMbps": 19.122280348016215,
+            "differencePct": 0.015816938355404167
+          },
+          {
+            "repetition": 1,
+            "browserMbps": 18.983083845807652,
+            "rustMbps": 19.122349879457943,
+            "differencePct": 0.7309510483695195
+          },
+          {
+            "repetition": 2,
+            "browserMbps": 19.120659967001597,
+            "rustMbps": 19.120928417584384,
+            "differencePct": 0.0014039719275648226
+          }
+        ],
+        "medianDifferencePct": 0.015816938355404167,
+        "withinSurfaceCoefficientOfVariationPct": {
+          "browser": 0.41431301873228354,
+          "rust": 0.0041908275369388955
+        }
+      },
+      "upload": {
+        "pairs": [
+          {
+            "repetition": 0,
+            "browserMbps": 10.58852155646697,
+            "rustMbps": 9.498166827893535,
+            "differencePct": 10.856490703787548
+          },
+          {
+            "repetition": 1,
+            "browserMbps": 10.5590766999276,
+            "rustMbps": 10.931770141193796,
+            "differencePct": 3.4683923255464384
+          },
+          {
+            "repetition": 2,
+            "browserMbps": 10.498659597879394,
+            "rustMbps": 10.834918496288655,
+            "differencePct": 3.1523910046874293
+          }
+        ],
+        "medianDifferencePct": 3.4683923255464384,
+        "withinSurfaceCoefficientOfVariationPct": {
+          "browser": 0.43428764825063315,
+          "rust": 7.687840514906539
+        }
+      }
+    },
+    "loss": {
+      "download": {
+        "pairs": [
+          {
+            "repetition": 0,
+            "browserMbps": 8.223191420214423,
+            "rustMbps": 5.957637003440134,
+            "differencePct": 31.95235636579871
+          },
+          {
+            "repetition": 1,
+            "browserMbps": 6.940856957152122,
+            "rustMbps": 4.985422448205118,
+            "differencePct": 32.79202913976056
+          },
+          {
+            "repetition": 2,
+            "browserMbps": 5.284882816894336,
+            "rustMbps": 8.099687146108316,
+            "differencePct": 42.06043730944817
+          }
+        ],
+        "medianDifferencePct": 32.79202913976056,
+        "withinSurfaceCoefficientOfVariationPct": {
+          "browser": 21.611521130072674,
+          "rust": 25.101386343337197
+        }
+      },
+      "upload": {
+        "pairs": [
+          {
+            "repetition": 0,
+            "browserMbps": 3.045169550865268,
+            "rustMbps": 3.3927774837355495,
+            "differencePct": 10.798719871476383
+          },
+          {
+            "repetition": 1,
+            "browserMbps": 3.545599359815968,
+            "rustMbps": 3.075418641629982,
+            "differencePct": 14.20267149502702
+          },
+          {
+            "repetition": 2,
+            "browserMbps": 3.475354048140044,
+            "rustMbps": 3.6118117087944692,
+            "differencePct": 3.8508386944642004
+          }
+        ],
+        "medianDifferencePct": 10.798719871476383,
+        "withinSurfaceCoefficientOfVariationPct": {
+          "browser": 8.07455213158792,
+          "rust": 8.026610349957144
+        }
+      }
+    }
+  },
+  "limitations": "Configured rates include TCP/IP overhead and are not expected application throughput. Random loss and shared hosted CPUs affect paired repeatability. Server writes/receipts are diagnostic traces, not timestamp-exact delivered payload truth under queuing and acknowledgement delay. These comparisons extend loss/latency coverage without establishing absolute accuracy or physical-device acceptance. Original v4 uses its own schedule; zero with failed/missing provider output means unavailable."
+}

@@ -65,6 +65,14 @@ function empty(warnings: string[] = []): DirectionEstimate {
   return { sustainedMbps: null, ceilingMbps: null, measuredBytes: 0, measuredMs: 0, samples: 0, repeatability: null, qualification: 'unavailable', warnings };
 }
 
+/** A lower repeated plateau cannot establish a ceiling for a higher sustained result. */
+function withholdLowCeiling(out: DirectionEstimate): void {
+  if (out.ceilingMbps !== null && out.sustainedMbps !== null && out.ceilingMbps < out.sustainedMbps) {
+    out.ceilingMbps = null;
+    out.warnings.push('No repeatable ceiling at or above sustained throughput');
+  }
+}
+
 /** Counter resets invalidate a session; callers start a new trace for a new socket session.
  * Warm-up boundaries never interpolate bytes whose arrival time is unknown.
  * Real stalls remain in the denominator. Invalid/hidden intervals are excluded explicitly. */
@@ -109,6 +117,7 @@ export function estimateTrace(trace: MeasurementTrace): DirectionEstimate {
     const a = windows[i], b = windows[j], hi = Math.max(a.rate, b.rate), lo = Math.min(a.rate, b.rate);
     if (a.end <= b.start && hi > 0 && (hi - lo) / hi <= 0.1) out.ceilingMbps = Math.max(out.ceilingMbps ?? 0, lo);
   }
+  withholdLowCeiling(out);
   if (out.repeatability && out.sustainedMbps > 0 && (out.repeatability.upper - out.repeatability.lower) / out.sustainedMbps > 0.2) out.warnings.push('Throughput varied during measurement');
   if (windows.length >= 2) {
     const first = windows[0], last = windows[windows.length - 1];
@@ -135,6 +144,7 @@ export function summarizeTraces(traces: MeasurementTrace[], direction: Direction
     const ceilings = qualified.flatMap(e => e.ceilingMbps === null ? [] : [e.ceilingMbps]);
     out.ceilingMbps = ceilings.length ? median(ceilings) : null;
     out.warnings = qualified.flatMap(e => e.warnings);
+    withholdLowCeiling(out);
     const ranges = qualified.flatMap(e => e.repeatability ? [e.repeatability] : []);
     out.repeatability = ranges.length ? { lower: Math.min(...ranges.map(r => r.lower)), upper: Math.max(...ranges.map(r => r.upper)) } : null;
     return { provider, out };
@@ -150,6 +160,7 @@ export function summarizeTraces(traces: MeasurementTrace[], direction: Direction
   const ceilings = estimates.flatMap(e => e.ceilingMbps === null ? [] : [e.ceilingMbps]);
   if (ceilings.length && Math.max(...ceilings) - Math.min(...ceilings) <= 0.2 * Math.max(...ceilings)) out.ceilingMbps = median(ceilings);
   else if (ceilings.length) out.warnings.push('Ceiling estimates disagree across providers');
+  withholdLowCeiling(out);
   if (rates.length === 1) out.warnings.push('Single primary source');
   else if (Math.max(...rates) - Math.min(...rates) > 0.2 * Math.max(...rates)) out.warnings.push('Primary providers disagree');
   out.warnings = [...new Set(out.warnings)];

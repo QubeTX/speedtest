@@ -1,0 +1,1696 @@
+{
+  "capturedAt": "2026-09-05T04:09:43.135Z",
+  "kind": "Three sequential order-alternating real Cloudflare pairs on one Windows host; uncontrolled changing path",
+  "rows": [
+    {
+      "surface": "Windows CLI",
+      "method": "5.0",
+      "measurement": {
+        "download": {
+          "sustainedMbps": 159.67866272301225,
+          "ceilingMbps": 154.27394306115312,
+          "measuredBytes": 159580632,
+          "measuredMs": 7995.088599999999,
+          "samples": 16,
+          "repeatability": {
+            "lower": 146.27593102216042,
+            "upper": 167.17977475153535
+          },
+          "qualification": "measured",
+          "warnings": [
+            "Single primary source"
+          ]
+        },
+        "upload": {
+          "sustainedMbps": 97.27669336027073,
+          "ceilingMbps": null,
+          "measuredBytes": 97271759,
+          "measuredMs": 7999.594199999999,
+          "samples": 17,
+          "repeatability": {
+            "lower": 81.79009204863445,
+            "upper": 118.02759956096828
+          },
+          "qualification": "measured",
+          "warnings": [
+            "Throughput varied during measurement",
+            "Throughput was still increasing after warm-up",
+            "Single primary source"
+          ]
+        },
+        "primaryProviders": {
+          "download": [
+            "cloudflare"
+          ],
+          "upload": [
+            "cloudflare"
+          ]
+        },
+        "traces": [
+          {
+            "provider": "cloudflare",
+            "endpoint": "https://speed.cloudflare.com/__down",
+            "transport": "https",
+            "streams": 2,
+            "direction": "download",
+            "accounting": "received",
+            "warmupMs": 2000,
+            "points": [
+              {
+                "t": 0,
+                "bytes": 0,
+                "valid": true
+              },
+              {
+                "t": 500.60179999999997,
+                "bytes": 4163840,
+                "valid": true
+              },
+              {
+                "t": 1009.6605999999999,
+                "bytes": 11826048,
+                "valid": true
+              },
+              {
+                "t": 1506.1325000000002,
+                "bytes": 18686592,
+                "valid": true
+              },
+              {
+                "t": 2009.5705,
+                "bytes": 27278848,
+                "valid": true
+              },
+              {
+                "t": 2501.1871,
+                "bytes": 37473152,
+                "valid": true
+              },
+              {
+                "t": 3001.27,
+                "bytes": 47640256,
+                "valid": true
+              },
+              {
+                "t": 3502.2520999999997,
+                "bytes": 57937688,
+                "valid": true
+              },
+              {
+                "t": 4005.5335999999998,
+                "bytes": 68901336,
+                "valid": true
+              },
+              {
+                "t": 4507.233,
+                "bytes": 79953752,
+                "valid": true
+              },
+              {
+                "t": 5007.579299999999,
+                "bytes": 89739032,
+                "valid": true
+              },
+              {
+                "t": 5504.5815999999995,
+                "bytes": 100236504,
+                "valid": true
+              },
+              {
+                "t": 6003.5063,
+                "bytes": 110005821,
+                "valid": true
+              },
+              {
+                "t": 6500.5207,
+                "bytes": 119284824,
+                "valid": true
+              },
+              {
+                "t": 7007.285699999999,
+                "bytes": 126143192,
+                "valid": true
+              },
+              {
+                "t": 7500.4929999999995,
+                "bytes": 133884861,
+                "valid": true
+              },
+              {
+                "t": 8004.2384999999995,
+                "bytes": 144171736,
+                "valid": true
+              },
+              {
+                "t": 8501.1592,
+                "bytes": 154351064,
+                "valid": true
+              },
+              {
+                "t": 9003.9424,
+                "bytes": 164867269,
+                "valid": true
+              },
+              {
+                "t": 9500.5005,
+                "bytes": 176281368,
+                "valid": true
+              },
+              {
+                "t": 10004.659099999999,
+                "bytes": 186859480,
+                "valid": true
+              }
+            ],
+            "stopReason": "complete"
+          },
+          {
+            "provider": "cloudflare",
+            "endpoint": "https://speed.cloudflare.com/__up",
+            "transport": "https",
+            "streams": 2,
+            "direction": "upload",
+            "accounting": "completed-request",
+            "warmupMs": 2000,
+            "points": [
+              {
+                "t": 0,
+                "bytes": 0,
+                "valid": true
+              },
+              {
+                "t": 505.31250000000006,
+                "bytes": 1570816,
+                "valid": true
+              },
+              {
+                "t": 1007.2647,
+                "bytes": 7703842,
+                "valid": true
+              },
+              {
+                "t": 1506.4984,
+                "bytes": 14422112,
+                "valid": true
+              },
+              {
+                "t": 2004.9152000000001,
+                "bytes": 23569398,
+                "valid": true
+              },
+              {
+                "t": 2505.9744,
+                "bytes": 28559431,
+                "valid": true
+              },
+              {
+                "t": 3007.8398,
+                "bytes": 32759863,
+                "valid": true
+              },
+              {
+                "t": 3509.0067999999997,
+                "bytes": 35845750,
+                "valid": true
+              },
+              {
+                "t": 4007.683,
+                "bytes": 42147519,
+                "valid": true
+              },
+              {
+                "t": 4504.8383,
+                "bytes": 47703024,
+                "valid": true
+              },
+              {
+                "t": 5007.5491,
+                "bytes": 55009537,
+                "valid": true
+              },
+              {
+                "t": 5505.1407,
+                "bytes": 61114614,
+                "valid": true
+              },
+              {
+                "t": 6002.5499,
+                "bytes": 64307585,
+                "valid": true
+              },
+              {
+                "t": 6509.3081,
+                "bytes": 70139563,
+                "valid": true
+              },
+              {
+                "t": 7007.7542,
+                "bytes": 75947640,
+                "valid": true
+              },
+              {
+                "t": 7508.5076,
+                "bytes": 85213029,
+                "valid": true
+              },
+              {
+                "t": 8007.7558,
+                "bytes": 91637670,
+                "valid": true
+              },
+              {
+                "t": 8507.8835,
+                "bytes": 101697613,
+                "valid": true
+              },
+              {
+                "t": 9005.431,
+                "bytes": 108610441,
+                "valid": true
+              },
+              {
+                "t": 9505.8773,
+                "bytes": 115447926,
+                "valid": true
+              },
+              {
+                "t": 10004.492900000001,
+                "bytes": 120841157,
+                "valid": true
+              },
+              {
+                "t": 10004.509399999999,
+                "bytes": 120841157,
+                "valid": true
+              }
+            ],
+            "stopReason": "complete"
+          }
+        ],
+        "bytesTransferred": 307700637,
+        "budgetBytes": 312486070,
+        "byteLimit": 500000000,
+        "elapsedMs": 22822.5396,
+        "stopReason": "complete"
+      },
+      "ping": 48.29745,
+      "warnings": [
+        "M-Lab omitted: data publication consent not granted (--accept-mlab)",
+        "Single primary source",
+        "Throughput varied during measurement",
+        "Throughput was still increasing after warm-up",
+        "Single primary source"
+      ],
+      "repetition": 0
+    },
+    {
+      "surface": "Windows Chrome",
+      "method": "5.0",
+      "measurement": {
+        "download": {
+          "sustainedMbps": 158.17021508467164,
+          "ceilingMbps": 153.56831991854864,
+          "measuredBytes": 158199872,
+          "measuredMs": 8001.5,
+          "samples": 16,
+          "repeatability": {
+            "lower": 147.43936345525375,
+            "upper": 170.1834858423442
+          },
+          "qualification": "measured",
+          "warnings": [
+            "Single primary source"
+          ]
+        },
+        "upload": {
+          "sustainedMbps": 87.02343717000589,
+          "ceilingMbps": null,
+          "measuredBytes": 86462136,
+          "measuredMs": 7948.399999976158,
+          "samples": 16,
+          "repeatability": {
+            "lower": 66.61915436565839,
+            "upper": 106.98790013262888
+          },
+          "qualification": "measured",
+          "warnings": [
+            "Throughput varied during measurement",
+            "Single primary source"
+          ]
+        },
+        "primaryProviders": {
+          "download": [
+            "cloudflare"
+          ],
+          "upload": [
+            "cloudflare"
+          ]
+        },
+        "traces": [
+          {
+            "provider": "cloudflare",
+            "endpoint": "https://speed.cloudflare.com/__down",
+            "transport": "https",
+            "streams": 2,
+            "direction": "download",
+            "accounting": "received",
+            "warmupMs": 2000,
+            "points": [
+              {
+                "t": 0,
+                "bytes": 0
+              },
+              {
+                "t": 501.6999999284744,
+                "bytes": 5829184
+              },
+              {
+                "t": 1000.6999999284744,
+                "bytes": 14114688
+              },
+              {
+                "t": 1513.6999999284744,
+                "bytes": 22995968
+              },
+              {
+                "t": 2000.1000000238419,
+                "bytes": 33424256
+              },
+              {
+                "t": 2500.600000023842,
+                "bytes": 43680640
+              },
+              {
+                "t": 3004.899999976158,
+                "bytes": 51205760
+              },
+              {
+                "t": 3506.899999976158,
+                "bytes": 61438656
+              },
+              {
+                "t": 4005.2999999523163,
+                "bytes": 71974208
+              },
+              {
+                "t": 4507.399999976158,
+                "bytes": 82526720
+              },
+              {
+                "t": 5002.699999928474,
+                "bytes": 93962624
+              },
+              {
+                "t": 5514.799999952316,
+                "bytes": 103175040
+              },
+              {
+                "t": 6002,
+                "bytes": 114828544
+              },
+              {
+                "t": 6504.199999928474,
+                "bytes": 125646144
+              },
+              {
+                "t": 7002.699999928474,
+                "bytes": 133605376
+              },
+              {
+                "t": 7500.799999952316,
+                "bytes": 139791296
+              },
+              {
+                "t": 8003.699999928474,
+                "bytes": 150000000
+              },
+              {
+                "t": 8502.5,
+                "bytes": 159841408
+              },
+              {
+                "t": 9005.699999928474,
+                "bytes": 170186496
+              },
+              {
+                "t": 9501.699999928474,
+                "bytes": 181954112
+              },
+              {
+                "t": 10001.600000023842,
+                "bytes": 191624128
+              }
+            ],
+            "stopReason": "complete"
+          },
+          {
+            "provider": "cloudflare",
+            "endpoint": "https://speed.cloudflare.com/__up",
+            "transport": "https",
+            "streams": 2,
+            "direction": "upload",
+            "accounting": "completed-request",
+            "warmupMs": 2000,
+            "points": [
+              {
+                "t": 0,
+                "bytes": 0
+              },
+              {
+                "t": 521.5,
+                "bytes": 2095104
+              },
+              {
+                "t": 1012.6000000238419,
+                "bytes": 7840319
+              },
+              {
+                "t": 1503.7000000476837,
+                "bytes": 14069024
+              },
+              {
+                "t": 2183,
+                "bytes": 23671562
+              },
+              {
+                "t": 2517.2999999523163,
+                "bytes": 27068899
+              },
+              {
+                "t": 3017,
+                "bytes": 34345089
+              },
+              {
+                "t": 3603.399999976158,
+                "bytes": 42559447
+              },
+              {
+                "t": 4153.600000023842,
+                "bytes": 50798995
+              },
+              {
+                "t": 4640.200000047684,
+                "bytes": 58722178
+              },
+              {
+                "t": 5036,
+                "bytes": 62664794
+              },
+              {
+                "t": 5589.399999976158,
+                "bytes": 68153590
+              },
+              {
+                "t": 6009.299999952316,
+                "bytes": 72668259
+              },
+              {
+                "t": 6508.700000047684,
+                "bytes": 77357085
+              },
+              {
+                "t": 7033.600000023842,
+                "bytes": 80020077
+              },
+              {
+                "t": 7514,
+                "bytes": 84766532
+              },
+              {
+                "t": 8033.5,
+                "bytes": 90809731
+              },
+              {
+                "t": 8504.200000047684,
+                "bytes": 92765168
+              },
+              {
+                "t": 9017.700000047684,
+                "bytes": 97720392
+              },
+              {
+                "t": 9515.399999976158,
+                "bytes": 103370568
+              },
+              {
+                "t": 10131.399999976158,
+                "bytes": 110133698
+              }
+            ],
+            "stopReason": "complete"
+          }
+        ],
+        "bytesTransferred": 301757826,
+        "budgetBytes": 305036438,
+        "byteLimit": 500000000,
+        "elapsedMs": 23636.899999976158,
+        "stopReason": "complete"
+      },
+      "ping": 68.5,
+      "warnings": [
+        "M-Lab omitted: data publication consent not granted",
+        "Single primary source",
+        "Throughput varied during measurement"
+      ],
+      "repetition": 0
+    },
+    {
+      "surface": "Windows Chrome",
+      "repetition": 1,
+      "beganAt": "2026-09-05T04:12:01.047Z",
+      "method": "5.0",
+      "measurement": {
+        "download": {
+          "sustainedMbps": 173.74257642682986,
+          "ceilingMbps": 167.6552230551391,
+          "measuredBytes": 173696969,
+          "measuredMs": 7997.899999976158,
+          "samples": 16,
+          "repeatability": {
+            "lower": 164.45216285749277,
+            "upper": 185.5921938258655
+          },
+          "qualification": "measured",
+          "warnings": [
+            "Single primary source"
+          ]
+        },
+        "upload": {
+          "sustainedMbps": 111.37603317006311,
+          "ceilingMbps": 117.82283918165275,
+          "measuredBytes": 111472095,
+          "measuredMs": 8006.900000095367,
+          "samples": 16,
+          "repeatability": {
+            "lower": 107.90397977678343,
+            "upper": 121.50603219525513
+          },
+          "qualification": "measured",
+          "warnings": [
+            "Single primary source"
+          ]
+        },
+        "primaryProviders": {
+          "download": [
+            "cloudflare"
+          ],
+          "upload": [
+            "cloudflare"
+          ]
+        },
+        "traces": [
+          {
+            "provider": "cloudflare",
+            "endpoint": "https://speed.cloudflare.com/__down",
+            "transport": "https",
+            "streams": 2,
+            "direction": "download",
+            "accounting": "received",
+            "warmupMs": 2000,
+            "points": [
+              {
+                "t": 0,
+                "bytes": 0
+              },
+              {
+                "t": 500.59999990463257,
+                "bytes": 7380032
+              },
+              {
+                "t": 1004.2999999523163,
+                "bytes": 15722615
+              },
+              {
+                "t": 1500.7999999523163,
+                "bytes": 24962304
+              },
+              {
+                "t": 2006.2999999523163,
+                "bytes": 35830391
+              },
+              {
+                "t": 2508.0999999046326,
+                "bytes": 47366784
+              },
+              {
+                "t": 3000.0999999046326,
+                "bytes": 56980583
+              },
+              {
+                "t": 3500.0999999046326,
+                "bytes": 67021888
+              },
+              {
+                "t": 4003.7999999523163,
+                "bytes": 76990327
+              },
+              {
+                "t": 4501.599999904633,
+                "bytes": 86654272
+              },
+              {
+                "t": 5000.399999976158,
+                "bytes": 97928064
+              },
+              {
+                "t": 5504.099999904633,
+                "bytes": 108449207
+              },
+              {
+                "t": 6000.699999928474,
+                "bytes": 119162487
+              },
+              {
+                "t": 6501.599999904633,
+                "bytes": 129924032
+              },
+              {
+                "t": 7003.5,
+                "bytes": 139914048
+              },
+              {
+                "t": 7503.399999976158,
+                "bytes": 151925568
+              },
+              {
+                "t": 8002.199999928474,
+                "bytes": 163413027
+              },
+              {
+                "t": 8501.899999976158,
+                "bytes": 174172032
+              },
+              {
+                "t": 9003.199999928474,
+                "bytes": 186038016
+              },
+              {
+                "t": 9501.299999952316,
+                "bytes": 197644288
+              },
+              {
+                "t": 10004.199999928474,
+                "bytes": 209527360
+              }
+            ],
+            "stopReason": "complete"
+          },
+          {
+            "provider": "cloudflare",
+            "endpoint": "https://speed.cloudflare.com/__up",
+            "transport": "https",
+            "streams": 2,
+            "direction": "upload",
+            "accounting": "completed-request",
+            "warmupMs": 2000,
+            "points": [
+              {
+                "t": 0,
+                "bytes": 0
+              },
+              {
+                "t": 502.89999997615814,
+                "bytes": 170699
+              },
+              {
+                "t": 1024.5999999046326,
+                "bytes": 3948939
+              },
+              {
+                "t": 1515.1999999284744,
+                "bytes": 7993675
+              },
+              {
+                "t": 2013.0999999046326,
+                "bytes": 12230431
+              },
+              {
+                "t": 2581.7999999523163,
+                "bytes": 18585937
+              },
+              {
+                "t": 3016.2999999523163,
+                "bytes": 23454571
+              },
+              {
+                "t": 3634.0999999046326,
+                "bytes": 31824016
+              },
+              {
+                "t": 4004.5,
+                "bytes": 37635580
+              },
+              {
+                "t": 4645.5,
+                "bytes": 49293664
+              },
+              {
+                "t": 5165.199999928474,
+                "bytes": 57358746
+              },
+              {
+                "t": 5512.799999952316,
+                "bytes": 61539115
+              },
+              {
+                "t": 6039,
+                "bytes": 67972458
+              },
+              {
+                "t": 6515.199999928474,
+                "bytes": 75891975
+              },
+              {
+                "t": 7013.299999952316,
+                "bytes": 83148164
+              },
+              {
+                "t": 7541.299999952316,
+                "bytes": 93638507
+              },
+              {
+                "t": 8012.599999904633,
+                "bytes": 99927968
+              },
+              {
+                "t": 8505.399999976158,
+                "bytes": 105124849
+              },
+              {
+                "t": 9139.5,
+                "bytes": 114044016
+              },
+              {
+                "t": 9513.699999928474,
+                "bytes": 116427265
+              },
+              {
+                "t": 10020,
+                "bytes": 123702526
+              }
+            ],
+            "stopReason": "complete"
+          }
+        ],
+        "bytesTransferred": 333229886,
+        "budgetBytes": 335728707,
+        "byteLimit": 500000000,
+        "elapsedMs": 22542.5,
+        "stopReason": "complete"
+      },
+      "ping": 49.499999940395355,
+      "warnings": [
+        "M-Lab omitted: data publication consent not granted",
+        "Single primary source"
+      ],
+      "protocols": [
+        "http/1.1",
+        ""
+      ]
+    },
+    {
+      "surface": "Windows CLI",
+      "repetition": 1,
+      "beganAt": "2026-09-05T04:12:24.265Z",
+      "method": "5.0",
+      "measurement": {
+        "download": {
+          "sustainedMbps": 154.6747305355509,
+          "ceilingMbps": 156.64234919162124,
+          "measuredBytes": 154674688,
+          "measuredMs": 7999.997799999999,
+          "samples": 17,
+          "repeatability": {
+            "lower": 149.85544439960714,
+            "upper": 164.34929711107472
+          },
+          "qualification": "measured",
+          "warnings": [
+            "Single primary source"
+          ]
+        },
+        "upload": {
+          "sustainedMbps": 114.87309965422446,
+          "ceilingMbps": 118.4810864622228,
+          "measuredBytes": 114894512,
+          "measuredMs": 8001.4911999999995,
+          "samples": 17,
+          "repeatability": {
+            "lower": 102.28094119976902,
+            "upper": 134.15339871691035
+          },
+          "qualification": "measured",
+          "warnings": [
+            "Throughput varied during measurement",
+            "Single primary source"
+          ]
+        },
+        "primaryProviders": {
+          "download": [
+            "cloudflare"
+          ],
+          "upload": [
+            "cloudflare"
+          ]
+        },
+        "traces": [
+          {
+            "provider": "cloudflare",
+            "endpoint": "https://speed.cloudflare.com/__down",
+            "transport": "https",
+            "streams": 2,
+            "direction": "download",
+            "accounting": "received",
+            "warmupMs": 2000,
+            "points": [
+              {
+                "t": 0,
+                "bytes": 0,
+                "valid": true
+              },
+              {
+                "t": 507.7321,
+                "bytes": 5812288,
+                "valid": true
+              },
+              {
+                "t": 1000.9457,
+                "bytes": 15193536,
+                "valid": true
+              },
+              {
+                "t": 1501.999,
+                "bytes": 26125248,
+                "valid": true
+              },
+              {
+                "t": 2000.1829,
+                "bytes": 36927232,
+                "valid": true
+              },
+              {
+                "t": 2502.1234,
+                "bytes": 44710720,
+                "valid": true
+              },
+              {
+                "t": 3015.0420000000004,
+                "bytes": 54000000,
+                "valid": true
+              },
+              {
+                "t": 3501.2343,
+                "bytes": 63690240,
+                "valid": true
+              },
+              {
+                "t": 4008.4103999999998,
+                "bytes": 72956544,
+                "valid": true
+              },
+              {
+                "t": 4513.3799,
+                "bytes": 83017216,
+                "valid": true
+              },
+              {
+                "t": 5001.4018,
+                "bytes": 93145856,
+                "valid": true
+              },
+              {
+                "t": 5503.6747000000005,
+                "bytes": 101714816,
+                "valid": true
+              },
+              {
+                "t": 6002.0562,
+                "bytes": 112351104,
+                "valid": true
+              },
+              {
+                "t": 6503.0994,
+                "bytes": 123128192,
+                "valid": true
+              },
+              {
+                "t": 7006.3468,
+                "bytes": 133434560,
+                "valid": true
+              },
+              {
+                "t": 7500.1871,
+                "bytes": 144319232,
+                "valid": true
+              },
+              {
+                "t": 8001.2708,
+                "bytes": 153660352,
+                "valid": true
+              },
+              {
+                "t": 8500.4793,
+                "bytes": 163673856,
+                "valid": true
+              },
+              {
+                "t": 9000.9129,
+                "bytes": 173560896,
+                "valid": true
+              },
+              {
+                "t": 9502.8479,
+                "bytes": 182000000,
+                "valid": true
+              },
+              {
+                "t": 10000.173,
+                "bytes": 191601920,
+                "valid": true
+              },
+              {
+                "t": 10000.180699999999,
+                "bytes": 191601920,
+                "valid": true
+              }
+            ],
+            "stopReason": "complete"
+          },
+          {
+            "provider": "cloudflare",
+            "endpoint": "https://speed.cloudflare.com/__up",
+            "transport": "https",
+            "streams": 2,
+            "direction": "upload",
+            "accounting": "completed-request",
+            "warmupMs": 2000,
+            "points": [
+              {
+                "t": 0,
+                "bytes": 0,
+                "valid": true
+              },
+              {
+                "t": 513.0133,
+                "bytes": 1570816,
+                "valid": true
+              },
+              {
+                "t": 1002.5174999999999,
+                "bytes": 8386560,
+                "valid": true
+              },
+              {
+                "t": 1509.8933,
+                "bytes": 17681426,
+                "valid": true
+              },
+              {
+                "t": 2013.8533,
+                "bytes": 26282664,
+                "valid": true
+              },
+              {
+                "t": 2515.6127,
+                "bytes": 35988281,
+                "valid": true
+              },
+              {
+                "t": 3004.0616999999997,
+                "bytes": 42728142,
+                "valid": true
+              },
+              {
+                "t": 3507.9798,
+                "bytes": 47946320,
+                "valid": true
+              },
+              {
+                "t": 4007.9073999999996,
+                "bytes": 55179426,
+                "valid": true
+              },
+              {
+                "t": 4507.4066,
+                "bytes": 63041391,
+                "valid": true
+              },
+              {
+                "t": 5011.2699,
+                "bytes": 71631521,
+                "valid": true
+              },
+              {
+                "t": 5514.6632,
+                "bytes": 79972230,
+                "valid": true
+              },
+              {
+                "t": 6001.270200000001,
+                "bytes": 88326848,
+                "valid": true
+              },
+              {
+                "t": 6503.6823,
+                "bytes": 96088692,
+                "valid": true
+              },
+              {
+                "t": 7003.7686,
+                "bytes": 102673967,
+                "valid": true
+              },
+              {
+                "t": 7515.5830000000005,
+                "bytes": 113486027,
+                "valid": true
+              },
+              {
+                "t": 8004.341399999999,
+                "bytes": 117864796,
+                "valid": true
+              },
+              {
+                "t": 8504.673499999999,
+                "bytes": 125233921,
+                "valid": true
+              },
+              {
+                "t": 9002.519400000001,
+                "bytes": 131627854,
+                "valid": true
+              },
+              {
+                "t": 9501.679,
+                "bytes": 137548579,
+                "valid": true
+              },
+              {
+                "t": 10015.3333,
+                "bytes": 141177176,
+                "valid": true
+              },
+              {
+                "t": 10015.3445,
+                "bytes": 141177176,
+                "valid": true
+              }
+            ],
+            "stopReason": "complete"
+          }
+        ],
+        "bytesTransferred": 332779096,
+        "budgetBytes": 335925436,
+        "byteLimit": 500000000,
+        "elapsedMs": 22622.8569,
+        "stopReason": "complete"
+      },
+      "ping": 46.104600000000005,
+      "warnings": [
+        "M-Lab omitted: data publication consent not granted (--accept-mlab)",
+        "Single primary source",
+        "Throughput varied during measurement",
+        "Single primary source"
+      ]
+    },
+    {
+      "surface": "Windows CLI",
+      "repetition": 2,
+      "beganAt": "2026-09-05T04:12:46.908Z",
+      "method": "5.0",
+      "measurement": {
+        "download": {
+          "sustainedMbps": 159.43197167734542,
+          "ceilingMbps": 161.62432301391982,
+          "measuredBytes": 159408585,
+          "measuredMs": 7998.826499999999,
+          "samples": 16,
+          "repeatability": {
+            "lower": 159.5428916680307,
+            "upper": 164.8432986262651
+          },
+          "qualification": "measured",
+          "warnings": [
+            "Single primary source"
+          ]
+        },
+        "upload": {
+          "sustainedMbps": 128.0839166276617,
+          "ceilingMbps": null,
+          "measuredBytes": 127992295,
+          "measuredMs": 7994.2774,
+          "samples": 17,
+          "repeatability": {
+            "lower": 115.65449149287831,
+            "upper": 147.51803764739975
+          },
+          "qualification": "measured",
+          "warnings": [
+            "Throughput varied during measurement",
+            "Throughput was still increasing after warm-up",
+            "Single primary source"
+          ]
+        },
+        "primaryProviders": {
+          "download": [
+            "cloudflare"
+          ],
+          "upload": [
+            "cloudflare"
+          ]
+        },
+        "traces": [
+          {
+            "provider": "cloudflare",
+            "endpoint": "https://speed.cloudflare.com/__down",
+            "transport": "https",
+            "streams": 2,
+            "direction": "download",
+            "accounting": "received",
+            "warmupMs": 2000,
+            "points": [
+              {
+                "t": 0,
+                "bytes": 0,
+                "valid": true
+              },
+              {
+                "t": 504.52090000000004,
+                "bytes": 4609984,
+                "valid": true
+              },
+              {
+                "t": 1004.2742,
+                "bytes": 13692352,
+                "valid": true
+              },
+              {
+                "t": 1502.9858,
+                "bytes": 23472384,
+                "valid": true
+              },
+              {
+                "t": 2001.7268000000001,
+                "bytes": 30482551,
+                "valid": true
+              },
+              {
+                "t": 2501.5661,
+                "bytes": 40445568,
+                "valid": true
+              },
+              {
+                "t": 3000.5585,
+                "bytes": 50101943,
+                "valid": true
+              },
+              {
+                "t": 3503.5458,
+                "bytes": 61094711,
+                "valid": true
+              },
+              {
+                "t": 4001.1339000000003,
+                "bytes": 70327680,
+                "valid": true
+              },
+              {
+                "t": 4502.6564,
+                "bytes": 80405248,
+                "valid": true
+              },
+              {
+                "t": 5000.7745,
+                "bytes": 90653056,
+                "valid": true
+              },
+              {
+                "t": 5500.5432,
+                "bytes": 101169280,
+                "valid": true
+              },
+              {
+                "t": 6005.1545,
+                "bytes": 110374656,
+                "valid": true
+              },
+              {
+                "t": 6502.5043,
+                "bytes": 120574976,
+                "valid": true
+              },
+              {
+                "t": 7001.78,
+                "bytes": 130859511,
+                "valid": true
+              },
+              {
+                "t": 7502.7374,
+                "bytes": 141576000,
+                "valid": true
+              },
+              {
+                "t": 8006.6343,
+                "bytes": 151957568,
+                "valid": true
+              },
+              {
+                "t": 8501.5363,
+                "bytes": 162373751,
+                "valid": true
+              },
+              {
+                "t": 9007.6553,
+                "bytes": 172242423,
+                "valid": true
+              },
+              {
+                "t": 9502.6641,
+                "bytes": 180712320,
+                "valid": true
+              },
+              {
+                "t": 10000.5533,
+                "bytes": 189891136,
+                "valid": true
+              }
+            ],
+            "stopReason": "complete"
+          },
+          {
+            "provider": "cloudflare",
+            "endpoint": "https://speed.cloudflare.com/__up",
+            "transport": "https",
+            "streams": 2,
+            "direction": "upload",
+            "accounting": "completed-request",
+            "warmupMs": 2000,
+            "points": [
+              {
+                "t": 0,
+                "bytes": 0,
+                "valid": true
+              },
+              {
+                "t": 502.3817,
+                "bytes": 1551401,
+                "valid": true
+              },
+              {
+                "t": 1014.3006999999999,
+                "bytes": 7865065,
+                "valid": true
+              },
+              {
+                "t": 1510.3543,
+                "bytes": 15681969,
+                "valid": true
+              },
+              {
+                "t": 2010.8145,
+                "bytes": 22717877,
+                "valid": true
+              },
+              {
+                "t": 2509.1694,
+                "bytes": 26760924,
+                "valid": true
+              },
+              {
+                "t": 3009.5456,
+                "bytes": 33275039,
+                "valid": true
+              },
+              {
+                "t": 3514.1848,
+                "bytes": 40798514,
+                "valid": true
+              },
+              {
+                "t": 4013.9028999999996,
+                "bytes": 49716744,
+                "valid": true
+              },
+              {
+                "t": 4515.142,
+                "bytes": 59189286,
+                "valid": true
+              },
+              {
+                "t": 5014.6977,
+                "bytes": 66144450,
+                "valid": true
+              },
+              {
+                "t": 5503.5543,
+                "bytes": 71454620,
+                "valid": true
+              },
+              {
+                "t": 6013.0512,
+                "bytes": 80418852,
+                "valid": true
+              },
+              {
+                "t": 6513.6457,
+                "bytes": 86328991,
+                "valid": true
+              },
+              {
+                "t": 7015.4847,
+                "bytes": 95831241,
+                "valid": true
+              },
+              {
+                "t": 7504.2674,
+                "bytes": 106383956,
+                "valid": true
+              },
+              {
+                "t": 8006.0071,
+                "bytes": 117900193,
+                "valid": true
+              },
+              {
+                "t": 8511.5646,
+                "bytes": 124659123,
+                "valid": true
+              },
+              {
+                "t": 9001.1881,
+                "bytes": 132603461,
+                "valid": true
+              },
+              {
+                "t": 9508.3086,
+                "bytes": 142763736,
+                "valid": true
+              },
+              {
+                "t": 10005.079399999999,
+                "bytes": 150710172,
+                "valid": true
+              },
+              {
+                "t": 10005.0919,
+                "bytes": 150710172,
+                "valid": true
+              }
+            ],
+            "stopReason": "complete"
+          }
+        ],
+        "bytesTransferred": 340601308,
+        "budgetBytes": 343861750,
+        "byteLimit": 500000000,
+        "elapsedMs": 23001.1185,
+        "stopReason": "complete"
+      },
+      "ping": 62.424949999999995,
+      "warnings": [
+        "M-Lab omitted: data publication consent not granted (--accept-mlab)",
+        "Single primary source",
+        "Throughput varied during measurement",
+        "Throughput was still increasing after warm-up",
+        "Single primary source"
+      ]
+    },
+    {
+      "surface": "Windows Chrome",
+      "repetition": 2,
+      "beganAt": "2026-09-05T04:13:09.922Z",
+      "method": "5.0",
+      "measurement": {
+        "download": {
+          "sustainedMbps": 155.95815064587958,
+          "ceilingMbps": 159.9165950097075,
+          "measuredBytes": 156012736,
+          "measuredMs": 8002.800000071526,
+          "samples": 16,
+          "repeatability": {
+            "lower": 154.09826245724375,
+            "upper": 169.57397715003103
+          },
+          "qualification": "measured",
+          "warnings": [
+            "Single primary source"
+          ]
+        },
+        "upload": {
+          "sustainedMbps": 77.78426869510099,
+          "ceilingMbps": 79.17305724240916,
+          "measuredBytes": 77698706,
+          "measuredMs": 7991.200000047684,
+          "samples": 16,
+          "repeatability": {
+            "lower": 65.313033257838,
+            "upper": 99.45724506132304
+          },
+          "qualification": "measured",
+          "warnings": [
+            "Throughput varied during measurement",
+            "Throughput was still increasing after warm-up",
+            "Single primary source"
+          ]
+        },
+        "primaryProviders": {
+          "download": [
+            "cloudflare"
+          ],
+          "upload": [
+            "cloudflare"
+          ]
+        },
+        "traces": [
+          {
+            "provider": "cloudflare",
+            "endpoint": "https://speed.cloudflare.com/__down",
+            "transport": "https",
+            "streams": 2,
+            "direction": "download",
+            "accounting": "received",
+            "warmupMs": 2000,
+            "points": [
+              {
+                "t": 0,
+                "bytes": 0
+              },
+              {
+                "t": 515.5,
+                "bytes": 4000000
+              },
+              {
+                "t": 1002.8999999761581,
+                "bytes": 12995584
+              },
+              {
+                "t": 1501.2000000476837,
+                "bytes": 21477568
+              },
+              {
+                "t": 2000.3999999761581,
+                "bytes": 32955136
+              },
+              {
+                "t": 2501.5,
+                "bytes": 42241920
+              },
+              {
+                "t": 3003.3000000715256,
+                "bytes": 52871424
+              },
+              {
+                "t": 3500.100000023842,
+                "bytes": 61394432
+              },
+              {
+                "t": 4001.899999976158,
+                "bytes": 71697600
+              },
+              {
+                "t": 4500.899999976158,
+                "bytes": 82504320
+              },
+              {
+                "t": 5003.899999976158,
+                "bytes": 92543168
+              },
+              {
+                "t": 5504.200000047684,
+                "bytes": 102082752
+              },
+              {
+                "t": 6000.600000023842,
+                "bytes": 112060672
+              },
+              {
+                "t": 6500.399999976158,
+                "bytes": 121369152
+              },
+              {
+                "t": 7005.5,
+                "bytes": 130605952
+              },
+              {
+                "t": 7508.600000023842,
+                "bytes": 140439488
+              },
+              {
+                "t": 8001.100000023842,
+                "bytes": 150919040
+              },
+              {
+                "t": 8504.700000047684,
+                "bytes": 162978560
+              },
+              {
+                "t": 9002.399999976158,
+                "bytes": 174294912
+              },
+              {
+                "t": 9503.300000071526,
+                "bytes": 185020864
+              },
+              {
+                "t": 10003.200000047684,
+                "bytes": 188967872
+              }
+            ],
+            "stopReason": "complete"
+          },
+          {
+            "provider": "cloudflare",
+            "endpoint": "https://speed.cloudflare.com/__up",
+            "transport": "https",
+            "streams": 2,
+            "direction": "upload",
+            "accounting": "completed-request",
+            "warmupMs": 2000,
+            "points": [
+              {
+                "t": 0,
+                "bytes": 0
+              },
+              {
+                "t": 506.7999999523163,
+                "bytes": 8192
+              },
+              {
+                "t": 1005.8999999761581,
+                "bytes": 292371
+              },
+              {
+                "t": 1574.2999999523163,
+                "bytes": 3484621
+              },
+              {
+                "t": 2012.3999999761581,
+                "bytes": 3603958
+              },
+              {
+                "t": 2510,
+                "bytes": 7044718
+              },
+              {
+                "t": 3011.600000023842,
+                "bytes": 10357546
+              },
+              {
+                "t": 3532.100000023842,
+                "bytes": 13580738
+              },
+              {
+                "t": 4017.2999999523163,
+                "bytes": 16693421
+              },
+              {
+                "t": 4520.600000023842,
+                "bytes": 20596784
+              },
+              {
+                "t": 5003.399999976158,
+                "bytes": 25417679
+              },
+              {
+                "t": 5518.200000047684,
+                "bytes": 32225762
+              },
+              {
+                "t": 6010.700000047684,
+                "bytes": 36689867
+              },
+              {
+                "t": 6545.600000023842,
+                "bytes": 43404239
+              },
+              {
+                "t": 7048.399999976158,
+                "bytes": 49948888
+              },
+              {
+                "t": 7518.700000047684,
+                "bytes": 54913160
+              },
+              {
+                "t": 8112,
+                "bytes": 64064278
+              },
+              {
+                "t": 8556,
+                "bytes": 69391807
+              },
+              {
+                "t": 9015.299999952316,
+                "bytes": 74032740
+              },
+              {
+                "t": 9512,
+                "bytes": 78125279
+              },
+              {
+                "t": 10003.600000023842,
+                "bytes": 81302664
+              }
+            ],
+            "stopReason": "complete"
+          }
+        ],
+        "bytesTransferred": 270270536,
+        "budgetBytes": 271782661,
+        "byteLimit": 500000000,
+        "elapsedMs": 22696.299999952316,
+        "stopReason": "complete"
+      },
+      "ping": 50.34999996423721,
+      "warnings": [
+        "M-Lab omitted: data publication consent not granted",
+        "Single primary source",
+        "Throughput varied during measurement",
+        "Throughput was still increasing after warm-up"
+      ],
+      "protocols": [
+        "http/1.1",
+        ""
+      ]
+    }
+  ],
+  "limitations": "Single primary source: M-Lab declined. 500 MB payload ceiling per run. Actual network conditions and competing host traffic were not controlled. No accuracy truth or general repeatability claim. Original recorded ceiling fields are retained; a later estimator correction withholds candidates below sustained throughput.",
+  "pairedMedianDifferencesPct": {
+    "download": {
+      "pairs": [
+        0.9491602731114921,
+        11.611961664044165,
+        2.202872433592397
+      ],
+      "median": 2.202872433592397
+    },
+    "upload": {
+      "pairs": [
+        11.12669444211863,
+        3.0913413373188807,
+        48.865877798165165
+      ],
+      "median": 11.12669444211863
+    }
+  }
+}

@@ -1,7 +1,7 @@
 {
   "kind": "deterministic-estimator-and-full-trace-parity",
-  "limitations": "Synthetic counter traces validate estimators, not physical network accuracy. Transport and device acceptance are separate.",
-  "traces": 26,
+  "limitations": "Synthetic counter truth validates arithmetic. Replaying recorded production and netem counters validates language agreement, not absolute acquisition accuracy. Transport and device acceptance are separate.",
+  "traces": 88,
   "compared": "Every estimate field, both primary aggregations, warnings, qualifications, ranges, ceilings and provider identities",
   "comparisons": [
     {

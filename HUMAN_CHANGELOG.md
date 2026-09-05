@@ -10,7 +10,7 @@ This is a release candidate. Validation and publication are still in progress.
 
 - Speed results now describe the data the tested device sustained over the measurement period. Slow stretches and brief stalls count, including during uploads. This describes the tested device and route, not the physical capacity promised by an internet plan.
 - Quick is the starting choice everywhere. Deep spends longer checking the same main networks and adds supporting tests. A result based on only one main source says so, and extra tests cannot silently raise the headline.
-- An estimated ceiling appears only when a higher speed repeats for long enough. The details expose disagreement and variation instead of presenting a precise-looking accuracy guarantee.
+- An estimated ceiling appears only when a speed at or above the sustained result repeats for long enough. A repeated slower stretch cannot become a misleading ceiling. The details expose disagreement and variation instead of presenting a precise-looking accuracy guarantee.
 - Ping now describes a typical idle web request. Delay during downloads, delay during uploads, failed web probes and server connection signals have distinct labels; missing packet-loss evidence stays unavailable.
 - You can choose a data ceiling, see transferred data, and stop a run while retaining usable partial results. Backgrounding the app or changing networks ends comparable collection. The choice to use M-Lab includes its publication policy.
 
