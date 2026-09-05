@@ -24,7 +24,7 @@ for (let i = 0; ; i++) {
   catch (e) { if (i > 60) throw e; await new Promise(r => setTimeout(r, 500)); }
 }
 const browser = await chromium.launch({ channel: 'chrome' });
-const page = await browser.newPage();
+let page = await browser.newPage();
 await page.routeWebSocket('**', socket => socket.close());
 await page.goto('http://127.0.0.1:5175');
 // Compile all measurement modules on the unshaped local Vite route before runs.
@@ -32,7 +32,7 @@ await page.evaluate(async () => { await import('/src/services/acquisition-v5.ts'
 const outcomes = [], errors = [];
 page.on('pageerror', e => errors.push(e.message));
 try {
-  for (const scenario of cases) for (let repetition = 0; repetition < 2; repetition++) {
+  for (const scenario of cases.filter(c => !process.env.NETEM_CASES || process.env.NETEM_CASES.split(',').includes(c.name))) for (let repetition = 0; repetition < Number(process.env.NETEM_REPEATS ?? 3); repetition++) {
     shape(scenario);
     for (const direction of ['download', 'upload']) for (const surface of (repetition % 2 ? ['rust', 'browser'] : ['browser', 'rust'])) {
       const run = `${scenario.name}-${repetition}-${direction}-${surface}`;
@@ -61,6 +61,16 @@ try {
       }, output.trace);
       outcomes.push({ kind: 'v5-acquisition', scenario, repetition, direction, surface, v4EstimatorMbps, serverTrace: records, qdiscs: qdiscs(), ...output });
       console.log(`${scenario.name} #${repetition} ${surface} ${direction}: v5 ${output.estimate.sustainedMbps}, v4 replay ${v4EstimatorMbps}`);
+      if (surface === 'browser') {
+        // Match the standalone Rust invocation: a fresh client connection pool
+        // for each directional transfer, with identical bounded warm-up. Reusing
+        // browser TCP connections would silently give it different initial state.
+        await page.close(); page = await browser.newPage();
+        page.on('pageerror', e => errors.push(e.message));
+        await page.routeWebSocket('**', socket => socket.close());
+        await page.goto('http://127.0.0.1:5175');
+        await page.evaluate(async () => { await import('/src/services/acquisition-v5.ts'); await import('/src/services/measurement-v5.ts'); });
+      }
     }
     const baseline = await browser.newPage();
     await baseline.routeWebSocket('**', socket => socket.close());
@@ -91,5 +101,5 @@ try {
   assert.equal(errors.length, 0, errors.join('\n'));
 } finally {
   await browser.close(); await mkdir('evidence/v5', { recursive: true });
-  await writeFile('evidence/v5/netem.json', JSON.stringify({ capturedAt: new Date().toISOString(), websiteRevision: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(), browser: browser.version(), kind: 'Isolated Linux receiver-ingress netem', topology: 'Two namespaces joined by a veth pair, no default routes. Netem on IFB at each receiver ingress; segmentation/offload disabled.', limitations: 'Configured rates include TCP/IP overhead and are not expected application throughput. Random loss and shared hosted CPUs affect paired repeatability. Server writes/receipts are diagnostic traces, not timestamp-exact delivered payload truth under queuing and acknowledgement delay. These comparisons extend loss/latency coverage without establishing absolute accuracy or physical-device acceptance. Original v4 uses its own schedule; zero with failed/missing provider output means unavailable.', outcomes, errors }, null, 2) + '\n');
+  await writeFile('evidence/v5/netem.json', JSON.stringify({ capturedAt: new Date().toISOString(), clientLifecycle: 'Fresh browser context and standalone Rust client per directional transfer; identical 2s warm-up. Three order-alternating repetitions by default.', websiteRevision: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(), browser: browser.version(), kind: 'Isolated Linux receiver-ingress netem', topology: 'Two namespaces joined by a veth pair, no default routes. Netem on IFB at each receiver ingress; segmentation/offload disabled.', limitations: 'Configured rates include TCP/IP overhead and are not expected application throughput. Random loss and shared hosted CPUs affect paired repeatability. Server writes/receipts are diagnostic traces, not timestamp-exact delivered payload truth under queuing and acknowledgement delay. These comparisons extend loss/latency coverage without establishing absolute accuracy or physical-device acceptance. Original v4 uses its own schedule; zero with failed/missing provider output means unavailable.', outcomes, errors }, null, 2) + '\n');
 }

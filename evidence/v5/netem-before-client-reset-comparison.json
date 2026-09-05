@@ -1,0 +1,66 @@
+{
+  "clean": {
+    "download": {
+      "pairedDifferencesPct": [
+        0.01252318283089045,
+        0.0006629580171825185
+      ],
+      "medianDifferencePct": 0.006593070424036484
+    },
+    "upload": {
+      "pairedDifferencesPct": [
+        1.6101710910682676,
+        1.7359641887197015
+      ],
+      "medianDifferencePct": 1.6730676398939845
+    }
+  },
+  "asymmetric": {
+    "download": {
+      "pairedDifferencesPct": [
+        0.04669243114797702,
+        0.03027485898934056
+      ],
+      "medianDifferencePct": 0.03848364506865879
+    },
+    "upload": {
+      "pairedDifferencesPct": [
+        0.27890885952895944,
+        1.5982822128142684
+      ],
+      "medianDifferencePct": 0.938595536171614
+    }
+  },
+  "latency": {
+    "download": {
+      "pairedDifferencesPct": [
+        0.0002786997377525417,
+        0.006349797306247074
+      ],
+      "medianDifferencePct": 0.0033142485219998076
+    },
+    "upload": {
+      "pairedDifferencesPct": [
+        0.6297729428452765,
+        14.822346756379575
+      ],
+      "medianDifferencePct": 7.726059849612426
+    }
+  },
+  "loss": {
+    "download": {
+      "pairedDifferencesPct": [
+        14.307368264148884,
+        5.059548974008194
+      ],
+      "medianDifferencePct": 9.68345861907854
+    },
+    "upload": {
+      "pairedDifferencesPct": [
+        14.236450279552567,
+        29.59879618708766
+      ],
+      "medianDifferencePct": 21.917623233320114
+    }
+  }
+}
