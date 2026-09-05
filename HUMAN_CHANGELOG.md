@@ -2,6 +2,11 @@
 
 A plain-English companion to [CHANGELOG.md](CHANGELOG.md).
 
+## September 5, 2026 — A clearer icon in small tabs (4.0.2)
+
+- Simplified the cassette icon so its shape and two reel openings remain easier to distinguish in a small browser tab. Removed the extra surrounding square and fine details that blurred together.
+- Added sharper small-icon fallbacks. Checked the design at actual favicon sizes on light and dark backgrounds and at several display densities. The larger Apple touch icon keeps its detailed design.
+
 ## September 5, 2026 — Cassette icon and smoother resets (4.0.1)
 
 - The browser tab now carries a crisp cassette icon that matches the speed test.

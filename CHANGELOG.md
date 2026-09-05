@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [4.0.2] - 2026-09-05
+
+### Changed
+
+- Redraw the cassette favicon on a 16-unit grid for small-size legibility: remove the surrounding tile and nested reel rings, enlarge the two reel openings, and preserve the cassette outline and tape-head notch.
+- Add an explicit 16-pixel PNG and native 16/20/24/32/40/48/64-pixel ICO images, regenerate the 32-pixel PNG, and refresh versioned asset links. The larger Apple touch icon retains its detailed cassette design.
+- Visually compare 16/20/24/32-pixel renderings on light and dark tab backgrounds, including Chrome at 1×, 1.25×, 1.5× and 2× pixel density.
+
 ## [4.0.1] - 2026-09-05
 
 ### Changed

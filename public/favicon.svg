@@ -1,17 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
   <title>SpeedQX cassette</title>
-  <rect width="64" height="64" rx="14" fill="#111"/>
-  <rect x="5" y="12" width="54" height="40" rx="7" fill="#f4f4f4"/>
-  <path d="M16 18h32" stroke="#111" stroke-width="3" stroke-linecap="round"/>
-  <rect x="9" y="24" width="46" height="17" rx="8.5" fill="#111"/>
-  <g fill="#f4f4f4">
-    <circle cx="21" cy="32.5" r="6"/>
-    <circle cx="43" cy="32.5" r="6"/>
-    <path d="M27 31h10v3H27z"/>
-  </g>
-  <g fill="#111">
-    <circle cx="21" cy="32.5" r="2.5"/>
-    <circle cx="43" cy="32.5" r="2.5"/>
-    <path d="m23 44-2 5h22l-2-5z"/>
-  </g>
+  <rect y="2" width="16" height="12" rx="2" fill="#111"/>
+  <rect x="1" y="3" width="14" height="10" rx="1" fill="#f4f4f4"/>
+  <rect x="2" y="5" width="12" height="5" rx="2.5" fill="#111"/>
+  <g fill="#f4f4f4"><circle cx="4.5" cy="7.5" r="1.5"/><circle cx="11.5" cy="7.5" r="1.5"/></g>
+  <path d="M5 11h6l1 2H4z" fill="#111"/>
 </svg>
