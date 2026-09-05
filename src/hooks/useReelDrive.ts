@@ -5,6 +5,7 @@ import {
   MOTION,
   REEL,
   reelSignedOmega,
+  rTape,
   tapeFillsForPhase,
 } from '../components/mechanism/reel-geometry';
 
@@ -38,6 +39,7 @@ const DT_CLAMP_SEC = 0.05; // guard against post-stall dt spikes
 const OMEGA_EPS = 1e-4;
 const FILL_EPS = 1e-4;
 const COMMIT_EPS = 6e-4; // min fill delta before a React re-render
+const FILL_COMMIT_MS = 100; // Bound the React geometry channel to 10 Hz.
 
 function usePrefersReducedMotion(): boolean {
   const [reduced, setReduced] = useState<boolean>(() =>
@@ -95,9 +97,11 @@ export function useReelDrive(params: UseReelDriveParams): ReelDriveHandles {
   const reducedRef = useRef(effectiveReduced);
   const velRef = useRef(0); // signed angular velocity, rev/s
   const angleRef = useRef(0); // accumulated degrees
+  const takeupAngleRef = useRef(0);
   const supplyFillRef = useRef(IDLE_FILLS.supply);
   const takeupFillRef = useRef(IDLE_FILLS.takeup);
   const committedRef = useRef({ supply: IDLE_FILLS.supply, takeup: IDLE_FILLS.takeup });
+  const lastCommitRef = useRef(0);
   const rafRef = useRef<number | null>(null);
   const runningRef = useRef(false);
   const lastTimeRef = useRef<number | null>(null);
@@ -108,10 +112,16 @@ export function useReelDrive(params: UseReelDriveParams): ReelDriveHandles {
   // (every progress tick) doesn't churn the loop or re-bind the listener.
   useEffect(() => {
     const writeTransform = (el: SVGGElement | null, angle: number) => {
-      if (el) el.setAttribute('transform', `rotate(${angle.toFixed(3)} ${REEL.cx} ${REEL.cy})`);
+      if (el) {
+        el.style.transformBox = 'view-box';
+        el.style.transformOrigin = `${REEL.cx}px ${REEL.cy}px`;
+        el.style.transform = `rotate(${angle.toFixed(3)}deg)`;
+      }
     };
 
     const commitFills = (force = false) => {
+      const now = performance.now();
+      if (!force && now - lastCommitRef.current < FILL_COMMIT_MS) return;
       const s = supplyFillRef.current;
       const t = takeupFillRef.current;
       if (
@@ -120,6 +130,7 @@ export function useReelDrive(params: UseReelDriveParams): ReelDriveHandles {
         Math.abs(t - committedRef.current.takeup) > COMMIT_EPS
       ) {
         committedRef.current = { supply: s, takeup: t };
+        lastCommitRef.current = now;
         setFills({ supply: s, takeup: t });
       }
     };
@@ -145,9 +156,10 @@ export function useReelDrive(params: UseReelDriveParams): ReelDriveHandles {
         if (Math.abs(velRef.current) < OMEGA_EPS && Math.abs(target) < OMEGA_EPS) {
           velRef.current = 0;
         } else {
-          angleRef.current = (angleRef.current + velRef.current * 360 * dt) % 360;
+          angleRef.current = (angleRef.current + velRef.current * 360 * dt * 30 / rTape(supplyFillRef.current)) % 360;
+          takeupAngleRef.current = (takeupAngleRef.current + velRef.current * 360 * dt * 30 / rTape(takeupFillRef.current)) % 360;
           writeTransform(supplyRef.current, angleRef.current);
-          writeTransform(takeupRef.current, angleRef.current);
+          writeTransform(takeupRef.current, takeupAngleRef.current);
           rotating = true;
         }
       }
@@ -155,7 +167,7 @@ export function useReelDrive(params: UseReelDriveParams): ReelDriveHandles {
       // ── Tape fill (allowed under reduced motion) ──
       let filling = false;
       if (dt > 0) {
-        const target = tapeFillsForPhase(p.phase, p.dlProgress, p.ulProgress);
+        const target = (p.phase === 'download' || p.phase === 'upload') && p.mbps <= 0 ? null : tapeFillsForPhase(p.phase, p.dlProgress, p.ulProgress);
         if (target) {
           const af = 1 - Math.exp(-dt / FILL_TAU_SEC);
           supplyFillRef.current += (target.supply - supplyFillRef.current) * af;

@@ -1,8 +1,11 @@
-// Canonical cassette-reel geometry + motion math (SpeedQX v4).
+// Copyright (c) 2026 QubeTX - ES Development LLC. All rights reserved.
+
+// Canonical cassette-reel geometry + motion math (SpeedQX v5).
 //
-// Single source of truth for the reel drawing, shared across platforms (the app
-// mirrors these numbers). Everything is expressed in a normalized viewBox of
-// 100 × 100 so strokes scale for free; the renderer only picks a pixel `size`.
+// Single source of truth for the reel drawing, shared across platforms (this is
+// a byte-faithful port of the website's reel-geometry.ts — same numbers).
+// Everything is expressed in a normalized viewBox of 100 × 100 so strokes scale
+// for free; the renderer only picks a pixel `size`.
 //
 // Layering (back → front):
 //   STATIC group:  flange ring · seat ring · tape-pack annulus · tape edge · stria
@@ -10,7 +13,7 @@
 // Only the SPOOL group rotates. The tape-pack radius rides the low-frequency
 // progress channel and is decoupled from rotation.
 
-import type { TestPhase } from '../../types/speedtest';
+type TestPhase = 'idle' | 'discovering' | 'latency' | 'download' | 'upload' | 'complete' | 'error';
 
 // ─── Geometry constants ─────────────────────────────────────────────────────
 
@@ -40,15 +43,27 @@ export const REEL = {
 
 // ─── Small math helpers ─────────────────────────────────────────────────────
 
+// The pure math helpers below carry the 'worklet' directive so they are
+// callable from Reanimated UI-thread contexts (useAnimatedStyle/Props,
+// useFrameCallback) as well as plain JS. Without it, calling one from a
+// worklet aborts the app in release builds ("Tried to synchronously call a
+// non-worklet function on the UI thread") — the crash class behind the
+// 2.1.0 build-7 TestFlight crash (VuMeter called clamp01 in a worklet).
+// The directive changes nothing about the shared numeric parity with the
+// website's reel-geometry.ts.
+
 export function clamp(x: number, lo: number, hi: number): number {
+  'worklet';
   return x < lo ? lo : x > hi ? hi : x;
 }
 
 export function clamp01(x: number): number {
+  'worklet';
   return clamp(x, 0, 1);
 }
 
 function lerp(a: number, b: number, t: number): number {
+  'worklet';
   return a + (b - a) * t;
 }
 
@@ -99,6 +114,7 @@ export function splineTeethSegments(): Segment[] {
  * so the radius follows √(rHub² + f·(rMax² − rHub²)) — not a linear radius ramp.
  */
 export function rTape(fill: number): number {
+  'worklet';
   const f = clamp01(fill);
   const { rHub, rMax } = REEL.tape;
   return Math.sqrt(rHub * rHub + f * (rMax * rMax - rHub * rHub));
@@ -130,6 +146,7 @@ export function tapeFillsForPhase(
   downloadProgress: number,
   uploadProgress: number,
 ): TapeFills | null {
+  'worklet';
   switch (phase) {
     case 'download': {
       const d = clamp01(downloadProgress);
@@ -140,12 +157,12 @@ export function tapeFillsForPhase(
       // Rewind: take-up drains back into supply.
       return { supply: lerp(FILL_LO, FILL_HI, u), takeup: lerp(FILL_HI, FILL_LO, u) };
     }
+    case 'complete':
     case 'error':
       return null; // freeze
     case 'idle':
     case 'discovering':
     case 'latency':
-    case 'complete':
     default:
       return { supply: FILL_HI, takeup: FILL_LO };
   }
@@ -154,11 +171,11 @@ export function tapeFillsForPhase(
 // ─── Motion drive (angular velocity + inertia) ──────────────────────────────
 
 export const MOTION = {
-  /** Angular-velocity band, revolutions per second. */
-  omegaMin: 0.35,
-  omegaMax: 2.2,
+  omegaMin: 0,
+  /** Maximum angular velocity, revolutions per second. */
+  omegaMax: 1.15,
   /** Gentle idle spin during discovery/latency (no throughput yet). */
-  omegaIdle: 0.5,
+  omegaIdle: 0,
   /** log10 normalizer: log10(1 + mbps) / log10(logRef), saturating near 1 Gbps. */
   logRef: 1001,
   /** Inertia time constants — spin-up is snappier than spin-down (motor feel). */
@@ -168,16 +185,19 @@ export const MOTION = {
 
 /**
  * Steady-state angular velocity (rev/s) for a throughput in Mbps, log-scaled
- * across the [omegaMin, omegaMax] band and saturating near 1 Gbps.
- *   ω(mbps) = 0.35 + (2.2 − 0.35) · clamp(log10(1 + mbps) / log10(1001), 0, 1)
+ * from a truthful standstill at 0 Mbps to 1.15 reference rev/s near 1 Gbps.
+ *   Nonzero traffic starts at 0.08 reference rev/s; angular speed scales by reel radius.
  */
 export function omegaForMbps(mbps: number): number {
+  'worklet';
+  if (!Number.isFinite(mbps) || mbps <= 0) return 0;
   const t = clamp(Math.log10(1 + Math.max(0, mbps)) / Math.log10(MOTION.logRef), 0, 1);
-  return MOTION.omegaMin + (MOTION.omegaMax - MOTION.omegaMin) * t;
+  return 0.08 + (MOTION.omegaMax - 0.08) * t;
 }
 
 /** Target angular-velocity magnitude (rev/s) for a phase + current throughput. */
 export function reelOmega(phase: TestPhase, mbps: number): number {
+  'worklet';
   switch (phase) {
     case 'download':
     case 'upload':
@@ -198,6 +218,7 @@ export function reelOmega(phase: TestPhase, mbps: number): number {
  * −1 = counter-clockwise (upload rewind), 0 = stopped.
  */
 export function reelDirection(phase: TestPhase): -1 | 0 | 1 {
+  'worklet';
   switch (phase) {
     case 'download':
     case 'discovering':
@@ -215,5 +236,6 @@ export function reelDirection(phase: TestPhase): -1 | 0 | 1 {
 
 /** Signed steady-state angular velocity (rev/s): direction × magnitude. */
 export function reelSignedOmega(phase: TestPhase, mbps: number): number {
+  'worklet';
   return reelDirection(phase) * reelOmega(phase, mbps);
 }

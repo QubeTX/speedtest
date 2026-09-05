@@ -1,0 +1,66 @@
+{
+  "capturedAt": "2026-09-05T03:27:21.584Z",
+  "kind": "Actual website with loopback HTTP fixture",
+  "evidence": [
+    {
+      "browser": "chromium",
+      "version": "152.0.7977.76",
+      "widths": [
+        320,
+        375,
+        640,
+        1440
+      ],
+      "errors": [],
+      "checks": [
+        "complete result and details",
+        "trace inspection",
+        "metric dialog and Escape",
+        "stop and reset",
+        "data limit selection",
+        "horizontal fit",
+        "reduced motion"
+      ]
+    },
+    {
+      "browser": "firefox",
+      "version": "155.0",
+      "widths": [
+        320,
+        375,
+        640,
+        1440
+      ],
+      "errors": [],
+      "checks": [
+        "complete result and details",
+        "trace inspection",
+        "metric dialog and Escape",
+        "stop and reset",
+        "data limit selection",
+        "horizontal fit",
+        "reduced motion"
+      ]
+    },
+    {
+      "browser": "webkit",
+      "version": "26.6",
+      "widths": [
+        320,
+        375,
+        640,
+        1440
+      ],
+      "errors": [],
+      "checks": [
+        "complete result and details",
+        "trace inspection",
+        "metric dialog and Escape",
+        "stop and reset",
+        "data limit selection",
+        "horizontal fit",
+        "reduced motion"
+      ]
+    }
+  ]
+}

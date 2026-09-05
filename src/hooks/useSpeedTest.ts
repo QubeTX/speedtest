@@ -1,15 +1,15 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import type {
   TestPhase, SpeedTestProgress, SpeedTestResult, Settings, DnsCheckResult,
-  NetworkMetadata, TestProfile, LatencyStats,
+  NetworkMetadata, TestProfile,
 } from '../types/speedtest';
 import { initialProgress } from '../types/speedtest';
-import { createProvider, resolveProviderPlan } from '../services/provider-factory';
+import { createProvider } from '../services/provider-factory';
 import type { SpeedTestProvider as IProvider, StabilityMetric } from '../types/speedtest';
 import { runDnsCheck } from '../services/dns-check';
-import { measureLatency } from '../services/latency-engine';
 import { fetchNetworkMetadata } from '../services/network-metadata';
 import { coefficientOfVariation } from '../services/statistics';
+import { formatV5Result } from '../services/result-v5-text';
 
 /** Which provider (of how many) the run is currently measuring — drives the
  *  "current source · x/N" progress indicator. */
@@ -34,8 +34,30 @@ export function useSpeedTest(settings: Settings, onComplete?: (result: SpeedTest
   // Profile actually used for the last run, so RUN AGAIN / RETRY repeats it
   // rather than silently reverting to the stored default.
   const lastProfileRef = useRef<TestProfile>(settings.testProfile);
+  const runRef = useRef(0);
+  const runningRef = useRef(false);
+  useEffect(() => () => { runRef.current++; runningRef.current = false; providerRef.current?.stop(); abortRef.current?.abort(); }, []);
+
+  // Auxiliary diagnostics run only after a completed measurement. Their HTTP
+  // requests must not load the idle reference or survive a new run/unmount.
+  const completedTimestamp = phase === 'complete' && result?.measurement?.stopReason === 'complete' ? result.timestamp : null;
+  useEffect(() => {
+    if (completedTimestamp === null) return;
+    const owner = new AbortController();
+    void Promise.all([runDnsCheck(undefined, owner.signal), fetchNetworkMetadata(owner.signal)])
+      .then(([dns, metadata]) => {
+        if (owner.signal.aborted) return;
+        setDnsCheck(dns); setNetworkMetadata(metadata);
+        setResult(current => current?.timestamp === completedTimestamp ? { ...current, dnsCheck: dns, ...(metadata ? { networkMetadata: metadata, isp: metadata.ispFull ?? undefined } : {}) } : current);
+      }).catch(() => {});
+    return () => owner.abort();
+  }, [completedTimestamp]);
 
   const startTest = useCallback(async (profileOverride?: TestProfile) => {
+    if (runningRef.current) return;
+    runningRef.current = true;
+    const run = ++runRef.current;
+    const current = () => runRef.current === run;
     // FAST vs FULL: an explicit deck action wins; otherwise the stored default.
     const profile: TestProfile = profileOverride ?? settings.testProfile;
     lastProfileRef.current = profile;
@@ -46,36 +68,32 @@ export function useSpeedTest(settings: Settings, onComplete?: (result: SpeedTest
     // readings (the orchestrator additionally detects and discloses hidden
     // runs). Best-effort — unsupported browsers just skip it.
     let wakeLock: { release(): Promise<void> } | null = null;
+    let wakeLockFinished = false;
     const acquireWakeLock = async () => {
       try {
         const wl = (navigator as any).wakeLock;
-        if (wl?.request) wakeLock = await wl.request('screen');
+        if (wl?.request) {
+          const acquired = await wl.request('screen');
+          if (wakeLockFinished || !current()) await acquired.release();
+          else { void wakeLock?.release().catch(() => {}); wakeLock = acquired; }
+        }
       } catch { /* denied or unsupported — fine */ }
     };
     const onVisibleReacquire = () => {
       // Wake locks auto-release when the page hides; re-acquire on return.
       if (!document.hidden && providerRef.current) void acquireWakeLock();
     };
-    await acquireWakeLock();
+    void acquireWakeLock();
     document.addEventListener('visibilitychange', onVisibleReacquire);
     const releaseWakeLock = () => {
+      wakeLockFinished = true;
       document.removeEventListener('visibilitychange', onVisibleReacquire);
-      try { void wakeLock?.release(); } catch { /* already released */ }
+      try { void wakeLock?.release().catch(() => {}); } catch { /* already released */ }
       wakeLock = null;
     };
 
-    // Consent gating: only the *explicit* single M-Lab modes are downgraded here.
-    // The aggregated (`'both'`) path is handled gracefully by the plan resolver,
-    // which drops NDT7/MSAK when consent is absent — no blanket downgrade.
-    let effectiveMode = settings.providerMode;
-    if ((effectiveMode === 'ndt7' || effectiveMode === 'msak') && !consent) {
-      effectiveMode = 'cloudflare';
-    }
-
-    // How many providers this run will visit (for the x/N indicator).
-    const planCount = effectiveMode === 'both'
-      ? Math.max(1, resolveProviderPlan(profile, consent).length)
-      : 1;
+    const effectiveMode = 'both';
+    const planCount = (profile === 'full' ? 2 : 1) * (consent ? 2 : 1) + (consent ? 1 : 0) + (profile === 'full' ? 4 : 0);
 
     setPhase('discovering');
     setResult(null);
@@ -84,25 +102,10 @@ export function useSpeedTest(settings: Settings, onComplete?: (result: SpeedTest
     setProviderStep(null);
     setProgress({ ...initialProgress(), phase: 'discovering' });
 
-    const provider = createProvider(effectiveMode, { profile, consent });
+    const provider = createProvider(effectiveMode, { profile, consent, maxBytes: settings.maxBytes });
     providerRef.current = provider;
     const abortController = new AbortController();
     abortRef.current = abortController;
-
-    // Fire DNS checks in background — don't block speed test
-    const dnsPromise = runDnsCheck((partial) => setDnsCheck(partial))
-      .catch((err) => {
-        console.warn('[DNS Check] Failed:', err);
-        return null;
-      });
-
-    // Fire network metadata fetch in background — resolves ~2-3s into test
-    const metadataPromise = fetchNetworkMetadata(abortController.signal)
-      .then((meta) => { setNetworkMetadata(meta); return meta; })
-      .catch((err) => {
-        console.warn('[Network Metadata] Failed:', err);
-        return null;
-      });
 
     // Derive the current provider ordinal from the progress stream. Each distinct
     // non-transition provider label the orchestrator emits advances the counter;
@@ -110,6 +113,7 @@ export function useSpeedTest(settings: Settings, onComplete?: (result: SpeedTest
     let seenProviders = 0;
     let lastProviderLabel = '';
     const handleProviderProgress = (p: SpeedTestProgress) => {
+      if (!current()) return;
       const label = p.currentProvider ?? '';
       const isTransition = label.toLowerCase().startsWith('switching');
       const isRealProvider = !!label && !isTransition && label !== 'Latency Engine';
@@ -123,49 +127,10 @@ export function useSpeedTest(settings: Settings, onComplete?: (result: SpeedTest
     };
 
     try {
-      // ── Phase: Dedicated latency measurement ──────────────────────
-      setPhase('latency');
-      setProgress(prev => ({ ...prev, phase: 'latency', currentProvider: 'Latency Engine' }));
-
-      // Scale latency samples with test duration:
-      // 15s → 50 samples, 30s → 100, 60s → 150, 120s+ → 200, auto → 100
-      const durationSeconds = settings.testDuration === 'auto' ? 30
-        : typeof settings.testDuration === 'number' ? settings.testDuration : 30;
-      const latencySamples = Math.min(200, Math.max(50, Math.round(durationSeconds * 3.3)));
-
-      const latencyStats = await measureLatency({
-        sampleCount: latencySamples,
-        intervalMs: 50,
-        signal: abortController.signal,
-        onSample: (stats) => {
-          setProgress(prev => ({
-            ...prev,
-            phase: 'latency',
-            currentProvider: 'Latency Engine',
-            ping: stats.min,
-            // Live PDV = P95 − P50 (the running-stats block has no pdv field yet).
-            jitter: Math.max(0, stats.p95 - stats.p50),
-          }));
-        },
-      });
-
-      console.log('[Latency Engine] Complete:', {
-        minRtt: latencyStats.minRttMs.toFixed(1),
-        p50: latencyStats.p50.toFixed(1),
-        p95: latencyStats.p95.toFixed(1),
-        pdv: (latencyStats.pdv ?? 0).toFixed(2),
-        samples: latencyStats.samples.length,
-      });
-
-      if (abortController.signal.aborted) throw new Error('Test stopped');
-
       // ── Phase: Provider bandwidth + loaded latency ────────────────
       const testResult = await provider.start(handleProviderProgress, settings.testDuration);
 
-      // Wait for DNS checks and metadata to finish
-      const dnsResult = await dnsPromise;
-      const metadata = await metadataPromise;
-
+      if (!current()) return;
       // Compute stability if bandwidth samples available (for single-provider modes)
       const bandwidthSamples = testResult.bandwidthSamples;
       let stability: StabilityMetric | undefined = testResult.stability;
@@ -184,31 +149,10 @@ export function useSpeedTest(settings: Settings, onComplete?: (result: SpeedTest
         }
       }
 
-      // ── v4 latency reconciliation (METHODOLOGY.md §4) ──────────────
-      // Headline ping = min-RTT: fold the dedicated engine's physical floor into
-      // whatever the orchestrator already derived (engine + kernel MinRTTs).
-      const foldedPing = Math.min(
-        testResult.ping > 0 ? testResult.ping : Infinity,
-        latencyStats.minRttMs > 0 ? latencyStats.minRttMs : Infinity,
-      );
-      const finalPing = Number.isFinite(foldedPing) ? foldedPing : testResult.ping;
-      // Headline jitter = PDV. Prefer the v4 cross-provider blend's PDV; fall back
-      // to the dedicated engine's idle PDV (single-provider modes have no blend).
-      const finalJitter = testResult.latencyStats?.pdv ?? latencyStats.pdv;
-      // Prefer the aggregate's blended latency block for the percentile ladder;
-      // the dense idle engine (with PDV) is the single-provider fallback.
-      const finalLatencyStats: LatencyStats = testResult.latencyStats ?? latencyStats;
-
       const resultWithExtras: SpeedTestResult = {
         ...testResult,
-        ping: finalPing,
-        jitter: finalJitter,
-        latencyStats: finalLatencyStats,
         // Add stability if computed here (single-provider modes)
         ...(stability ? { stability } : {}),
-        ...(dnsResult ? { dnsCheck: dnsResult } : {}),
-        // Network metadata (IP, ISP, geolocation, edge server)
-        ...(metadata ? { networkMetadata: metadata, isp: metadata.ispFull ?? undefined } : {}),
       };
 
       setPhase('complete');
@@ -216,40 +160,40 @@ export function useSpeedTest(settings: Settings, onComplete?: (result: SpeedTest
       setProgress(prev => ({
         ...prev,
         phase: 'complete',
+        downloadSpeed: testResult.measurement?.download.sustainedMbps ?? null,
+        uploadSpeed: testResult.measurement?.upload.sustainedMbps ?? null,
+        ping: testResult.latencyStats?.p50 ?? null,
+        jitter: testResult.latencyStats?.pdv ?? null,
         downloadProgress: 100,
         uploadProgress: 100,
       }));
 
       // Copy to clipboard if enabled
       if (settings.autoCopyResults) {
-        navigator.clipboard?.writeText(formatResultSummary(resultWithExtras, dnsResult, metadata)).catch(() => {});
+        navigator.clipboard?.writeText(formatResultSummary(resultWithExtras, null, null)).catch(() => {});
       }
 
       onComplete?.(resultWithExtras);
     } catch (err) {
+      if (!current()) return;
       const message = err instanceof Error ? err.message : 'Unknown error';
       if (message === 'Test stopped') return; // User-initiated stop, not an error
       setPhase('error');
       setProgress(prev => ({ ...prev, phase: 'error', error: message }));
     } finally {
       releaseWakeLock();
-      providerRef.current = null;
-      abortRef.current = null;
+      abortController.abort();
+      if (current()) { runningRef.current = false; providerRef.current = null; abortRef.current = null; }
     }
   }, [settings, onComplete]);
 
   const stopTest = useCallback(() => {
     abortRef.current?.abort();
     providerRef.current?.stop();
-    providerRef.current = null;
-    abortRef.current = null;
-    setPhase('idle');
-    setProgress(initialProgress());
-    setDnsCheck(null);
-    setProviderStep(null);
   }, []);
 
   const resetTest = useCallback(() => {
+    runRef.current++; runningRef.current = false; providerRef.current?.stop(); abortRef.current?.abort(); providerRef.current = null;
     setPhase('idle');
     setResult(null);
     setProgress(initialProgress());
@@ -275,6 +219,7 @@ function formatResultSummary(
   dns: DnsCheckResult | null,
   metadata: NetworkMetadata | null,
 ): string {
+  if (r.measurement) return formatV5Result(r);
   const lines: string[] = [];
   const ver = r.methodologyVersion ? ` (methodology ${r.methodologyVersion})` : '';
   lines.push(`SpeedQX Speed Test${ver}`);

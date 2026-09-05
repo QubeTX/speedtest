@@ -1,0 +1,329 @@
+{
+  "run": "https://github.com/QubeTX/speedtest/actions/runs/33948862496",
+  "attempt": 2,
+  "priorAttempt": "Fixture module import failed before any measurements; original failed logs are retained by GitHub.",
+  "websiteRevision": "a218f0f4df7cebf57444b775b4e3cfd814d4d32f",
+  "rustRevision": "635b67b396d5071e090bfffc620233ccadb170da",
+  "rustBuildProfile": "release",
+  "rawSha256": "0a2c4f545f371f529aaf864f6660d179a56faca99fb373a08be5dd401bb3eb5e",
+  "records": 60,
+  "definition": "100 * absolute(browser - Rust) / mean(browser, Rust); median of all three order-alternating pairs per condition and direction",
+  "limitations": "Configured rates include TCP/IP overhead and are not expected application throughput. Random loss and shared hosted CPUs affect paired repeatability. Server writes/receipts are diagnostic traces, not timestamp-exact delivered payload truth under queuing and acknowledgement delay. These comparisons extend loss/latency coverage without establishing absolute accuracy or physical-device acceptance. Original v4 uses its own schedule; zero with failed/missing provider output means unavailable.",
+  "conditions": {
+    "clean": {
+      "download": {
+        "pairs": [
+          {
+            "repetition": 0,
+            "browserMbps": 19.12120990925679,
+            "rustMbps": 19.12327908391478,
+            "differencePct": 0.010820772939909809,
+            "browserWarnings": [],
+            "rustWarnings": []
+          },
+          {
+            "repetition": 1,
+            "browserMbps": 19.12224785950878,
+            "rustMbps": 19.123338647945594,
+            "differencePct": 0.005704127123809525,
+            "browserWarnings": [],
+            "rustWarnings": [
+              "No repeatable ceiling at or above sustained throughput"
+            ]
+          },
+          {
+            "repetition": 2,
+            "browserMbps": 19.122152919265414,
+            "rustMbps": 19.12320271977966,
+            "differencePct": 0.005489819596152164,
+            "browserWarnings": [],
+            "rustWarnings": []
+          }
+        ],
+        "medianDifferencePct": 0.005704127123809525,
+        "maxDifferencePct": 0.010820772939909809
+      },
+      "upload": {
+        "pairs": [
+          {
+            "repetition": 0,
+            "browserMbps": 19.01942788013208,
+            "rustMbps": 19.099202715303587,
+            "differencePct": 0.4185608660404395,
+            "browserWarnings": [],
+            "rustWarnings": []
+          },
+          {
+            "repetition": 1,
+            "browserMbps": 19.185005564517052,
+            "rustMbps": 19.123257209389774,
+            "differencePct": 0.3223761698185775,
+            "browserWarnings": [
+              "No repeatable ceiling at or above sustained throughput"
+            ],
+            "rustWarnings": [
+              "No repeatable ceiling at or above sustained throughput"
+            ]
+          },
+          {
+            "repetition": 2,
+            "browserMbps": 18.962146894077666,
+            "rustMbps": 19.13539414104127,
+            "differencePct": 0.9094930657278006,
+            "browserWarnings": [],
+            "rustWarnings": []
+          }
+        ],
+        "medianDifferencePct": 0.4185608660404395,
+        "maxDifferencePct": 0.9094930657278006
+      }
+    },
+    "asymmetric": {
+      "download": {
+        "pairs": [
+          {
+            "repetition": 0,
+            "browserMbps": 38.24753762311874,
+            "rustMbps": 38.24894874761439,
+            "differencePct": 0.003689383820362554,
+            "browserWarnings": [],
+            "rustWarnings": []
+          },
+          {
+            "repetition": 1,
+            "browserMbps": 38.24842857857096,
+            "rustMbps": 38.24703053911057,
+            "differencePct": 0.003655222091653207,
+            "browserWarnings": [],
+            "rustWarnings": []
+          },
+          {
+            "repetition": 2,
+            "browserMbps": 38.2460174734713,
+            "rustMbps": 38.248581775170564,
+            "differencePct": 0.006704530056902164,
+            "browserWarnings": [],
+            "rustWarnings": []
+          }
+        ],
+        "medianDifferencePct": 0.003689383820362554,
+        "maxDifferencePct": 0.006704530056902164
+      },
+      "upload": {
+        "pairs": [
+          {
+            "repetition": 0,
+            "browserMbps": 4.718858629054429,
+            "rustMbps": 4.7680410513891065,
+            "differencePct": 1.036849212942834,
+            "browserWarnings": [
+              "No repeatable ceiling at or above sustained throughput"
+            ],
+            "rustWarnings": [
+              "No repeatable ceiling at or above sustained throughput"
+            ]
+          },
+          {
+            "repetition": 1,
+            "browserMbps": 4.719408793077605,
+            "rustMbps": 4.75363220535041,
+            "differencePct": 0.7225433158894647,
+            "browserWarnings": [
+              "No repeatable ceiling at or above sustained throughput"
+            ],
+            "rustWarnings": [
+              "No repeatable ceiling at or above sustained throughput"
+            ]
+          },
+          {
+            "repetition": 2,
+            "browserMbps": 4.7294291823490155,
+            "rustMbps": 4.776077599085915,
+            "differencePct": 0.9815029920973347,
+            "browserWarnings": [
+              "No repeatable ceiling at or above sustained throughput"
+            ],
+            "rustWarnings": [
+              "No repeatable ceiling at or above sustained throughput"
+            ]
+          }
+        ],
+        "medianDifferencePct": 0.9815029920973347,
+        "maxDifferencePct": 1.036849212942834
+      }
+    },
+    "latency": {
+      "download": {
+        "pairs": [
+          {
+            "repetition": 0,
+            "browserMbps": 19.118609069546466,
+            "rustMbps": 19.119421546545244,
+            "differencePct": 0.004249575543967226,
+            "browserWarnings": [],
+            "rustWarnings": [
+              "No repeatable ceiling at or above sustained throughput"
+            ]
+          },
+          {
+            "repetition": 1,
+            "browserMbps": 19.119580015749296,
+            "rustMbps": 19.01288112020307,
+            "differencePct": 0.5596223918819044,
+            "browserWarnings": [],
+            "rustWarnings": [
+              "No repeatable ceiling at or above sustained throughput"
+            ]
+          },
+          {
+            "repetition": 2,
+            "browserMbps": 19.119698015099466,
+            "rustMbps": 19.120922793763523,
+            "differencePct": 0.006405642158260113,
+            "browserWarnings": [
+              "No repeatable ceiling at or above sustained throughput"
+            ],
+            "rustWarnings": [
+              "No repeatable ceiling at or above sustained throughput"
+            ]
+          }
+        ],
+        "medianDifferencePct": 0.006405642158260113,
+        "maxDifferencePct": 0.5596223918819044
+      },
+      "upload": {
+        "pairs": [
+          {
+            "repetition": 0,
+            "browserMbps": 10.370502413284287,
+            "rustMbps": 10.93745647303952,
+            "differencePct": 5.321523875467243,
+            "browserWarnings": [
+              "Throughput was still increasing after warm-up"
+            ],
+            "rustWarnings": [
+              "Throughput varied during measurement",
+              "Throughput was still increasing after warm-up"
+            ]
+          },
+          {
+            "repetition": 1,
+            "browserMbps": 10.411714807312347,
+            "rustMbps": 10.8023300857482,
+            "differencePct": 3.68261008595894,
+            "browserWarnings": [
+              "Throughput was still increasing after warm-up"
+            ],
+            "rustWarnings": [
+              "Throughput varied during measurement",
+              "Throughput was still increasing after warm-up"
+            ]
+          },
+          {
+            "repetition": 2,
+            "browserMbps": 10.479926976267256,
+            "rustMbps": 10.893398689413134,
+            "differencePct": 3.869044243402872,
+            "browserWarnings": [
+              "Throughput was still increasing after warm-up"
+            ],
+            "rustWarnings": [
+              "Throughput varied during measurement",
+              "Throughput was still increasing after warm-up"
+            ]
+          }
+        ],
+        "medianDifferencePct": 3.869044243402872,
+        "maxDifferencePct": 5.321523875467243
+      }
+    },
+    "loss": {
+      "download": {
+        "pairs": [
+          {
+            "repetition": 0,
+            "browserMbps": 7.965760711964495,
+            "rustMbps": 5.24456811970182,
+            "differencePct": 41.19795391829668,
+            "browserWarnings": [
+              "Throughput varied during measurement"
+            ],
+            "rustWarnings": [
+              "Throughput varied during measurement"
+            ]
+          },
+          {
+            "repetition": 1,
+            "browserMbps": 6.60987150642466,
+            "rustMbps": 4.635566977272735,
+            "differencePct": 35.11298438053955,
+            "browserWarnings": [
+              "Throughput varied during measurement"
+            ],
+            "rustWarnings": [
+              "Throughput varied during measurement"
+            ]
+          },
+          {
+            "repetition": 2,
+            "browserMbps": 6.432157794082685,
+            "rustMbps": 7.2924035379835015,
+            "differencePct": 12.535857767503732,
+            "browserWarnings": [
+              "No repeatable ceiling at or above sustained throughput",
+              "Throughput varied during measurement"
+            ],
+            "rustWarnings": [
+              "Throughput varied during measurement"
+            ]
+          }
+        ],
+        "medianDifferencePct": 35.11298438053955,
+        "maxDifferencePct": 41.19795391829668
+      },
+      "upload": {
+        "pairs": [
+          {
+            "repetition": 0,
+            "browserMbps": 3.6363642729421497,
+            "rustMbps": 4.098596323376187,
+            "differencePct": 11.951762253425027,
+            "browserWarnings": [],
+            "rustWarnings": [
+              "No repeatable ceiling at or above sustained throughput"
+            ]
+          },
+          {
+            "repetition": 1,
+            "browserMbps": 3.5814775171310167,
+            "rustMbps": 3.212818427274057,
+            "differencePct": 10.852017423837445,
+            "browserWarnings": [
+              "No repeatable ceiling at or above sustained throughput",
+              "Throughput varied during measurement"
+            ],
+            "rustWarnings": [
+              "No repeatable ceiling at or above sustained throughput"
+            ]
+          },
+          {
+            "repetition": 2,
+            "browserMbps": 3.1990036388190815,
+            "rustMbps": 2.6734956306630018,
+            "differencePct": 17.897252397697656,
+            "browserWarnings": [
+              "Throughput varied during measurement"
+            ],
+            "rustWarnings": [
+              "Throughput varied during measurement"
+            ]
+          }
+        ],
+        "medianDifferencePct": 11.951762253425027,
+        "maxDifferencePct": 17.897252397697656
+      }
+    }
+  },
+  "archive": "netem-release-build.json.gz",
+  "archiveSha256": "078fb4db9857295bcc1cc712e63fa83d513020514fa9e5b3ccee6e6591c693fd"
+}

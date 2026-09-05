@@ -1,0 +1,79 @@
+{
+  "kind": "Expo browser live engine with independently paced loopback HTTP",
+  "limitations": "Browser rendering exercises the real hook and DOM callback lifecycle. Physical iOS/Android and native animation runtime remain separate checks.",
+  "capturedAt": "2026-09-05T03:18:10.723Z",
+  "evidence": [
+    {
+      "stage": "latency",
+      "rotations": [
+        [
+          "rotate(0deg)",
+          "rotate(0deg)"
+        ],
+        [
+          "rotate(0deg)",
+          "rotate(0deg)"
+        ],
+        [
+          "rotate(0deg)",
+          "rotate(0deg)"
+        ]
+      ],
+      "probeOpacities": [
+        "0.364352",
+        "0.2",
+        "0.3776"
+      ],
+      "errors": [],
+      "resultText": "CLOUDFLARE HTTP REFERENCE\n?\nUNKNOWN\n10:17 PM\nSPEEDQX / QX–05\nA → RECEIVE\n▶ NEW TEST\nQUICK\n90 SEC MAX\nDEEP\n5 MIN MAX\nDOWNLOAD\n—\nMbps\nCeiling not established\nUPLOAD\n—\nMbps\nCeiling not established\nPING\nms\nJITTER\nms\n0.0 MB confirmed · 1.1 s · cancelled\nInsufficient primary evidence · Sustained application throughput\nVIEW DETAILS\nSTOPPED\nviewport=393x803 content=803 density=regular scrollEnabled=false\n\n\nSpeed Test\n\n\nSettings"
+    },
+    {
+      "stage": "download",
+      "rotations": [
+        [
+          "rotate(312.967deg)",
+          "rotate(149.224deg)"
+        ],
+        [
+          "rotate(355.964deg)",
+          "rotate(186.741deg)"
+        ],
+        [
+          "rotate(31.9684deg)",
+          "rotate(217.808deg)"
+        ]
+      ],
+      "probeOpacities": [
+        "1",
+        "1",
+        "1"
+      ],
+      "errors": [],
+      "resultText": "CLOUDFLARE HTTP REFERENCE\n?\nUNKNOWN\n10:17 PM\nSPEEDQX / QX–05\nA → RECEIVE\n▶ NEW TEST\nQUICK\n90 SEC MAX\nDEEP\n5 MIN MAX\nDOWNLOAD\nMbps\nCeiling not established\nUPLOAD\n—\nMbps\nCeiling not established\nPING\nms\nJITTER\nms\n18.5 MB confirmed · 8.7 s · cancelled\nSingle primary source · Sustained application throughput\nVIEW DETAILS\nSTOPPED\nviewport=393x803 content=803 density=regular scrollEnabled=false\n\n\nSpeed Test\n\n\nSettings"
+    },
+    {
+      "stage": "upload",
+      "rotations": [
+        [
+          "rotate(213.943deg)",
+          "rotate(355.172deg)"
+        ],
+        [
+          "rotate(178.565deg)",
+          "rotate(318.561deg)"
+        ],
+        [
+          "rotate(146.764deg)",
+          "rotate(285.324deg)"
+        ]
+      ],
+      "probeOpacities": [
+        "1",
+        "1",
+        "1"
+      ],
+      "errors": [],
+      "resultText": "CLOUDFLARE HTTP REFERENCE\n?\nUNKNOWN\n10:18 PM\nSPEEDQX / QX–05\nA → RECEIVE\n▶ NEW TEST\nQUICK\n90 SEC MAX\nDEEP\n5 MIN MAX\nDOWNLOAD\nMbps\nEst. ceiling 20 Mbps\nUPLOAD\nMbps\nCeiling not established\nPING\nms\nJITTER\nms\n40.5 MB confirmed · 17.7 s · cancelled\nSingle primary source · Sustained application throughput\nVIEW DETAILS\nSTOPPED\nviewport=393x803 content=803 density=regular scrollEnabled=false\n\n\nSpeed Test\n\n\nSettings"
+    }
+  ]
+}

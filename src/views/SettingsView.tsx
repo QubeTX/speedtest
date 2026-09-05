@@ -1,255 +1,41 @@
-import { useNavigate } from 'react-router-dom';
+// Copyright (c) 2026 QubeTX - ES Development LLC. All rights reserved.
+
+import { Link } from 'react-router-dom';
 import { useSpeedTestContext } from '../store/SpeedTestContext';
 import { useNetworkInfo } from '../hooks/useNetworkInfo';
-import { useIsWide } from '../hooks/useResponsive';
-import Apparatus from '../components/layout/Apparatus';
-import TopBar from '../components/layout/TopBar';
-import SpeakerGrill from '../components/layout/SpeakerGrill';
-import CrosshairCorners from '../components/layout/CrosshairCorners';
-import type { TestDuration, SpeedUnit } from '../types/speedtest';
-import type { CSSProperties } from 'react';
-import { fontFamilies } from '../theme/tokens';
+import type { SpeedUnit } from '../types/speedtest';
+import './instrument-v5.css';
 
-// v4: the test profile is chosen at the deck (PLAY vs DEEP TEST) and the source
-// registry is methodology-defined, so the old "default test" and "provider"
-// pickers are gone. Duration applies PER SOURCE in DEEP TEST — options above
-// one minute multiplied across 7 sequential sources and are deliberately
-// no longer offered (stored legacy values are clamped on load in useSettings).
-const DURATION_OPTIONS: { value: TestDuration; label: string }[] = [
-  { value: 'auto', label: 'AUTO' },
-  { value: 15, label: '15 SEC' },
-  { value: 30, label: '30 SEC' },
-  { value: 60, label: '1 MIN' },
+const DATA_OPTIONS = [
+  { label: 'Profile default', value: undefined }, { label: '250 MB', value: 250_000_000 },
+  { label: '1 GB', value: 1_000_000_000 }, { label: '5 GB', value: 5_000_000_000 }, { label: '20 GB', value: 20_000_000_000 },
 ];
-
-const UNIT_OPTIONS: { value: SpeedUnit; label: string }[] = [
-  { value: 'auto', label: 'AUTO' },
-  { value: 'Mbps', label: 'MBPS' },
-  { value: 'Kbps', label: 'KBPS' },
-  { value: 'Gbps', label: 'GBPS' },
-];
+const UNITS: SpeedUnit[] = ['auto', 'Mbps', 'Kbps', 'Gbps'];
 
 export default function SettingsView() {
   const { settings, updateSettings } = useSpeedTestContext();
-  const navigate = useNavigate();
   const network = useNetworkInfo();
-  const isMobile = !useIsWide();
-
-  const rowStyle = (active: boolean): CSSProperties => ({
-    padding: isMobile ? '1rem 1.5rem' : '1.25rem 3rem',
-    borderBottom: '3px solid #111',
-    cursor: 'pointer',
-    transition: 'background-color 0.2s',
-    backgroundColor: active ? '#ffffff' : 'transparent',
-    position: 'relative',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  });
-
-  const sectionLabel: CSSProperties = {
-    fontSize: '0.6rem',
-    fontWeight: 700,
-    letterSpacing: '0.2em',
-    textTransform: 'uppercase',
-    padding: isMobile ? '0.75rem 1.5rem 0.25rem' : '0.75rem 3rem 0.25rem',
-    opacity: 0.4,
-    borderBottom: '1px solid rgba(17,17,17,0.1)',
-  };
-
-  // v4: the M-Lab sources (NDT7 + MSAK) run in every profile, so the consent
-  // section is always relevant.
-  const needsConsent = true;
-
-  const leftPanel = (
-    <>
-      <TopBar label="SYS.CFG" />
-
-      <div style={{ fontSize: '1.25rem', fontWeight: 500, marginBottom: '2rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-        SETTINGS
-      </div>
-
-      {/* Back button */}
-      <button
-        onClick={() => navigate('/')}
-        style={{
-          position: 'absolute',
-          bottom: isMobile ? '1rem' : '1.5rem',
-          left: isMobile ? '1.5rem' : '2rem',
-          padding: '0.75rem 1.5rem',
-          border: '3px solid #111',
-          background: 'transparent',
-          fontFamily: fontFamilies.display,
-          fontWeight: 600,
-          fontSize: '0.75rem',
-          textTransform: 'uppercase',
-          letterSpacing: '0.1em',
-          cursor: 'pointer',
-          transition: 'background-color 0.2s, color 0.2s',
-          zIndex: 20,
-        }}
-        onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#111'; e.currentTarget.style.color = '#fff'; }}
-        onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#111'; }}
-      >
-        ← BACK
-      </button>
-
-      <SpeakerGrill height={isMobile ? 40 : 80} />
-    </>
-  );
-
-  const rightPanel = (
-    <div style={{ overflowY: 'auto' }}>
-      {/* M-Lab Consent — always rendered to avoid layout shift; collapsed when not needed */}
-      <div data-testid="data-policy-wrapper" style={{
-        maxHeight: needsConsent ? '200px' : '0',
-        overflow: 'hidden',
-        opacity: needsConsent ? 1 : 0,
-        transition: 'max-height 0.3s ease, opacity 0.3s ease',
-      }}>
-        <div style={sectionLabel}>DATA POLICY</div>
-        <div
-          style={{
-            ...rowStyle(false),
-            cursor: 'pointer',
-            gap: '1rem',
-          }}
-          onClick={() => updateSettings({ dataPolicyAccepted: !settings.dataPolicyAccepted })}
-        >
-          <div style={{
-            width: '20px',
-            height: '20px',
-            border: '2px solid #111',
-            borderRadius: '3px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0,
-            backgroundColor: settings.dataPolicyAccepted ? '#111' : 'transparent',
-            color: '#fff',
-            fontSize: '0.75rem',
-            fontWeight: 700,
-          }}>
-            {settings.dataPolicyAccepted ? '✓' : ''}
-          </div>
-          <div style={{ fontSize: '0.65rem', lineHeight: 1.5, opacity: 0.7, flex: 1 }}>
-            I accept M-Lab's data collection policy — used by the M-Lab NDT7 and MSAK sources. Test data including IP address is collected and published as open data. Declining runs the test without the M-Lab sources.
-          </div>
-        </div>
-      </div>
-
-      {/* Duration — per source, DEEP TEST only (PLAY paces itself) */}
-      <div style={sectionLabel}>PER-SOURCE DURATION</div>
-      <div style={{ fontSize: '0.6rem', opacity: 0.5, letterSpacing: '0.05em', lineHeight: 1.5, padding: '0 clamp(1.5rem, 3vw, 3rem) 0.6rem' }}>
-        APPLIES TO DEEP TEST — EACH SOURCE RUNS THIS LONG, IN SEQUENCE. PLAY PACES ITSELF AUTOMATICALLY.
-      </div>
-      <div style={{ display: 'flex', flexWrap: 'wrap', borderBottom: '3px solid #111' }}>
-        {DURATION_OPTIONS.map(opt => (
-          <div
-            key={String(opt.value)}
-            onClick={() => updateSettings({ testDuration: opt.value })}
-            style={{
-              flex: '1 0 auto',
-              minWidth: isMobile ? '25%' : '14%',
-              padding: '0.75rem',
-              textAlign: 'center',
-              fontSize: '0.7rem',
-              fontWeight: 600,
-              letterSpacing: '0.05em',
-              cursor: 'pointer',
-              backgroundColor: settings.testDuration === opt.value ? '#111' : 'transparent',
-              color: settings.testDuration === opt.value ? '#fff' : '#111',
-              transition: 'all 0.15s',
-              borderRight: '1px solid rgba(17,17,17,0.1)',
-            }}
-          >
-            {opt.label}
-          </div>
-        ))}
-      </div>
-
-      {/* Speed Units */}
-      <div style={sectionLabel}>DISPLAY UNITS</div>
-      <div style={{ display: 'flex', borderBottom: '3px solid #111' }}>
-        {UNIT_OPTIONS.map(opt => (
-          <div
-            key={opt.value}
-            onClick={() => updateSettings({ speedUnit: opt.value })}
-            style={{
-              flex: 1,
-              padding: '0.75rem',
-              textAlign: 'center',
-              fontSize: '0.7rem',
-              fontWeight: 600,
-              letterSpacing: '0.05em',
-              cursor: 'pointer',
-              backgroundColor: settings.speedUnit === opt.value ? '#111' : 'transparent',
-              color: settings.speedUnit === opt.value ? '#fff' : '#111',
-              transition: 'all 0.15s',
-              borderRight: '1px solid rgba(17,17,17,0.1)',
-            }}
-          >
-            {opt.label}
-          </div>
-        ))}
-      </div>
-
-      {/* Toggles */}
-      <div style={sectionLabel}>OPTIONS</div>
-      <div
-        style={rowStyle(false)}
-        onClick={() => updateSettings({ autoCopyResults: !settings.autoCopyResults })}
-      >
-        <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>AUTO-COPY RESULTS</span>
-        <span style={{
-          fontSize: '0.7rem',
-          fontWeight: 700,
-          padding: '0.25rem 0.75rem',
-          border: '2px solid #111',
-          borderRadius: '999px',
-          backgroundColor: settings.autoCopyResults ? '#111' : 'transparent',
-          color: settings.autoCopyResults ? '#fff' : '#111',
-          transition: 'all 0.15s',
-        }}>
-          {settings.autoCopyResults ? 'ON' : 'OFF'}
-        </span>
-      </div>
-      <div
-        style={rowStyle(false)}
-        onClick={() => updateSettings({ soundEffects: !settings.soundEffects })}
-      >
-        <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>SOUND EFFECTS</span>
-        <span style={{
-          fontSize: '0.7rem',
-          fontWeight: 700,
-          padding: '0.25rem 0.75rem',
-          border: '2px solid #111',
-          borderRadius: '999px',
-          backgroundColor: settings.soundEffects ? '#111' : 'transparent',
-          color: settings.soundEffects ? '#fff' : '#111',
-          transition: 'all 0.15s',
-        }}>
-          {settings.soundEffects ? 'ON' : 'OFF'}
-        </span>
-      </div>
-
-      {/* Network Info — physical connection type only. The Network Information
-          API's downlink/rtt/effectiveType are hidden everywhere: Chrome caps
-          downlink at 10 Mbps and quantizes rtt, so they read as fake "speeds"
-          next to our real measurements. */}
-      {network.available && network.type && (
-        <>
-          <div style={sectionLabel}>NETWORK</div>
-          <div style={{ ...rowStyle(false), flexDirection: 'column', alignItems: 'flex-start', gap: '0.25rem', cursor: 'default' }}>
-            <div style={{ fontSize: '0.75rem', fontWeight: 600 }}>
-              TYPE: {network.type.toUpperCase()}
-            </div>
-          </div>
-        </>
-      )}
-
+  return <main className="v5-instrument">
+    <header className="v5-top"><span className="v5-brand">Settings</span><nav aria-label="Instrument navigation"><Link to="/">Back to test</Link></nav></header>
+    <div className="v5-settings">
+      <section aria-labelledby="data-policy-heading"><h2 id="data-policy-heading">M-Lab data policy</h2>
+        <label className="v5-setting-toggle"><input type="checkbox" checked={settings.dataPolicyAccepted} onChange={e => updateSettings({ dataPolicyAccepted: e.target.checked })} /><span>Allow M-Lab to publish my IP address and measurement results.</span></label>
+        <p>Consent enables MSAK as a second primary network and NDT7 as a separate single-stream comparison. Without consent, Cloudflare supplies the primary result. <a href="https://www.measurementlab.net/tests/ndt/" target="_blank" rel="noreferrer">Read M-Lab's data policy</a>.</p>
+      </section>
+      <section aria-labelledby="data-ceiling-heading"><h2 id="data-ceiling-heading">Data ceiling</h2>
+        <p>Quick ends within 90 seconds; Deep within five minutes. Their default ceilings allow up to 5 GB and 20 GB of synthetic payload. Protocol overhead is additional. Limits preserve usable partial results.</p>
+        <div className="v5-setting-choices" aria-label="Payload ceiling">{DATA_OPTIONS.map(option => <button key={option.label} aria-pressed={settings.maxBytes === option.value} onClick={() => updateSettings({ maxBytes: option.value })}>{option.label}</button>)}</div>
+      </section>
+      <section aria-labelledby="units-heading"><h2 id="units-heading">Display units</h2>
+        <div className="v5-setting-choices" aria-label="Speed display units">{UNITS.map(unit => <button key={unit} aria-pressed={settings.speedUnit === unit} onClick={() => updateSettings({ speedUnit: unit })}>{unit === 'auto' ? 'Auto' : unit}</button>)}</div>
+      </section>
+      <section aria-labelledby="options-heading"><h2 id="options-heading">Options</h2>
+        <label className="v5-setting-toggle"><input type="checkbox" checked={settings.autoCopyResults} onChange={e => updateSettings({ autoCopyResults: e.target.checked })} /><span>Automatically copy completed results</span></label>
+        <label className="v5-setting-toggle"><input type="checkbox" checked={settings.soundEffects} onChange={e => updateSettings({ soundEffects: e.target.checked })} /><span>Sound effects</span></label>
+        <p>Motion follows your system's reduced-motion preference.</p>
+      </section>
+      {network.available && network.type ? <section><h2>Connection</h2><p>{network.type}</p></section> : null}
     </div>
-  );
-
-  return <Apparatus left={leftPanel} right={rightPanel} />;
+    <footer className="v5-footer"><span>QUBETX / NETWORK INSTRUMENTS</span><Link to="/how-it-works">Methodology 5</Link></footer>
+  </main>;
 }

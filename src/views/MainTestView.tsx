@@ -1,309 +1,57 @@
+// Copyright (c) 2026 QubeTX - ES Development LLC. All rights reserved.
+import { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useSpeedTestContext } from '../store/SpeedTestContext';
-import { useNavigate } from 'react-router-dom';
-import { useReducedMotion } from 'motion/react';
-import type { CSSProperties } from 'react';
-import Apparatus from '../components/layout/Apparatus';
-import TopBar from '../components/layout/TopBar';
-import SpeakerGrill from '../components/layout/SpeakerGrill';
-import SysInfo from '../components/layout/SysInfo';
 import TapeMechanism from '../components/mechanism/TapeMechanism';
-import DataPanel from '../components/data/DataPanel';
-import ResultsStamp from '../components/effects/ResultsStamp';
-import ActionButton from '../components/ui/ActionButton';
-import ConsentModal from '../components/ui/ConsentModal';
-import { colors, textStyles, fontWeights } from '../theme/tokens';
-import { useIsWide } from '../hooks/useResponsive';
-
-const captionStyle: CSSProperties = {
-  ...textStyles.microLabel,
-  fontSize: '0.55rem',
-  letterSpacing: '0.14em',
-  opacity: 0.5,
-  marginTop: '0.4rem',
-  textAlign: 'center',
-};
+import V5Details from '../components/data/V5Details';
+import { formatSpeed } from '../types/speedtest';
+import { PROFILES } from '../services/measurement-v5';
+import './instrument-v5.css';
 
 export default function MainTestView() {
-  const {
-    phase, progress, result, dnsCheck, networkMetadata, providerStep, settings,
-    startTest, rerunTest, resetTest, updateSettings, lastProfile,
-  } = useSpeedTestContext();
-  const navigate = useNavigate();
-  const isWide = useIsWide();
-  const prefersReduced = useReducedMotion();
-
-  const needsConsent = (settings.providerMode === 'both' || settings.providerMode === 'ndt7') && !settings.dataPolicyAccepted;
-
-  const isIdle = phase === 'idle';
-  const isComplete = phase === 'complete';
-  const isError = phase === 'error';
-  const isTesting = !isIdle && !isComplete && !isError;
-
-  const handleMechanismPress = () => {
-    if (isIdle) {
-      startTest('fast'); // tapping the deck = quick play (FAST)
-    } else if (isComplete || isError) {
-      resetTest();
-    }
-  };
-
-  // Status text (aria-live announces phase changes)
-  let statusText = 'PRESS TO START';
-  if (phase === 'discovering') statusText = 'CONNECTING';
-  if (phase === 'latency') statusText = 'MEASURING LATENCY';
-  if (phase === 'download') statusText = 'TESTING DOWNLOAD';
-  if (phase === 'upload') statusText = 'TESTING UPLOAD';
-  if (isComplete) statusText = 'SYSTEM STANDBY';
-  if (isError) statusText = 'CONNECTION FAILURE';
-
-  // Provider label + x/N shown during active phases.
-  const isTransitioning = !!progress.currentProvider?.toLowerCase().startsWith('switching');
-  const nextLabel = isTransitioning
-    ? progress.currentProvider.replace(/^switching to\s*/i, '').trim()
-    : '';
-  let providerLabel: string | null = null;
-  if (isTesting && progress.currentProvider) {
-    if (isTransitioning) {
-      providerLabel = `SWITCHING → ${nextLabel.toUpperCase()}`;
-    } else if (providerStep) {
-      providerLabel = `VIA ${providerStep.label.toUpperCase()} · ${providerStep.index}/${providerStep.count}`;
-    } else {
-      providerLabel = `VIA ${progress.currentProvider.toUpperCase()}`;
-    }
-  }
-
-  // Switch overlay: dim the mechanism with opacity/grayscale (NO blur). The
-  // overlay card below uses backdrop-filter — and so does DnsBar's detail
-  // overlay, so this is NOT the only backdrop-filter surface in the view: both
-  // can be on screen at once (DNS overlay open while a provider switch begins).
-  // Don't add a third blur surface here.
-  const showSwitchOverlay = isTransitioning;
-
-  const currentSpeed = phase === 'download'
-    ? (progress.downloadSpeed ?? 0)
-    : phase === 'upload'
-      ? (progress.uploadSpeed ?? 0)
-      : 0;
-
-  const leftPanel = (
-    <>
-      <TopBar
-        label={isError ? 'SYS.TEST.01 // ERROR' : undefined}
-        errorTag={isError ? '0x000F4' : undefined}
-      />
-
-      <div style={{ marginBottom: '1rem', textAlign: 'center' }}>
-        <div
-          role="status"
-          aria-live="polite"
-          style={{
-            ...textStyles.heading,
-            fontSize: isWide ? '1.25rem' : '1rem',
-            fontWeight: isError ? fontWeights.bold : fontWeights.medium,
-            height: '1.5em',
-            letterSpacing: '0.05em',
-            color: isError ? colors.error : colors.ink,
-          }}
-        >
-          {statusText}
+  const { phase, progress, result, settings, updateSettings, startTest, stopTest, resetTest } = useSpeedTestContext();
+  const [details, setDetails] = useState(false);
+  const [metricInfo, setMetricInfo] = useState<string | null>(null);
+  const explanation = useRef<HTMLDialogElement>(null);
+  useEffect(() => { if (metricInfo) explanation.current?.showModal(); }, [metricInfo]);
+  const profile = settings.testProfile ?? 'fast', policy = PROFILES[profile];
+  const complete = phase === 'complete', active = !['idle', 'complete', 'error'].includes(phase);
+  const measurement = result?.measurement;
+  const dl = complete && result ? measurement ? measurement.download.sustainedMbps : result.downloadSpeed : progress.downloadSpeed;
+  const ul = complete && result ? measurement ? measurement.upload.sustainedMbps : result.uploadSpeed : progress.uploadSpeed;
+  const ping = complete && result ? result.httpLatency && !result.httpLatency.idle.length ? null : result.ping : progress.ping;
+  const jitter = complete && result ? result.httpLatency && !result.httpLatency.idle.length ? null : result.jitter : progress.jitter;
+  const status = { idle: 'Ready to measure', discovering: 'Connecting', latency: 'Idle latency', download: 'Receiving', upload: 'Sending', complete: measurement?.stopReason === 'cancelled' ? 'Stopped · partial result' : measurement?.stopReason === 'complete' ? 'Measurement complete' : 'Partial measurement', error: 'Measurement unavailable' }[phase];
+  const speed = phase === 'download' ? progress.downloadSpeed ?? 0 : phase === 'upload' ? progress.uploadSpeed ?? 0 : 0;
+  const action = () => { setDetails(false); if (active) stopTest(); else if (complete) resetTest(); else void startTest(profile); };
+  const cells = [{ label: 'DOWNLOAD', value: dl, ceiling: measurement?.download.ceilingMbps }, { label: 'UPLOAD', value: ul, ceiling: measurement?.upload.ceilingMbps }];
+  return <main className="v5-instrument">
+    <header className="v5-top"><span className="v5-brand">SpeedQX</span><nav aria-label="Instrument navigation"><Link to="/how-it-works">Method</Link><Link to="/settings">Settings</Link></nav></header>
+    <div className="v5-body">
+      <section className="v5-deck" aria-label="Test transport">
+        <div className="v5-status" role="status"><strong>{status}</strong><span>{active ? progress.currentProvider : profile === 'fast' ? 'Quick / 90 s max' : 'Deep / 5 min max'}</span></div>
+        <TapeMechanism phase={phase} currentSpeed={speed} downloadProgress={progress.downloadProgress} uploadProgress={progress.uploadProgress} onPress={action} />
+        <div className="v5-modes" role="radiogroup" aria-label="Measurement profile">{(['fast', 'full'] as const).map(mode => <button key={mode} role="radio" aria-checked={profile === mode} disabled={active} onClick={() => updateSettings({ testProfile: mode })}>{mode === 'fast' ? 'QUICK' : 'DEEP'}<small>{mode === 'fast' ? '90 SEC MAX' : '5 MIN MAX'}</small></button>)}</div>
+        <p className="v5-data-note">{measurement && complete ? `${(measurement.bytesTransferred / 1e6).toFixed(1)} MB confirmed · ${(measurement.elapsedMs / 1000).toFixed(1)} seconds` : active && progress.runData ? `${(progress.runData.confirmedBytes / 1e6).toFixed(1)} MB confirmed · ${(progress.runData.elapsedMs / 1000).toFixed(1)} seconds · ${(progress.runData.budgetBytes / 1e6).toFixed(0)} / ${(progress.runData.byteLimit / 1e6).toFixed(0)} MB budget` : `Estimated data use: up to ${((settings.maxBytes ?? policy.defaultMaxBytes) / 1e9).toFixed(2)} GB + protocol overhead`}</p>
+        {!active && !complete && <label className="v5-data-note" style={{ display: 'flex', alignItems: 'flex-start', gap: 8, textAlign: 'left' }}><input type="checkbox" checked={settings.dataPolicyAccepted} onChange={event => updateSettings({ dataPolicyAccepted: event.target.checked })} /><span>Allow M-Lab to publish my IP address and results. <a href="https://www.measurementlab.net/tests/ndt/" target="_blank" rel="noreferrer">Data policy</a></span></label>}
+      </section>
+      <section className="v5-readout" aria-label="Measurement results">
+        <p className="v5-result-label"><strong>{complete ? 'SUSTAINED THROUGHPUT' : active ? 'LIVE MEASUREMENT' : 'YOUR CONNECTION, MEASURED'}</strong>{complete ? <><br />Usable speed on this device and these paths.</> : null}</p>
+        <div className="v5-metrics">
+          {cells.map(cell => { const formatted = cell.value == null ? null : formatSpeed(cell.value, settings.speedUnit), ceiling = cell.ceiling == null ? null : formatSpeed(cell.ceiling, settings.speedUnit); return <button className="v5-metric" key={cell.label} onClick={() => setMetricInfo(cell.label)} aria-label={`${cell.label.toLowerCase()}, ${formatted ? `${formatted.value} ${formatted.unit}` : 'no reading'}. Show metric explanation`}><span className="v5-metric-label">{cell.label}</span><span className="v5-value"><strong>{formatted?.value ?? '—'}</strong><span>{formatted?.unit ?? 'Mbps'}</span></span><small>{ceiling ? `Est. ceiling ${ceiling.value} ${ceiling.unit}` : complete ? 'Ceiling not established' : 'Ceiling available after the test'}</small></button>; })}
+          {[{ label: 'PING', value: ping, note: 'Median idle HTTP RTT' }, { label: 'JITTER', value: jitter, note: 'Idle RTT · P95 − P50' }].map(cell => <button className="v5-metric" key={cell.label} onClick={() => setMetricInfo(cell.label)} aria-label={`${cell.label.toLowerCase()}, ${cell.value == null ? 'no reading' : `${cell.value.toFixed(1)} ms`}. Show metric explanation`}><span className="v5-metric-label">{cell.label}</span><span className="v5-value"><strong>{cell.value == null ? '—' : cell.value.toFixed(1)}</strong><span>ms</span></span><small>{cell.note}</small></button>)}
         </div>
-        {providerLabel && (
-          <div
-            key={providerLabel}
-            style={{
-              ...textStyles.microLabel,
-              fontSize: '0.7rem',
-              opacity: 0.55,
-              marginTop: '0.2rem',
-              animation: 'fade-in 0.4s ease',
-            }}
-          >
-            {providerLabel}
-          </div>
-        )}
-      </div>
-
-      <div style={{ position: 'relative', marginBottom: 'clamp(0.75rem, 2vw, 2rem)' }}>
-        <div style={{
-          opacity: showSwitchOverlay ? 0.35 : 1,
-          filter: showSwitchOverlay ? 'grayscale(1)' : 'none',
-          // Transition-* isn't covered by index.css's reduced-motion reset —
-          // gate the dim/desaturate fade here so it snaps for those users.
-          transition: prefersReduced ? 'none' : 'filter 0.4s ease, opacity 0.4s ease',
-        }}>
-          <ResultsStamp visible={isComplete} />
-          <TapeMechanism
-            phase={phase}
-            currentSpeed={currentSpeed}
-            downloadProgress={progress.downloadProgress}
-            uploadProgress={progress.uploadProgress}
-            onPress={handleMechanismPress}
-            disabled={isTesting}
-          />
-        </div>
-        {showSwitchOverlay && (
-          <div
-            role="status"
-            aria-live="polite"
-            style={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              backgroundColor: 'rgba(255, 255, 255, 0.92)',
-              backdropFilter: 'blur(12px)',
-              WebkitBackdropFilter: 'blur(12px)',
-              borderRadius: '16px',
-              padding: '1.25rem 1.75rem',
-              textAlign: 'center',
-              zIndex: 10,
-              animation: 'fade-in 0.3s ease',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
-              minWidth: '200px',
-            }}
-          >
-            <div style={{ ...textStyles.microLabel, fontSize: '0.55rem', opacity: 0.5, marginBottom: '0.4rem' }}>
-              SWITCHING SOURCE
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', marginBottom: '0.8rem' }}>
-              <span style={{ ...textStyles.metricValue, fontSize: '0.85rem', fontWeight: fontWeights.semibold, letterSpacing: '0.08em' }}>{nextLabel.toUpperCase()}</span>
-              <span style={{ ...textStyles.microLabel, fontSize: '0.55rem', opacity: 0.5, animation: 'pulse-scale 1.5s ease infinite' }}>STARTING</span>
-            </div>
-            <div style={{
-              width: '100%',
-              height: '3px',
-              backgroundColor: 'rgba(0,0,0,0.08)',
-              borderRadius: '2px',
-              overflow: 'hidden',
-            }}>
-              <div style={{
-                height: '100%',
-                backgroundColor: colors.ink,
-                borderRadius: '2px',
-                animation: 'progress-fill 1s linear forwards',
-              }} />
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Dual-mode start / re-run controls */}
-      <div style={{ marginBottom: 'clamp(0.5rem, 1.5vw, 1.5rem)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.9rem' }}>
-        {isIdle && (
-          <>
-            {/* The cassette deck's play glass IS the primary (fast) start —
-                one iconic control, captioned here, instead of a redundant
-                third play button. DEEP TEST is the single secondary action. */}
-            <span style={captionStyle}>▶ PLAY ON THE DECK · ~1 MIN · 3 SOURCES</span>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <ActionButton variant="outline" onClick={() => startTest('full')}>
-                <svg width="18" height="16" viewBox="0 0 28 24" fill="currentColor" aria-hidden="true">
-                  <path d="M4 5v14l9-7z" />
-                  <path d="M15 5v14l9-7z" />
-                </svg>
-                DEEP TEST
-              </ActionButton>
-              <span style={captionStyle}>FULL SUITE · ALL SOURCES</span>
-            </div>
-          </>
-        )}
-
-        {isComplete && (
-          <>
-            <ActionButton onClick={rerunTest}>
-              <svg width="20" height="20" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true">
-                <path d="m15.99 0.44c-8.51 0-15.51 6.93-15.51 15.56h3.49c0-6.71 5.61-12.01 12-12.01 6.78 0 12.04 5.53 12.04 12.02 0 6.72-5.49 11.98-12.13 11.98-3 0-5.51-1.05-7.45-2.72l3.15-2.05-9.4-4.12 0.01 10.21 3.18-2.07c2.87 2.7 6.31 4.32 10.51 4.32 8.63 0 15.69-7.07 15.69-15.55 0-8.5-7.06-15.57-15.58-15.57z" />
-              </svg>
-              RUN AGAIN
-            </ActionButton>
-            {/* Alternate-mode re-run: always offers the OTHER profile, so it's
-                never redundant with RUN AGAIN (which repeats the last run). */}
-            {lastProfile === 'fast' ? (
-              <ActionButton variant="outline" size="small" onClick={() => startTest('full')}>
-                <svg width="14" height="12" viewBox="0 0 28 24" fill="currentColor" aria-hidden="true">
-                  <path d="M4 5v14l9-7z" />
-                  <path d="M15 5v14l9-7z" />
-                </svg>
-                DEEP TEST
-              </ActionButton>
-            ) : (
-              <ActionButton variant="outline" size="small" onClick={() => startTest('fast')}>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                  <path d="M8 5v14l11-7z" />
-                </svg>
-                QUICK TEST
-              </ActionButton>
-            )}
-          </>
-        )}
-
-        {isError && (
-          <ActionButton onClick={rerunTest}>
-            RETRY
-          </ActionButton>
-        )}
-      </div>
-
-      <div style={{ marginTop: 'auto', width: '100%' }}>
-        <SpeakerGrill height={isWide ? 72 : 40} />
-        <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0.5rem' }}>
-          <div style={{ flex: 1 }}>
-            <SysInfo
-              serverName={progress.serverName}
-              isp={result?.isp ?? networkMetadata?.ispFull}
-              networkMetadata={networkMetadata}
-              isError={isError}
-              errorDetails={isError ? [
-                'GATEWAY: UNREACHABLE',
-                progress.error || 'UNKNOWN_ERROR',
-              ] : undefined}
-            />
-          </div>
-          {/* Settings gear icon - inline next to SysInfo */}
-          <button
-            onClick={() => navigate('/settings')}
-            aria-label="Settings"
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              opacity: 0.4,
-              transition: 'opacity 0.2s',
-              padding: '4px',
-              display: isIdle || isComplete || isError ? 'block' : 'none',
-              flexShrink: 0,
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.8'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.opacity = '0.4'; }}
-          >
-            <svg width="18" height="18" viewBox="0 0 256 256" fill="#111" aria-hidden="true">
-              <path d="m252.2 144.9v-34.06l-34.54-5.92c-2.4-9.02-5.47-16.34-9.65-23.4l20.65-29.11-25.92-24.92-28.23 20.72c-7.94-4.72-15.52-8.05-24.27-10.18l-4.98-33.71h-34.5l-5.37 33.66c-9.65 2.54-15.16 5.1-24.1 10.06l-28.93-20.55-25.21 24.65 20.49 28.99c-4.88 8.07-7.48 14.29-10.08 23.85l-33.11 5.86v34.29l32.89 5.5c2.13 8.4 5.02 15.48 10.16 23.95l-20.35 28.4 25.51 25.15 28.55-20.37c7.96 4.84 14.57 7.3 23.87 9.51l5.48 34.05h34.7l5.11-34.12c9.01-2.51 16.41-5.49 23.77-10l28.42 20.93 25.87-25.15-20.66-28.28c4.65-8.02 7.55-14.61 9.72-24.02l34.71-5.78zm-124.8 34.42c-29.67 0-51.11-24.58-51.11-51.19 0-28.27 23.34-51.85 51.14-51.85 28.63 0 51.88 23.19 51.88 51.9 0 27.03-22.39 51.14-51.91 51.14z" />
-            </svg>
-          </button>
-        </div>
-      </div>
-    </>
-  );
-
-  const rightPanel = (
-    <DataPanel
-      phase={phase}
-      progress={progress}
-      result={result}
-      speedUnit={settings.speedUnit}
-      dnsCheck={dnsCheck}
-    />
-  );
-
-  return (
-    <>
-      {needsConsent && (
-        <ConsentModal
-          onAccept={() => updateSettings({ dataPolicyAccepted: true })}
-          onDecline={() => updateSettings({ providerMode: 'cloudflare' })}
-        />
-      )}
-      <Apparatus left={leftPanel} right={rightPanel} />
-    </>
-  );
+        {active && <div className="v5-progress" role="progressbar" aria-label={`${phase} progress`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={phase === 'upload' ? progress.uploadProgress : progress.downloadProgress}><div style={{ width: `${phase === 'upload' ? progress.uploadProgress : progress.downloadProgress}%` }} /></div>}
+        {complete && result ? <><p className="v5-help">{measurement?.primaryProviders.download.length === 1 ? 'Single primary source. ' : ''}{measurement?.download.ceilingMbps == null ? 'A repeatable ceiling was not established.' : 'The ceiling is supported by repeated windows.'}</p><button className="v5-details-toggle" aria-expanded={details} aria-controls="measurement-details" onClick={() => setDetails(!details)}>{details ? 'CLOSE DETAILS −' : 'VIEW DETAILS +'} </button></> : <p className="v5-help">{phase === 'error' ? progress.error : settings.dataPolicyAccepted ? 'Cloudflare + M-Lab primary measurements. NDT7 adds a separate single-stream comparison.' : 'Cloudflare-only measurement. Enable M-Lab to compare two primary networks.'}</p>}
+      </section>
+    </div>
+    <footer className="v5-footer"><span>QUBETX / NETWORK INSTRUMENTS</span><span>METHOD {result?.methodologyVersion ?? '5.0'}</span></footer>
+    {details && result && <div id="measurement-details"><V5Details result={result} /></div>}
+    <dialog ref={explanation} className="v5-metric-dialog" aria-labelledby="metric-explanation-title" onClose={() => setMetricInfo(null)}>
+      <h2 id="metric-explanation-title">{metricInfo === 'PING' ? 'Median idle HTTP RTT' : metricInfo === 'JITTER' ? 'Idle latency variation' : 'Sustained throughput'}</h2>
+      <p>{metricInfo === 'PING' ? 'The median time for an idle HTTP request to the common Cloudflare reference endpoint. It includes the tested device, browser and path. Minimum HTTP RTT and server TCP minimum RTT have separate labels in Details.' : metricInfo === 'JITTER' ? 'The difference between the 95th percentile and median idle HTTP round-trip time. A larger value means the slower probes took longer relative to a typical probe. It is not packet loss.' : 'Confirmed payload bytes divided by elapsed measurement time after an explicit warm-up. Slow stretches and stalls count. The headline is the median of qualifying primary networks; it describes this device and these paths. Live values show the latest interval while the test is running.'}</p>
+      {metricInfo === 'DOWNLOAD' || metricInfo === 'UPLOAD' ? <p>An estimated ceiling needs two non-overlapping windows of at least three seconds within 10%. It can remain unavailable and does not establish the physical capacity of your internet line.</p> : null}
+      <form method="dialog"><button autoFocus>Close explanation</button></form>
+    </dialog>
+  </main>;
 }

@@ -27,16 +27,6 @@ export interface DualPassDnsCheckResult {
   cachingEffect: number | null;
 }
 
-function createTimeoutSignal(ms: number): AbortSignal {
-  if ('timeout' in AbortSignal) {
-    return AbortSignal.timeout(ms);
-  }
-  // Fallback for Safari < 16
-  const controller = new AbortController();
-  setTimeout(() => controller.abort(), ms);
-  return controller.signal;
-}
-
 /**
  * Extract granular timing breakdown from the Performance Resource Timing API.
  * Returns null values for fields that are zeroed out (common with no-cors / Timing-Allow-Origin restrictions).
@@ -82,15 +72,19 @@ function extractResourceTiming(url: string): {
   }
 }
 
-async function probeDomain(domain: string): Promise<DnsProbeResult> {
+async function probeDomain(domain: string, parent?: AbortSignal): Promise<DnsProbeResult> {
   const url = `https://${domain}/favicon.ico?_dns_t=${Date.now()}`;
   const start = performance.now();
+  const controller = new AbortController(), abort = () => controller.abort();
+  parent?.addEventListener('abort', abort, { once: true });
+  if (parent?.aborted) abort();
+  const timer = setTimeout(abort, PROBE_TIMEOUT_MS);
 
   try {
     await fetch(url, {
       mode: 'no-cors',
       cache: 'no-store',
-      signal: createTimeoutSignal(PROBE_TIMEOUT_MS),
+      signal: controller.signal,
     });
     const elapsed = performance.now() - start;
     const timing = extractResourceTiming(url);
@@ -118,6 +112,8 @@ async function probeDomain(domain: string): Promise<DnsProbeResult> {
       totalMs: Math.round(elapsed),
     };
   } finally {
+    clearTimeout(timer);
+    parent?.removeEventListener('abort', abort);
     // Clean up performance entries for this probe
     try {
       performance.clearResourceTimings?.();
@@ -154,18 +150,19 @@ function buildResult(probes: DnsProbeResult[]): DnsCheckResult {
  */
 export async function runDnsCheck(
   onUpdate?: (partial: DnsCheckResult) => void,
+  signal?: AbortSignal,
 ): Promise<DnsCheckResult> {
   const completed: DnsProbeResult[] = [];
 
   // Create all probe promises, calling onUpdate as each settles
   const probePromises = DNS_PROBE_DOMAINS.map(async (domain) => {
-    const result = await probeDomain(domain);
+    const result = await probeDomain(domain, signal);
     completed.push(result);
     // Maintain consistent domain order in updates
     const ordered = DNS_PROBE_DOMAINS
       .map(d => completed.find(c => c.domain === d))
       .filter((r): r is DnsProbeResult => r !== undefined);
-    onUpdate?.(buildResult(ordered));
+    if (!signal?.aborted) onUpdate?.(buildResult(ordered));
     return result;
   });
 

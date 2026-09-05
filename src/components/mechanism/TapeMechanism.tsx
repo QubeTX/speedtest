@@ -1,222 +1,25 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
-import { colors, borders, fontWeights } from '../../theme/tokens';
+// Copyright (c) 2026 QubeTX - ES Development LLC. All rights reserved.
 import { useReelDrive } from '../../hooks/useReelDrive';
 import TapeReel from './TapeReel';
+import { CASSETTE_SHELL } from './cassette-shell';
+import { fontFamilies } from '../../theme/tokens';
 import type { TestPhase } from '../../types/speedtest';
 
-interface TapeMechanismProps {
-  phase: TestPhase;
-  /** Instantaneous throughput (Mbps) — modulates reel spin speed. */
-  currentSpeed?: number;
-  /** Download progress, 0-100 (same scale as SpeedTestProgress). Feeds the
-   *  supply -> take-up tape-fill wind via useReelDrive. */
-  downloadProgress?: number;
-  /** Upload progress, 0-100. Feeds the take-up -> supply tape-fill rewind. */
-  uploadProgress?: number;
-  onPress: () => void;
-  disabled?: boolean;
-}
-
-/** Fluid reel diameter — exact per the v4 design spec. Deck width/height are
- *  derived from this via calc() so the whole mechanism scales genuinely
- *  (no transform: scale() wrapper, no JS-measured breakpoint switch).
- *  LANDSCAPE deck: reels sit side by side like a real cassette — supply on
- *  the left feeding the take-up on the right, tape reading left→to→right.
- *  30vw per reel keeps two of them (plus the center gap) inside a 320px
- *  viewport. */
-const REEL_SIZE_CSS = 'clamp(88px, 30vw, 154px)';
-const DECK_WIDTH_CSS = `calc(2 * ${REEL_SIZE_CSS} + 64px)`;
-const DECK_HEIGHT_CSS = `calc(${REEL_SIZE_CSS} + 32px)`;
-
-/** Scoped styles this component owns outright (fluid reel sizing overrides
- *  TapeReel's numeric SVG width/height attributes; presentation attributes
- *  sit below any author stylesheet rule, so no !important is needed). Also
- *  hosts the spool-up kick keyframe and a light press affordance — kept here
- *  rather than in index.css since that file belongs to the foundation pass. */
-const MECHANISM_STYLE = `
-  .mechanism-reel svg { width: ${REEL_SIZE_CSS}; height: ${REEL_SIZE_CSS}; }
-  @keyframes mechanism-kick {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.015); }
-    100% { transform: scale(1); }
-  }
-  .mechanism-btn:active:not(:disabled) { transform: scale(0.985); }
-`;
-
-function ariaLabelForPhase(phase: TestPhase): string {
-  switch (phase) {
-    case 'idle': return 'Start speed test';
-    case 'discovering': return 'Connecting to test server';
-    case 'latency': return 'Measuring latency';
-    case 'download': return 'Testing download speed';
-    case 'upload': return 'Testing upload speed';
-    case 'complete': return 'Test complete — press to reset';
-    case 'error': return 'Test failed — press to reset';
-    default: return 'Speed test';
-  }
-}
-
-export default function TapeMechanism({
-  phase,
-  currentSpeed = 0,
-  downloadProgress = 0,
-  uploadProgress = 0,
-  onPress,
-  disabled,
-}: TapeMechanismProps) {
-  const isIdle = phase === 'idle';
-  const isComplete = phase === 'complete';
-  const isError = phase === 'error';
-  const isTesting = !isIdle && !isComplete && !isError;
-
-  // Left reel = supply (starts full, feeds out on download). Right reel =
-  // take-up (starts empty, fills on download; rewinds on upload). Rotation
-  // direction/speed and the fill targets all come from reel-geometry via the
-  // drive hook — this component just wires phase + live measurements in.
-  const { supplyRef, takeupRef, supplyFill, takeupFill, reduced } = useReelDrive({
-    phase,
-    mbps: currentSpeed,
-    dlProgress: downloadProgress / 100,
-    ulProgress: uploadProgress / 100,
-  });
-
-  // Spool-up kick: a brief scale pulse the instant a run begins (idle/
-  // complete/error -> discovering/latency). The CSS keyframe is auto-clamped
-  // to ~instant under prefers-reduced-motion by index.css's sitewide rule;
-  // `reduced` (already computed by useReelDrive) additionally skips even
-  // triggering it.
-  const [kicking, setKicking] = useState(false);
-  const prevPhaseRef = useRef(phase);
-  useEffect(() => {
-    const prev = prevPhaseRef.current;
-    const wasAtRest = prev === 'idle' || prev === 'complete' || prev === 'error';
-    const nowStarting = phase === 'discovering' || phase === 'latency';
-    // wasAtRest/nowStarting are disjoint phase sets, so reaching here already
-    // implies prev !== phase — no extra inequality check needed.
-    if (wasAtRest && nowStarting && !reduced) setKicking(true);
-    prevPhaseRef.current = phase;
-  }, [phase, reduced]);
-
-  const showPlay = isIdle;
-  const showAlert = isError;
-
-  const buttonStyle: CSSProperties = {
-    width: DECK_WIDTH_CSS,
-    height: DECK_HEIGHT_CSS,
-    border: borders.stroke,
-    borderRadius: borders.radiusPill,
-    position: 'relative',
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '10px',
-    cursor: disabled ? 'default' : 'pointer',
-    transition: 'transform 0.12s ease',
-    animation: kicking ? 'mechanism-kick 260ms cubic-bezier(0.34, 1.56, 0.64, 1)' : undefined,
-    background: isError
-      ? 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,59,48,0.05) 10px, rgba(255,59,48,0.05) 20px)'
-      : 'transparent',
-    touchAction: 'manipulation',
-    userSelect: 'none',
-    WebkitTapHighlightColor: 'transparent',
-  };
-
-  return (
-    <>
-      <style>{MECHANISM_STYLE}</style>
-      <button
-        type="button"
-        className="mechanism-btn"
-        aria-label={ariaLabelForPhase(phase)}
-        aria-busy={isTesting}
-        disabled={disabled}
-        onClick={onPress}
-        onAnimationEnd={(e) => {
-          if (e.animationName === 'mechanism-kick') setKicking(false);
-        }}
-        style={buttonStyle}
-      >
-        {/* Tape-window rails — horizontal, spanning between the reels */}
-        <div
-          aria-hidden="true"
-          style={{
-            position: 'absolute',
-            top: '11%',
-            bottom: '11%',
-            left: '25%',
-            right: '25%',
-            borderTop: borders.stroke,
-            borderBottom: borders.stroke,
-            zIndex: 1,
-            pointerEvents: 'none',
-          }}
-        />
-
-        {/* Play icon with frosted glass background — idle only */}
-        {showPlay && (
-          <div
-            aria-hidden="true"
-            style={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              width: '56px',
-              height: '56px',
-              borderRadius: '12px',
-              backgroundColor: 'rgba(255, 255, 255, 0.35)',
-              backdropFilter: 'blur(6px)',
-              WebkitBackdropFilter: 'blur(6px)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              zIndex: 3,
-              transition: 'opacity 0.2s',
-            }}
-          >
-            <div
-              style={{
-                width: 0,
-                height: 0,
-                borderTop: '15px solid transparent',
-                borderBottom: '15px solid transparent',
-                borderLeft: `24px solid ${colors.ink}`,
-                marginLeft: '4px',
-              }}
-            />
-          </div>
-        )}
-
-        {/* Error alert indicator */}
-        {showAlert && (
-          <div
-            aria-hidden="true"
-            style={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              fontWeight: fontWeights.extrabold,
-              fontSize: '3rem',
-              color: colors.error,
-              zIndex: 5,
-            }}
-          >
-            !
-          </div>
-        )}
-
-        {/* Supply reel (left) */}
-        <div className="mechanism-reel" style={{ position: 'relative', zIndex: 2 }}>
-          <TapeReel ref={supplyRef} size={154} tapeFill={supplyFill} reduced={reduced} />
-        </div>
-
-        {/* Take-up reel (right) */}
-        <div className="mechanism-reel" style={{ position: 'relative', zIndex: 2 }}>
-          <TapeReel ref={takeupRef} size={154} tapeFill={takeupFill} reduced={reduced} />
-        </div>
-      </button>
-    </>
-  );
+interface Props { phase: TestPhase; currentSpeed?: number; downloadProgress?: number; uploadProgress?: number; onPress: () => void; disabled?: boolean }
+export default function TapeMechanism({ phase, currentSpeed = 0, downloadProgress = 0, uploadProgress = 0, onPress, disabled }: Props) {
+  const active = phase !== 'idle' && phase !== 'complete' && phase !== 'error';
+  const drive = useReelDrive({ phase, mbps: currentSpeed, dlProgress: downloadProgress / 100, ulProgress: uploadProgress / 100 });
+  const label = active ? 'STOP' : phase === 'complete' ? 'NEW TEST' : phase === 'error' ? 'RETRY' : 'START';
+  return <button className="cassette-transport" onClick={onPress} disabled={disabled} aria-label={`${label.toLowerCase()} speed test`}
+    style={{ display: 'block', width: '100%', maxWidth: 470, aspectRatio: '360 / 212', position: 'relative', border: 0, background: 'transparent', padding: 0, color: '#111', cursor: disabled ? 'default' : 'pointer', touchAction: 'manipulation' }}>
+    <style>{`.cassette-transport:active:not(:disabled){transform:translateY(2px)}.cassette-transport:focus-visible{outline:3px solid #111;outline-offset:5px;border-radius:18px}.cassette-reel svg{width:100%;height:100%}@keyframes probe-pulse{from{opacity:1}to{opacity:.2}}.cassette-probing{animation:probe-pulse .6s ease-in-out infinite alternate}@media(prefers-reduced-motion:reduce){.cassette-probing{animation:none}}`}</style>
+    <span aria-hidden="true" style={{ position: 'absolute', inset: 0 }} dangerouslySetInnerHTML={{ __html: CASSETTE_SHELL }} />
+    <span aria-hidden="true" style={{ position: 'absolute', left: '10%', top: '12%', fontFamily: fontFamilies.instrument, fontSize: 'clamp(9px, 2.7vw, 13px)', letterSpacing: '.06em', fontWeight: 600 }}>SPEEDQX / QX–05</span>
+    <span aria-hidden="true" style={{ position: 'absolute', right: '10%', top: '12%', fontFamily: fontFamilies.instrument, fontSize: 'clamp(9px, 2.7vw, 13px)' }}>{phase === 'upload' ? 'B ← SEND' : 'A → RECEIVE'}</span>
+    <span className="cassette-reel" aria-hidden="true" style={{ position: 'absolute', left: '15.278%', top: '28.302%', width: '25%', aspectRatio: '1' }}><TapeReel ref={drive.supplyRef} size={90} tapeFill={drive.supplyFill} reduced={drive.reduced} /></span>
+    <span className="cassette-reel" aria-hidden="true" style={{ position: 'absolute', left: '59.722%', top: '28.302%', width: '25%', aspectRatio: '1' }}><TapeReel ref={drive.takeupRef} size={90} tapeFill={drive.takeupFill} reduced={drive.reduced} /></span>
+    <span aria-hidden="true" style={{ position: 'absolute', top: '79.5%', left: '36%', width: '28%', color: '#fff', fontFamily: fontFamilies.instrument, fontSize: 'clamp(10px, 2.8vw, 13px)', fontWeight: 600, letterSpacing: '.06em' }}>{active ? '■' : '▶'} {label}</span>
+    <span aria-hidden="true" className={phase === 'latency' || phase === 'discovering' ? 'cassette-probing' : undefined} style={{ position: 'absolute', left: '48.7%', top: '47%', width: '2.6%', aspectRatio: '1', border: '1px solid #111', borderRadius: '50%', background: phase === 'latency' || phase === 'discovering' || active && currentSpeed > 0 ? '#111' : 'transparent' }} />
+    {(phase === 'latency' || phase === 'discovering') && <span aria-hidden="true" style={{ position: 'absolute', left: '32.8%', width: '34.4%', top: '59.4%', fontFamily: fontFamilies.instrument, fontSize: 'clamp(7px, 2vw, 10px)' }}>{phase === 'latency' ? 'MEASURING PING' : 'CONNECTING'}</span>}
+  </button>;
 }

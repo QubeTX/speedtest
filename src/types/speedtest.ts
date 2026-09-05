@@ -1,3 +1,4 @@
+// Copyright (c) 2026 QubeTX - ES Development LLC. All rights reserved.
 export type TestPhase = 'idle' | 'discovering' | 'latency' | 'download' | 'upload' | 'complete' | 'error';
 
 /**
@@ -32,6 +33,7 @@ export type TestDuration = 'auto' | 15 | 30 | 60 | 120 | 300 | 600;
 export type SpeedUnit = 'auto' | 'Mbps' | 'Kbps' | 'Gbps';
 
 export interface SpeedTestProgress {
+  runData?: { confirmedBytes: number; budgetBytes: number; byteLimit: number; elapsedMs: number };
   phase: TestPhase;
   currentProvider: string;
   ping: number | null;
@@ -46,6 +48,9 @@ export interface SpeedTestProgress {
 }
 
 export interface SpeedTestResult {
+  /** v5 receiver-accounted sustained results. Absent on historical v4 runs. */
+  measurement?: import('../services/measurement-v5').MeasurementSummary;
+  httpLatency?: { endpoint: string; idle: number[]; download: number[]; upload: number[]; failures: { idle: number; download: number; upload: number }; attempts: { idle: number; download: number; upload: number } };
   provider: string;
   /** Headline ping — min-RTT (physical path floor) in v4. */
   ping: number;
@@ -207,6 +212,7 @@ export interface FlowDisclosure {
 }
 
 export interface Settings {
+  maxBytes?: number;
   providerMode: ProviderMode;
   /**
    * v4 test mode. Accuracy-first default is `'full'`; the FAST action selects
@@ -222,7 +228,7 @@ export interface Settings {
 
 export const DEFAULT_SETTINGS: Settings = {
   providerMode: 'both',
-  testProfile: 'full',
+  testProfile: 'fast',
   testDuration: 30,
   dataPolicyAccepted: false,
   speedUnit: 'auto',

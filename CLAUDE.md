@@ -2,8 +2,7 @@
 
 ## Overview
 
-Technician-grade internet speed test built with Vite + React 18 + TypeScript. SpeedQX Methodology v4 (`methodologyVersion: "4.0"`, see `METHODOLOGY.md`) runs up to seven measurement sources — Cloudflare, M-Lab NDT7, M-Lab MSAK, LibreSpeed, fast.com, CacheFly, Vultr — through a capability-weighted hybrid merge (capacity + DerSimonian–Laird consensus, HKSJ confidence intervals, I² agreement bands), Ookla-style trimean, RFC 5481 PDV jitter, bufferbloat delta-ms grading, and connection stability analysis. The same methodology ships across this website, the SpeedQX iOS app, and the `speedqx` CLI.
-
+SpeedQX Methodology v5 uses monotonic payload counters, explicit bounded warm-up, sustained bytes/time, repeatable ceilings and a median of qualifying Cloudflare/MSAK primary networks. Quick (90 seconds) is the default; Deep repeats/extends primary measurements and adds supplementary sources. NDT7 is a separate single-stream measurement. The website owns the canonical TypeScript acquisition, measurement contract, guide and cassette geometry, generated into a pinned Expo copy. Rust is independently verified with complete trace replay.
 ## Dev Commands
 
 ```bash
@@ -14,37 +13,17 @@ npx tsc --noEmit      # Type check
 npm run test          # Vitest — golden-vector fixtures pin TS↔Rust statistical parity
 ```
 
-Vercel auto-deploys on push to main (Vercel's GitHub App integration — there is no GitHub Actions workflow in this repo).
+Vercel auto-deploys on push to main. GitHub Actions gates measurement tests, production build and dependency audit before merge.
 
 ## Architecture
 
-### Test Flow (sequential)
-1. **Latency Engine** (`src/services/latency-engine.ts`) — 50–200 HTTP pings to Cloudflare edge (scaled to test duration) with 3-ping warmup discard
-2. **DNS Check** (`src/services/dns-check.ts`) — 12 domains in parallel (background, non-blocking)
-3. **Network Metadata** (`src/services/network-metadata.ts`) — IP/ISP/geolocation from CF headers + ipinfo.io (background, non-blocking)
-4. **Providers** (`src/services/provider-factory.ts` registry order) — run sequentially with a 1000 ms transition gap, each: download → upload (+ loaded-latency probes during Cloudflare saturation). FAST profile runs Cloudflare + NDT7 + MSAK (~1 min, anytime-valid empirical-Bernstein early stop); FULL profile runs all seven browser sources at fixed durations.
-5. **Aggregation** (`src/services/aggregated-provider.ts` + `mergeProviders` in `statistics.ts`) — plateau warm-up discard → IQR filter (uploads: fastest 50%) → modified trimean → Hodges–Lehmann cross-check → circular block bootstrap (BCa 95% CI) → SpeedQX hybrid merge (capacity + DerSimonian–Laird consensus, HKSJ CIs, I² agreement bands)
+### Current measurement path
 
-### Key Services
+`provider-factory.ts` selects `engine-v5.ts`. `acquisition-v5.ts` supplies cumulative byte traces from bounded HTTP transfers and receiver-accounted M-Lab WebSockets. `measurement-v5.ts` interprets them using `measurement-contract-v5.json`. Fixed warm-up, zeros, partial final intervals, provider grouping and qualification must remain aligned with Rust. Discovery URLs are reused within a run and never printed with signed query tokens.
 
-| File | Purpose |
-|------|---------|
-| `src/services/statistics.ts` | Percentile, trimean, IQR filter, plateau warm-up detector, Hodges–Lehmann, circular block bootstrap, `mergeProviders` hybrid merge, PDV/jitter metrics, bufferbloat delta-ms grading, RPM, empirical-Bernstein confidence sequence |
-| `src/services/stat-primitives.ts` | Type-7 quantiles, deterministic PCG32 + Lemire PRNG, inverse-normal/Φ helpers, Student-t table for HKSJ CIs |
-| `src/services/methodology-version.ts` | `METHODOLOGY_VERSION` constant (`"4.0"`) stamped into every result payload |
-| `src/services/latency-engine.ts` | HTTP RTT (50–200 samples) with PerformanceResourceTiming precision |
-| `src/services/cloudflare-provider.ts` | Cloudflare speed test (bandwidthPercentile=0.5, loaded latency, jitter breakdown, TURN packet loss, AIM scores) |
-| `src/services/ndt7-provider.ts` | M-Lab NDT7 — single-stream WebSocket, raw bandwidth sample collection, kernel `TCPInfo.MinRTT` |
-| `src/services/msak-provider.ts` | M-Lab MSAK — 2-stream WebSocket throughput |
-| `src/services/librespeed-provider.ts` | LibreSpeed — CORS-verified community backend rotation |
-| `src/services/fastcom-provider.ts` | fast.com (Netflix OCA) via the `api/fastcom-targets.ts` Edge token relay; labeled *estimate*, hides on failure |
-| `src/services/cachefly-provider.ts` | CacheFly — download-only range-request ladder |
-| `src/services/vultr-provider.ts` | Vultr — download-only, min-RTT POP selection across 8 POPs |
-| `src/services/aggregated-provider.ts` | v4 cross-provider orchestrator: sequential provider runs, per-provider pipeline, calls `mergeProviders` for the hybrid merge |
-| `src/services/network-metadata.ts` | IP, ISP/ASN, geolocation, edge server from CF headers + ipinfo.io |
-| `src/services/dns-check.ts` | 12-domain DNS probe with Resource Timing API breakdown |
-| `src/services/provider-factory.ts` | Canonical provider registry order + FAST/FULL plan resolution + consent gating |
-| `src/data/colo-map.ts` | Cloudflare IATA data center code-to-city name mapping (~57 PoPs) |
+The Expo generator pins the canonical git revision and normalized SHA-256 hashes. Commit canonical changes before regenerating the app; never hand-edit its generated engine, cassette geometry or shared guide. `methodology-guide-v5.json` supplies the matching explanatory screens. `METHODOLOGY.md` is the current normative contract; v4 documentation and statistical code remain explicitly historical.
+
+`useSpeedTest` owns the browser run lifecycle, asynchronous wake lock and auxiliary DNS/metadata. Presentation never changes acquired samples. Stop, cap, background and network transitions preserve valid partial results. Existing DNS/metadata cannot delay the bounded result.
 
 ### Vercel Edge Functions (`api/`)
 
@@ -76,15 +55,15 @@ Single structural breakpoint (`WIDE_BREAKPOINT` in `src/theme/responsive.ts`): *
 Viewport height uses `100svh` (small viewport height) for mobile browser chrome compatibility.
 
 ### Layout
-- `Apparatus` component provides the two-panel layout (left: mechanism + controls, right: data)
+- `MainTestView` and `instrument-v5.css` provide the current cassette/measurement layout; older apparatus/data panels are retained historical components.
 - `TapeMechanism` renders a canonical normalized 100-unit-viewBox SVG reel (`src/components/mechanism/reel-geometry.ts` + `TapeReel.tsx`) driven by `useReelDrive` — a self-suspending RAF integrator writing transforms imperatively (no more CSS `transform: scale()` sizing wrapper or keyframe-restart stutter); spin speed eases toward a log-scaled ω(Mbps) with asymmetric motor inertia, and tape visibly winds supply→take-up on download / rewinds on upload
 - `PretextProvider` + `PretextBlock` use `@chenglou/pretext` for layout-shift prevention; text measurement imports the rendered font stack from `theme/tokens.ts` (Makira/Plex Mono aware, not hard-coded to Guton)
 
 ## Types
 
 Key types in `src/types/speedtest.ts`:
-- `TestProfile` — `'fast' | 'full'`; the v4 test mode (`Settings.testProfile`, default `'full'`) that drives the orchestrator, distinct from the legacy `ProviderMode` single-provider selector
-- `SpeedTestResult` — v4 result payload (methodology §9): `methodologyVersion`, `platform`, `providerSet`, `capacityMbps`/`consensusMbps` (± CI), `agreement`/`uploadAgreement` (I² band), `rpm`, `providers[]`, `mergeExclusions`, `flowDisclosure`, plus `latencyStats`, `bufferbloat`, `stability`, `dnsCheck`, `networkMetadata`. `providerDivergence`/`jitterBreakdown`/`downloadEstimate`/`uploadEstimate` are retained from earlier versions; `providerResults` is explicitly `@deprecated`, kept one release as a populated alias so existing UI keeps rendering while the design layer migrates.
+- `TestProfile` — `'fast' | 'full'`; the shared Quick/Deep mode (`Settings.testProfile`, default `'fast'`) that drives the orchestrator, distinct from the legacy `ProviderMode` single-provider selector
+- `SpeedTestResult` — versioned payload; v5 adds nullable sustained/ceiling/qualification fields under `measurement` and separately labeled `httpLatency`. Historical v4 fields remain for reading old records. Legacy payload (methodology §9): `methodologyVersion`, `platform`, `providerSet`, `capacityMbps`/`consensusMbps` (± CI), `agreement`/`uploadAgreement` (I² band), `rpm`, `providers[]`, `mergeExclusions`, `flowDisclosure`, plus `latencyStats`, `bufferbloat`, `stability`, `dnsCheck`, `networkMetadata`. `providerDivergence`/`jitterBreakdown`/`downloadEstimate`/`uploadEstimate` are retained from earlier versions; `providerResults` is explicitly `@deprecated`, kept one release as a populated alias so existing UI keeps rendering while the design layer migrates.
 - `ProviderRunResult` — one entry in the L2 `providers[]` breakdown: `provider`/`name`, `availability` (`'ran' | 'unavailable-platform' | 'failed'`), per-direction `pingMs`/`downloadMbps`/`uploadMbps`/samples/bytes
 - `AgreementInfo` — `{ i2, band }`; `AgreementBand` is `'high' | 'moderate' | 'low' | 'very-low' | 'insufficient'`
 - `LatencyStats` — P50/P75/P95/P99, min/max/mean/stddev, `minRttMs`, `pdv` (headline jitter, P95−P50), jitter (RFC 3550, compat field), jitterMad
@@ -94,19 +73,11 @@ Key types in `src/types/speedtest.ts`:
 - `DnsProbeResult` — Per-domain with dnsMs/tcpMs/tlsMs/ttfbMs/totalMs
 - `DnsCheckResult` — Aggregate with per-component averages
 
-## Accuracy Methodology (v4)
+## Accuracy and validation
 
-`METHODOLOGY.md` is the canonical, versioned cross-product spec (methodology **4.0**), committed byte-identically across this website, the iOS app, and the `speedqx` CLI — every result payload carries `methodologyVersion: "4.0"`. `ACCURACY.md` is its engineering companion for this repo: where it summarizes, METHODOLOGY.md is exact.
+The headline means sustained application throughput on this device/path, not ISP physical capacity. Retain provider disagreement and unavailable states. Common ping is median idle HTTP RTT; minimum HTTP and server TCP RTT remain distinct. HTTP failure rate is not packet loss. Observed repeatability ranges have no nominal confidence coverage claim.
 
-- **Bandwidth**: Raw samples → **plateau warm-up detector** discards the ramp (3 consecutive samples within ±10% of the forward median, clamped 10–40%, replacing the old fixed 30% slow-start) → IQR outlier filter (k=1.5; uploads additionally keep the fastest 50%) → modified trimean (P10 + 8·P50 + P90)/10 → Hodges–Lehmann cross-check → **circular block bootstrap** (block ≈ n^⅓, B=2000) with **BCa** 95% intervals, using a deterministic PCG32 + Lemire PRNG for reproducibility
-- **Aggregation**: The SpeedQX hybrid merge (`mergeProviders` in `statistics.ts`) — headline **capacity** (capability-weighted top-tier robust mean; priors CF/fast.com 1.0, LibreSpeed/CacheFly/Vultr 0.95, MSAK 0.85, NDT7 0.70; per-provider weight cap 0.70) + secondary **consensus** (DerSimonian–Laird random-effects mean), CIs via **Hartung–Knapp–Sidik–Jonkman**, and **I² agreement bands** (High/Moderate/Low/Very-low) replacing the old fixed >30% divergence flag. `MIN_MERGE_SAMPLES = 4`, with exclusions surfaced in the UI.
-- **Latency**: 50–200 samples (scaled to test duration) with 3-ping warmup, PerformanceResourceTiming for precision, percentile breakdown. Headline **ping = min-RTT** (percentile ladder in drill-down).
-- **Jitter**: Headline is **PDV** = P95 − P50 (RFC 5481). RFC 3550 EWMA (`J[i] = J[i-1] + (|D| - J[i-1]) / 16`) is demoted to a compat field.
-- **Bufferbloat**: Headline is **delta-ms grading** (A+ <5 ms … F ≥400 ms); loaded/unloaded latency ratio is now the secondary figure.
-- **Responsiveness (RPM)**: `60000 / P50(loaded RTT)`.
-- **Test profiles**: FAST (~1 min, Cloudflare + NDT7 + MSAK, anytime-valid empirical-Bernstein confidence-sequence early stop, RTT-gated) vs FULL (every browser source, fixed durations, no early stop) — selected via the `testProfile` setting.
-
-See `METHODOLOGY.md` for the canonical spec and `ACCURACY.md` for the engineering companion.
+`measurement-v5-fixtures.json` and the Rust replay example validate complete estimates. `scripts/validate-transport.mjs` records independently paced loopback payload and configured rate separately; its v4 comparison is estimator replay, not a full legacy-transport comparison. `evidence/v5` distinguishes deterministic, controlled acquisition, visual and physical acceptance. The v4 golden tests remain historical regression coverage.
 
 ## UI Components
 

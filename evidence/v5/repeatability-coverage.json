@@ -1,0 +1,43 @@
+{
+  "kind": "Deterministic held-out repeatability experiment",
+  "assumptions": "Seeded Gaussian AR(1) rates in half-second intervals; 10-second measurement with a 2-second warm-up, followed by a held-out 3-second average. A simple synthetic family, not an empirical guarantee for physical networks.",
+  "interpretation": "Observed window ranges are descriptive. Their predictive coverage depends strongly on correlation and changing conditions. No nominal 95% confidence claim is justified by this experiment.",
+  "experiments": [
+    {
+      "name": "stationary",
+      "autocorrelation": 0,
+      "regimeChangeAfterMeasurement": false,
+      "runs": 1000,
+      "available": 1000,
+      "covered": 636,
+      "observedCoveragePct": 63.6
+    },
+    {
+      "name": "correlated",
+      "autocorrelation": 0.9,
+      "regimeChangeAfterMeasurement": false,
+      "runs": 1000,
+      "available": 1000,
+      "covered": 358,
+      "observedCoveragePct": 35.8
+    },
+    {
+      "name": "strongly-correlated",
+      "autocorrelation": 0.99,
+      "regimeChangeAfterMeasurement": false,
+      "runs": 1000,
+      "available": 1000,
+      "covered": 350,
+      "observedCoveragePct": 35
+    },
+    {
+      "name": "network-regime-change",
+      "autocorrelation": 0.9,
+      "regimeChangeAfterMeasurement": true,
+      "runs": 1000,
+      "available": 1000,
+      "covered": 195,
+      "observedCoveragePct": 19.5
+    }
+  ]
+}

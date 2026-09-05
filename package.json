@@ -1,7 +1,7 @@
 {
   "name": "qubetx-speedtest",
   "private": true,
-  "version": "3.0.11",
+  "version": "4.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -12,7 +12,7 @@
     "postinstall": "node scripts/copy-ndt7-workers.js"
   },
   "dependencies": {
-    "@chenglou/pretext": "^0.0.2",
+    "@chenglou/pretext": "^0.0.8",
     "@cloudflare/speedtest": "^1.11.0",
     "@m-lab/ndt7": "^0.1.4",
     "motion": "^12.38.0",
@@ -21,6 +21,7 @@
     "react-router-dom": "^7.1.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@types/node": "^26.1.0",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
