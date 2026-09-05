@@ -30,7 +30,7 @@ try {
         finally { budget.dispose(); }
       }, { endpoint, direction });
     } else {
-      const command = process.env.SPEEDQX_ACQUIRE ?? path.resolve('../qube-network-diagnostics/target/debug/examples/v5-acquire.exe');
+      const command = process.env.SPEEDQX_ACQUIRE ?? path.resolve('../qube-network-diagnostics/target/release/examples/v5-acquire.exe');
       const { stdout } = await execute(command, [endpoint, direction, '10000'], { timeout: 20000 }); output = JSON.parse(stdout);
     }
     const comparison = await page.evaluate(async ({ trace }) => {

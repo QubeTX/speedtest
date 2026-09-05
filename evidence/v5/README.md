@@ -56,7 +56,7 @@ Signed iOS **3.0.0 (16)**, [build cdc16452-50e4-405b-8857-c0c76735e6a8](https://
 - [x] Final measurement correction pins, complete recorded-trace parity, hosted platform checks and native installer candidate lifecycle checks.
 - [x] Successful native simulator/emulator journeys, reviewed screenshots and recordings at the final candidate: 30/30 first-attempt journeys across four iPhone sizes and Android.
 - [ ] Physical iOS/Android layout, large text, reduced motion, cancellation and animation performance.
-- [ ] Lossy-path repeatability qualification and consenting real M-Lab provider acceptance. Paced references, packet impairment coverage and Cloudflare smoke runs are retained above; failed targets remain open.
+- [ ] Release-build high-latency/lossy-path repeatability qualification and consenting real M-Lab provider acceptance. Paced references, exploratory packet impairment coverage and Cloudflare smoke runs are retained above; failed targets remain open.
 - [ ] Physical/device animation overhead; browser proof is scoped above.
 - [x] CLI package dry-run and pre-release installer checks.
 - [x] Push all four review branches and build/upload the new Expo TestFlight candidate.
@@ -64,7 +64,7 @@ Signed iOS **3.0.0 (16)**, [build cdc16452-50e4-405b-8857-c0c76735e6a8](https://
 
 ## Reproduction
 
-Start the website development server on port 5175. Install locked dependencies in the relevant repository. Build the Rust `v5-replay` and `v5-acquire` examples. The example acquisition executable accepts loopback endpoints, plus exact TEST-NET-1 address 192.0.2.2 only with the isolated-reference environment opt-in. Run from the website repository:
+Start the website development server on port 5175. Install locked dependencies in the relevant repository. Build the Rust `v5-replay` example and the optimized acquisition harness with `cargo build --release --locked --example v5-acquire`; use the release executable for transport comparisons. The example acquisition executable accepts loopback endpoints, plus exact TEST-NET-1 address 192.0.2.2 only with the isolated-reference environment opt-in. Run from the website repository:
 
 ```sh
 npx --no-install vite-node scripts/validate-v5.ts
@@ -102,3 +102,18 @@ Loss is independently randomized for each transfer, so these are not identical p
 The first live trace exposed a ceiling below sustained throughput (154.27 versus 159.68 Mbps). The corrected Rust/TypeScript estimators withhold such a candidate at trace, repeated-provider and headline levels. They never raise it artificially. The recorded old outputs remain unchanged; all recorded counters are replayed through the corrected engines, with 88 full-trace comparisons and explicit ceiling regressions. Sustained byte/time calculation and acquisition are unchanged by this correction.
 
 For an explicitly requested public-path rerun, `SPEEDQX_LIVE=1 node scripts/validate-live-cloudflare.mjs` runs three sequential Cloudflare-only pairs against the local website development server and release CLI. Each of six runs is capped at 500 MB. The script refuses an existing output file and keeps M-Lab declined. The archived original recording is never overwritten. This opt-in script was syntax checked after organizing the original smoke procedure; no extra public transfers were performed.
+
+### Additional impairment evidence and build-profile correction
+
+Two subsequent completed CI runs, [33945856594](https://github.com/QubeTX/speedtest/actions/runs/33945856594) and [33947183191](https://github.com/QubeTX/speedtest/actions/runs/33947183191), add six paired observations per condition/direction. `netem-debug-confirmation.json` retains every pair, exact merge revisions and raw/archive hashes; both original recordings are compressed alongside it. The TypeScript acquisition source is byte-identical to canonical `08d1c337`; no recorded pair is removed.
+
+| Condition | Median download difference, six pairs | Median upload difference, six pairs |
+|---|---:|---:|
+| Clean | 0.005% | 1.31% |
+| Asymmetric | 0.006% | 1.70% |
+| 150 ms added RTT | 0.171% | **8.64%** |
+| Random 0.5% loss, 80 ms added RTT | **20.93%** | **7.59%** |
+
+These additional recordings confirm that the earlier high-RTT pass does not establish repeatability across hosted runs. They also expose a validation confound: the workflow built the Rust acquisition example in **debug mode**. One affected upload trace reaches its first sample at 651.6 ms, while the browser samples at 503.3 ms. Debug payload generation and other development-build overhead can consume warm-up and affect achieved throughput; these traces cannot qualify release performance. The ordinary paced fixture also defaulted to the debug example, so its low byte-accounting errors remain evidence for the exercised client, not optimized production performance.
+
+The impairment workflow now builds the optimized release example at Rust candidate `635b67b396d5071e090bfffc620233ccadb170da`, records `rustBuildProfile` in each result, and the paced fixture defaults to the release executable. Rust acquisition/example source is unchanged from the earlier pinned revision; the build mode is the relevant change. The optimized follow-up is pending. Earlier failures remain visible and neither the build correction nor an acquisition-integrity pass closes the accuracy target.

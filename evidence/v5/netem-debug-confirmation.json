@@ -1,0 +1,473 @@
+{
+  "definition": "100 * absolute(browser - Rust) / mean(browser, Rust), paired by condition/direction/repetition within each run",
+  "limitations": "Independent random packet loss histories; hosted runner resources differ between runs. No absolute line-capacity or physical-device accuracy claim. All recorded pairs included.",
+  "runs": [
+    {
+      "run": "33945856594",
+      "url": "https://github.com/QubeTX/speedtest/actions/runs/33945856594",
+      "websiteRevision": "13db091ff9055417be5d6e048be6991140dd9a25",
+      "rustRevision": "306611941883228e55b4714cfb171e6d0080160d",
+      "rawSha256": "0ac2047d756f4db33a74c598c60ccf56a1261f568076485f0e3a0fbd221a2e54",
+      "comparisons": {
+        "clean": {
+          "download": {
+            "pairs": [
+              {
+                "repetition": 0,
+                "browser": 19.12311780513718,
+                "rust": 19.12333690034187,
+                "differencePct": 0.0011457020336931541
+              },
+              {
+                "repetition": 1,
+                "rust": 19.124662113452118,
+                "browser": 19.122578903291156,
+                "differencePct": 0.010893387891949657
+              },
+              {
+                "repetition": 2,
+                "browser": 19.123910853343027,
+                "rust": 19.12337782079942,
+                "differencePct": 0.0027872958428452814
+              }
+            ],
+            "medianDifferencePct": 0.0027872958428452814
+          },
+          "upload": {
+            "pairs": [
+              {
+                "repetition": 0,
+                "browser": 18.916234497460657,
+                "rust": 19.239995025924618,
+                "differencePct": 1.6970257937332804
+              },
+              {
+                "repetition": 1,
+                "rust": 19.101644612755386,
+                "browser": 19.00650075697862,
+                "differencePct": 0.49933605980379053
+              },
+              {
+                "repetition": 2,
+                "browser": 18.924327023195744,
+                "rust": 19.09908346944901,
+                "differencePct": 0.9192044794986008
+              }
+            ],
+            "medianDifferencePct": 0.9192044794986008
+          }
+        },
+        "asymmetric": {
+          "download": {
+            "pairs": [
+              {
+                "repetition": 0,
+                "browser": 38.2479807007235,
+                "rust": 38.25043953884186,
+                "differencePct": 0.006428467700790382
+              },
+              {
+                "repetition": 1,
+                "rust": 38.2512400556697,
+                "browser": 38.2490445477725,
+                "differencePct": 0.005739868573246272
+              },
+              {
+                "repetition": 2,
+                "browser": 38.24750562471865,
+                "rust": 38.25165940163339,
+                "differencePct": 0.010859666019387757
+              }
+            ],
+            "medianDifferencePct": 0.006428467700790382
+          },
+          "upload": {
+            "pairs": [
+              {
+                "repetition": 0,
+                "browser": 4.703925775877146,
+                "rust": 4.806204201594116,
+                "differencePct": 2.1509364427039115
+              },
+              {
+                "repetition": 1,
+                "rust": 4.804393832592435,
+                "browser": 4.696741568818711,
+                "differencePct": 2.26609261368353
+              },
+              {
+                "repetition": 2,
+                "browser": 4.697061971690118,
+                "rust": 4.63832038287239,
+                "differencePct": 1.2584720493857295
+              }
+            ],
+            "medianDifferencePct": 2.1509364427039115
+          }
+        },
+        "latency": {
+          "download": {
+            "pairs": [
+              {
+                "repetition": 0,
+                "browser": 19.120182993137927,
+                "rust": 19.120777877321622,
+                "differencePct": 0.0031112407750937326
+              },
+              {
+                "repetition": 1,
+                "rust": 18.97107467704985,
+                "browser": 19.119601014962104,
+                "differencePct": 0.7798566720800001
+              },
+              {
+                "repetition": 2,
+                "browser": 18.74466307513485,
+                "rust": 19.120713373147982,
+                "differencePct": 1.9862488282758755
+              }
+            ],
+            "medianDifferencePct": 0.7798566720800001
+          },
+          "upload": {
+            "pairs": [
+              {
+                "repetition": 0,
+                "browser": 10.601643534148723,
+                "rust": 11.75511212774543,
+                "differencePct": 10.318747595052272
+              },
+              {
+                "repetition": 1,
+                "rust": 11.675584240926174,
+                "browser": 10.716118592989991,
+                "differencePct": 8.569831915444176
+              },
+              {
+                "repetition": 2,
+                "browser": 10.73895010628986,
+                "rust": 11.717982802556698,
+                "differencePct": 8.719202219116605
+              }
+            ],
+            "medianDifferencePct": 8.719202219116605
+          }
+        },
+        "loss": {
+          "download": {
+            "pairs": [
+              {
+                "repetition": 0,
+                "browser": 7.879627018649044,
+                "rust": 4.866607879014971,
+                "differencePct": 47.277006328924074
+              },
+              {
+                "repetition": 1,
+                "rust": 4.635732826101743,
+                "browser": 5.266880491981521,
+                "differencePct": 12.747093026993836
+              },
+              {
+                "repetition": 2,
+                "browser": 5.348932276693113,
+                "rust": 5.911423312457275,
+                "differencePct": 9.990644279584473
+              }
+            ],
+            "medianDifferencePct": 12.747093026993836
+          },
+          "upload": {
+            "pairs": [
+              {
+                "repetition": 0,
+                "browser": 3.4703812536730947,
+                "rust": 3.253063707093641,
+                "differencePct": 6.464470159198595
+              },
+              {
+                "repetition": 1,
+                "rust": 3.2448730049354797,
+                "browser": 2.9738978642525056,
+                "differencePct": 8.714749148439253
+              },
+              {
+                "repetition": 2,
+                "browser": 3.2881538538488666,
+                "rust": 3.164792182076307,
+                "differencePct": 3.8234217700186535
+              }
+            ],
+            "medianDifferencePct": 6.464470159198595
+          }
+        }
+      },
+      "archive": "netem-debug-confirmation-33945856594.json.gz",
+      "archiveSha256": "9ee65a5960e0e9ac468711f009c9e1f1dff186a0ad8a8b54e9d0ad77199d5102"
+    },
+    {
+      "run": "33947183191",
+      "url": "https://github.com/QubeTX/speedtest/actions/runs/33947183191",
+      "websiteRevision": "ba48bd8421f1693e5b033808289b2c9149b6502b",
+      "rustRevision": "306611941883228e55b4714cfb171e6d0080160d",
+      "rawSha256": "67822bcf6ed0483d161ec74b54c77567a60ed72c96446fdd32bc18c924253d5f",
+      "comparisons": {
+        "clean": {
+          "download": {
+            "pairs": [
+              {
+                "repetition": 0,
+                "browser": 19.12270786460675,
+                "rust": 19.123301794464744,
+                "differencePct": 0.0031058396067442373
+              },
+              {
+                "repetition": 1,
+                "rust": 19.123320067833596,
+                "browser": 19.121382948139473,
+                "differencePct": 0.010130133280490457
+              },
+              {
+                "repetition": 2,
+                "browser": 19.12328487681715,
+                "rust": 19.124738309155006,
+                "differencePct": 0.007600038991770554
+              }
+            ],
+            "medianDifferencePct": 0.007600038991770554
+          },
+          "upload": {
+            "pairs": [
+              {
+                "repetition": 0,
+                "browser": 19.128463962386842,
+                "rust": 19.53968947452701,
+                "differencePct": 2.126946727937609
+              },
+              {
+                "repetition": 1,
+                "rust": 19.549637414884078,
+                "browser": 18.978385830733608,
+                "differencePct": 2.9653822647931802
+              },
+              {
+                "repetition": 2,
+                "browser": 19.331176271991826,
+                "rust": 19.405503237475124,
+                "differencePct": 0.3837549651881386
+              }
+            ],
+            "medianDifferencePct": 2.126946727937609
+          }
+        },
+        "asymmetric": {
+          "download": {
+            "pairs": [
+              {
+                "repetition": 0,
+                "browser": 38.248332479220046,
+                "rust": 38.250235382088505,
+                "differencePct": 0.004975002595887712
+              },
+              {
+                "repetition": 1,
+                "rust": 38.25058354762868,
+                "browser": 38.249396647625765,
+                "differencePct": 0.003103007346888928
+              },
+              {
+                "repetition": 2,
+                "browser": 38.23165141742902,
+                "rust": 38.24877679188385,
+                "differencePct": 0.04478367827114956
+              }
+            ],
+            "medianDifferencePct": 0.004975002595887712
+          },
+          "upload": {
+            "pairs": [
+              {
+                "repetition": 0,
+                "browser": 4.724234587970488,
+                "rust": 4.726245198713755,
+                "differencePct": 0.04255044799100831
+              },
+              {
+                "repetition": 1,
+                "rust": 4.737308002091397,
+                "browser": 4.701219130978431,
+                "differencePct": 0.7647140407431006
+              },
+              {
+                "repetition": 2,
+                "browser": 4.710214697460399,
+                "rust": 4.812120283507569,
+                "differencePct": 2.1403486907537967
+              }
+            ],
+            "medianDifferencePct": 0.7647140407431006
+          }
+        },
+        "latency": {
+          "download": {
+            "pairs": [
+              {
+                "repetition": 0,
+                "browser": 18.939585020748908,
+                "rust": 19.003899481539204,
+                "differencePct": 0.339001341779339
+              },
+              {
+                "repetition": 1,
+                "rust": 19.121051103507398,
+                "browser": 19.120444977751337,
+                "differencePct": 0.003169989765949835
+              },
+              {
+                "repetition": 2,
+                "browser": 19.120405979700962,
+                "rust": 19.12086030962713,
+                "differencePct": 0.0023761238591330984
+              }
+            ],
+            "medianDifferencePct": 0.003169989765949835
+          },
+          "upload": {
+            "pairs": [
+              {
+                "repetition": 0,
+                "browser": 10.372544047217145,
+                "rust": 10.40788001970742,
+                "differencePct": 0.340089041267621
+              },
+              {
+                "repetition": 1,
+                "rust": 10.388158456705941,
+                "browser": 10.43053728467969,
+                "differencePct": 0.40712279482046704
+              },
+              {
+                "repetition": 2,
+                "browser": 10.422116464306644,
+                "rust": 9.202165082792275,
+                "differencePct": 12.43308070755554
+              }
+            ],
+            "medianDifferencePct": 0.40712279482046704
+          }
+        },
+        "loss": {
+          "download": {
+            "pairs": [
+              {
+                "repetition": 0,
+                "browser": 5.4091665416729,
+                "rust": 7.744564263857461,
+                "differencePct": 35.50928260144513
+              },
+              {
+                "repetition": 1,
+                "rust": 5.057755725905089,
+                "browser": 5.751807409629586,
+                "differencePct": 12.841438178808817
+              },
+              {
+                "repetition": 2,
+                "browser": 7.077630588852877,
+                "rust": 5.284414534215579,
+                "differencePct": 29.011640659538266
+              }
+            ],
+            "medianDifferencePct": 29.011640659538266
+          },
+          "upload": {
+            "pairs": [
+              {
+                "repetition": 0,
+                "browser": 3.294553275562401,
+                "rust": 3.4592201645816165,
+                "differencePct": 4.876292948781658
+              },
+              {
+                "repetition": 1,
+                "rust": 3.6142258026028276,
+                "browser": 2.611710745145123,
+                "differencePct": 32.20447397011571
+              },
+              {
+                "repetition": 2,
+                "browser": 2.7267944629928427,
+                "rust": 3.708791587510899,
+                "differencePct": 30.51772183020352
+              }
+            ],
+            "medianDifferencePct": 30.51772183020352
+          }
+        }
+      },
+      "archive": "netem-debug-confirmation-33947183191.json.gz",
+      "archiveSha256": "6196ef0bb8c78406fc6a400689dc90dc89427a657c22843f9c015ce479230a76"
+    }
+  ],
+  "pooled": {
+    "clean": {
+      "download": {
+        "pairs": 6,
+        "medianDifferencePct": 0.005352939299257396,
+        "maxDifferencePct": 0.010893387891949657,
+        "pairsWithin5Percent": 6
+      },
+      "upload": {
+        "pairs": 6,
+        "medianDifferencePct": 1.3081151366159407,
+        "maxDifferencePct": 2.9653822647931802,
+        "pairsWithin5Percent": 6
+      }
+    },
+    "asymmetric": {
+      "download": {
+        "pairs": 6,
+        "medianDifferencePct": 0.006084168137018326,
+        "maxDifferencePct": 0.04478367827114956,
+        "pairsWithin5Percent": 6
+      },
+      "upload": {
+        "pairs": 6,
+        "medianDifferencePct": 1.6994103700697631,
+        "maxDifferencePct": 2.26609261368353,
+        "pairsWithin5Percent": 6
+      }
+    },
+    "latency": {
+      "download": {
+        "pairs": 6,
+        "medianDifferencePct": 0.17108566577264442,
+        "maxDifferencePct": 1.9862488282758755,
+        "pairsWithin5Percent": 6
+      },
+      "upload": {
+        "pairs": 6,
+        "medianDifferencePct": 8.64451706728039,
+        "maxDifferencePct": 12.43308070755554,
+        "pairsWithin5Percent": 2
+      }
+    },
+    "loss": {
+      "download": {
+        "pairs": 6,
+        "medianDifferencePct": 20.92653941917354,
+        "maxDifferencePct": 47.277006328924074,
+        "pairsWithin5Percent": 0
+      },
+      "upload": {
+        "pairs": 6,
+        "medianDifferencePct": 7.589609653818924,
+        "maxDifferencePct": 32.20447397011571,
+        "pairsWithin5Percent": 2
+      }
+    }
+  },
+  "rustBuildProfile": "debug (cargo build without --release); exploratory evidence, superseded for release qualification by the optimized follow-up",
+  "acquisitionBlob": "c864eee2d18a4468ba39f21db1d3b4ba7e8a38b3",
+  "acquisitionIdentity": "GitHub content API verifies identical TypeScript acquisition source for both recorded merge revisions and canonical 08d1c337b977d07e2296fe3a2e57f2983afa298f. Rust acquisition and example source have no diff between pinned 306611941883228e55b4714cfb171e6d0080160d and candidate 635b67b396d5071e090bfffc620233ccadb170da."
+}

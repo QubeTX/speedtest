@@ -30,4 +30,4 @@ for ns in "$client" "$server"; do
 done
 { sudo ip netns exec "$server" sudo -u "$(id -un)" env PATH="$PATH" SPEEDQX_ISOLATED_REFERENCE=1 node scripts/netem-server.mjs; } > netem-server.log 2>&1 &
 { sudo ip netns exec "$client" sudo -u "$(id -un)" env PATH="$PATH" node node_modules/vite/bin/vite.js --host 127.0.0.1 --port 5175; } > netem-vite.log 2>&1 &
-sudo ip netns exec "$client" sudo -u "$(id -un)" env PATH="$PATH" SPEEDQX_ISOLATED_REFERENCE=1 SPEEDQX_ACQUIRE="$SPEEDQX_ACQUIRE" SQX_CLIENT_NS="$client" SQX_SERVER_NS="$server" node scripts/validate-netem.mjs
+sudo ip netns exec "$client" sudo -u "$(id -un)" env PATH="$PATH" SPEEDQX_ISOLATED_REFERENCE=1 SPEEDQX_ACQUIRE="$SPEEDQX_ACQUIRE" SPEEDQX_BUILD_PROFILE="${SPEEDQX_BUILD_PROFILE:?Build profile must be recorded}" SQX_CLIENT_NS="$client" SQX_SERVER_NS="$server" node scripts/validate-netem.mjs

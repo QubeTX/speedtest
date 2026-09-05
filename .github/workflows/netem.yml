@@ -18,13 +18,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: QubeTX/qube-network-diagnostics
-          ref: 306611941883228e55b4714cfb171e6d0080160d
+          ref: 635b67b396d5071e090bfffc620233ccadb170da
           path: reference-cli
           persist-credentials: false
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: reference-cli
-      - run: cargo build --locked --example v5-acquire
+      - run: cargo build --release --locked --example v5-acquire
         working-directory: reference-cli
       - run: npm ci
       - run: npx playwright install chrome
@@ -34,7 +34,8 @@ jobs:
       - name: Compare actual acquisition on isolated shaped paths
         run: bash scripts/run-netem-reference.sh
         env:
-          SPEEDQX_ACQUIRE: ${{ github.workspace }}/reference-cli/target/debug/examples/v5-acquire
+          SPEEDQX_ACQUIRE: ${{ github.workspace }}/reference-cli/target/release/examples/v5-acquire
+          SPEEDQX_BUILD_PROFILE: release
       - uses: actions/upload-artifact@v4
         if: always()
         with:
