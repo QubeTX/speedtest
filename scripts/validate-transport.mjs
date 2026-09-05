@@ -16,7 +16,7 @@ const outcomes = [];
 try {
   await page.goto(process.env.SPEEDQX_WEB_URL ?? 'http://127.0.0.1:5175');
   const selected = process.env.SCENARIOS?.split(',') ?? Object.keys(scenarios);
-  for (let repetition = 0; repetition < Number(process.env.REPEATS ?? 1); repetition++) for (const scenario of selected) for (const direction of ['download', 'upload']) for (const surface of ['browser', 'rust']) {
+  for (let repetition = 0; repetition < Number(process.env.REPEATS ?? 1); repetition++) for (const scenario of selected) for (const direction of ['download', 'upload']) for (const surface of (repetition % 2 ? ['rust', 'browser'] : ['browser', 'rust'])) {
     const run = `${scenario}-${direction}-${surface}-${Date.now()}`;
     const endpoint = `${reference.url}/test?scenario=${scenario}&run=${run}`;
     let output;
@@ -30,7 +30,7 @@ try {
         finally { budget.dispose(); }
       }, { endpoint, direction });
     } else {
-      const command = process.env.SPEEDQX_ACQUIRE ?? path.resolve('../qube-network-diagnostics/target/release/examples/v5-acquire.exe');
+      const command = process.env.SPEEDQX_ACQUIRE ?? path.resolve(`../qube-network-diagnostics/target/release/examples/v5-acquire${process.platform === 'win32' ? '.exe' : ''}`);
       const { stdout } = await execute(command, [endpoint, direction, '10000'], { timeout: 20000 }); output = JSON.parse(stdout);
     }
     const comparison = await page.evaluate(async ({ trace }) => {

@@ -1,0 +1,369 @@
+{
+  "capturedAt": "2026-09-05T06:21:59.554354+00:00",
+  "rustBuildProfile": "release",
+  "rustSourceRevision": "635b67b396d5071e090bfffc620233ccadb170da",
+  "rustExecutableSha256": "06e17321792423b00188084438ec3596de33b31e5d49bcce4251fd206981ee63",
+  "canonicalWebSource": "08d1c337b977d07e2296fe3a2e57f2983afa298f",
+  "acquisitionSourceSha256": "8f761fe047acc6d79f4d7a2aaa4fb959913947cbf37e77b84fba1a4533688b97",
+  "measurementSourceSha256": "d24b4cc6a9fc83ddd29057c440d189bcdee50b65c23af17cad959811bfececaf",
+  "followupHarnessSha256": "39606e01ee5f387a27db8bc2e1f0826d60294c379e4e2513a71fdae8b5866f5a",
+  "definition": "Accounting error compares bytes/time with independently recorded server payload in the measured window. Paired difference is 100 * abs(browser - Rust) / mean(browser, Rust).",
+  "limitations": "Application-paced loopback; no physical radio or OS packet impairment. The initial matrices have one pair per condition. Original v4 transport comparisons are separate; v4 fields in these raw files replay its point estimator. No product source changed during these runs. The follow-up changed only harness surface ordering and platform executable resolution; sourceDirty may also include earlier generated evidence.",
+  "matrices": [
+    {
+      "name": "chromium-release-candidate",
+      "rawSha256": "75aa108c0dc6155af934f3d6919544bfdacb47df70580409c2e77f3932d1962b",
+      "archive": "transport-chromium-release-candidate.json.gz",
+      "archiveSha256": "2d1467048471c1a1170a3a6b07455f69c1211848ecae0dc837df9ee06a9a4178",
+      "recordedRevision": "1977b696219882fa8286136b064bde908c9e9905",
+      "sourceDirty": false,
+      "records": 20,
+      "meanAccountingErrorPct": 0.45073162254093746,
+      "maxAccountingErrorPct": 3.110766605017845,
+      "maxPairedDifferencePct": 2.7455717402134465,
+      "pairs": [
+        {
+          "repetition": 0,
+          "scenario": "steady",
+          "direction": "download",
+          "browserMbps": 19.979545318217703,
+          "rustMbps": 20.038479921404655,
+          "differencePct": 0.29454028695348944
+        },
+        {
+          "repetition": 0,
+          "scenario": "steady",
+          "direction": "upload",
+          "browserMbps": 20.06877358018514,
+          "rustMbps": 20.049438842890076,
+          "differencePct": 0.09638882755376096
+        },
+        {
+          "repetition": 0,
+          "scenario": "asymmetric",
+          "direction": "download",
+          "browserMbps": 39.45158094690374,
+          "rustMbps": 39.44985360406886,
+          "differencePct": 0.004378482709994183
+        },
+        {
+          "repetition": 0,
+          "scenario": "asymmetric",
+          "direction": "upload",
+          "browserMbps": 4.86661400794232,
+          "rustMbps": 5.002090184661008,
+          "differencePct": 2.7455717402134465
+        },
+        {
+          "repetition": 0,
+          "scenario": "latency",
+          "direction": "download",
+          "browserMbps": 19.16344409272155,
+          "rustMbps": 19.196095232771714,
+          "differencePct": 0.1702373940057381
+        },
+        {
+          "repetition": 0,
+          "scenario": "latency",
+          "direction": "upload",
+          "browserMbps": 14.788799779848558,
+          "rustMbps": 14.422875498316166,
+          "differencePct": 2.505328968968202
+        },
+        {
+          "repetition": 0,
+          "scenario": "bursty",
+          "direction": "download",
+          "browserMbps": 20.00166552128185,
+          "rustMbps": 19.929066403613316,
+          "differencePct": 0.3636252789209316
+        },
+        {
+          "repetition": 0,
+          "scenario": "bursty",
+          "direction": "upload",
+          "browserMbps": 20.033290103631874,
+          "rustMbps": 19.983853685014754,
+          "differencePct": 0.24707619753284546
+        },
+        {
+          "repetition": 0,
+          "scenario": "stalls",
+          "direction": "download",
+          "browserMbps": 14.97990403345436,
+          "rustMbps": 15.059938013610365,
+          "differencePct": 0.5328522036208572
+        },
+        {
+          "repetition": 0,
+          "scenario": "stalls",
+          "direction": "upload",
+          "browserMbps": 14.982821947602407,
+          "rustMbps": 14.81942850147562,
+          "differencePct": 1.096517502300509
+        }
+      ]
+    },
+    {
+      "name": "firefox-release-candidate",
+      "rawSha256": "090b8d1b91784e4e45e75937f7a0ffabe71b7e4d27900262c954c741ca93118f",
+      "archive": "transport-firefox-release-candidate.json.gz",
+      "archiveSha256": "85eb36a0bf3c70bcc0116ec33c04820dcd41de46d8da6d889906969aafc6413f",
+      "recordedRevision": "1977b696219882fa8286136b064bde908c9e9905",
+      "sourceDirty": true,
+      "records": 20,
+      "meanAccountingErrorPct": 0.5296965720578017,
+      "maxAccountingErrorPct": 3.5275524797211744,
+      "maxPairedDifferencePct": 2.8355126143217397,
+      "pairs": [
+        {
+          "repetition": 0,
+          "scenario": "steady",
+          "direction": "download",
+          "browserMbps": 20.025321931589538,
+          "rustMbps": 19.994615515882867,
+          "differencePct": 0.15345559071387593
+        },
+        {
+          "repetition": 0,
+          "scenario": "steady",
+          "direction": "upload",
+          "browserMbps": 20.262936299292218,
+          "rustMbps": 19.747487856182204,
+          "differencePct": 2.576570751197535
+        },
+        {
+          "repetition": 0,
+          "scenario": "asymmetric",
+          "direction": "download",
+          "browserMbps": 39.35416032064128,
+          "rustMbps": 39.29324609914453,
+          "differencePct": 0.154904590678073
+        },
+        {
+          "repetition": 0,
+          "scenario": "asymmetric",
+          "direction": "upload",
+          "browserMbps": 5.010441849602989,
+          "rustMbps": 5.01936589849397,
+          "differencePct": 0.1779505473108326
+        },
+        {
+          "repetition": 0,
+          "scenario": "latency",
+          "direction": "download",
+          "browserMbps": 18.963816770963707,
+          "rustMbps": 19.119634078068593,
+          "differencePct": 0.8182940549298756
+        },
+        {
+          "repetition": 0,
+          "scenario": "latency",
+          "direction": "upload",
+          "browserMbps": 13.738602602602603,
+          "rustMbps": 14.115012854779549,
+          "differencePct": 2.7027748175304436
+        },
+        {
+          "repetition": 0,
+          "scenario": "bursty",
+          "direction": "download",
+          "browserMbps": 20.013567445365485,
+          "rustMbps": 19.89163761543918,
+          "differencePct": 0.6110973730896375
+        },
+        {
+          "repetition": 0,
+          "scenario": "bursty",
+          "direction": "upload",
+          "browserMbps": 19.40350081853671,
+          "rustMbps": 19.961602047236575,
+          "differencePct": 2.8355126143217397
+        },
+        {
+          "repetition": 0,
+          "scenario": "stalls",
+          "direction": "download",
+          "browserMbps": 15.07044558805071,
+          "rustMbps": 14.99493516736677,
+          "differencePct": 0.5023080951358604
+        },
+        {
+          "repetition": 0,
+          "scenario": "stalls",
+          "direction": "upload",
+          "browserMbps": 15.028388007054673,
+          "rustMbps": 14.916377481139293,
+          "differencePct": 0.7481142302452936
+        }
+      ]
+    },
+    {
+      "name": "webkit-release-candidate",
+      "rawSha256": "18e29a94466f121c7c7e49e3d78fa7fae935f7d9b74e86abbfa772049fc45cea",
+      "archive": "transport-webkit-release-candidate.json.gz",
+      "archiveSha256": "ae1386596166e8a3351e47a4a080f6eff141b2e430d5c633be350784a25bcd7c",
+      "recordedRevision": "1977b696219882fa8286136b064bde908c9e9905",
+      "sourceDirty": true,
+      "records": 20,
+      "meanAccountingErrorPct": 0.9683366610335781,
+      "maxAccountingErrorPct": 3.522677684502562,
+      "maxPairedDifferencePct": 5.330065692933423,
+      "pairs": [
+        {
+          "repetition": 0,
+          "scenario": "steady",
+          "direction": "download",
+          "browserMbps": 19.878176949067704,
+          "rustMbps": 19.9834291824011,
+          "differencePct": 0.5280882711361892
+        },
+        {
+          "repetition": 0,
+          "scenario": "steady",
+          "direction": "upload",
+          "browserMbps": 19.43330260521042,
+          "rustMbps": 20.061632266110557,
+          "differencePct": 3.1818240133693365
+        },
+        {
+          "repetition": 0,
+          "scenario": "asymmetric",
+          "direction": "download",
+          "browserMbps": 39.26026004016064,
+          "rustMbps": 39.463102306103764,
+          "differencePct": 0.515329274303414
+        },
+        {
+          "repetition": 0,
+          "scenario": "asymmetric",
+          "direction": "upload",
+          "browserMbps": 5.035436754176611,
+          "rustMbps": 5.006437732459263,
+          "differencePct": 0.5775619234424957
+        },
+        {
+          "repetition": 0,
+          "scenario": "latency",
+          "direction": "download",
+          "browserMbps": 19.44544793885478,
+          "rustMbps": 19.2269588871115,
+          "differencePct": 1.1299480413852965
+        },
+        {
+          "repetition": 0,
+          "scenario": "latency",
+          "direction": "upload",
+          "browserMbps": 14.194570317400578,
+          "rustMbps": 14.105534652477536,
+          "differencePct": 0.6292249800331776
+        },
+        {
+          "repetition": 0,
+          "scenario": "bursty",
+          "direction": "download",
+          "browserMbps": 19.94606066683379,
+          "rustMbps": 20.000092775266186,
+          "differencePct": 0.27052471277722323
+        },
+        {
+          "repetition": 0,
+          "scenario": "bursty",
+          "direction": "upload",
+          "browserMbps": 19.378864457831327,
+          "rustMbps": 19.401923323139165,
+          "differencePct": 0.11891901442576351
+        },
+        {
+          "repetition": 0,
+          "scenario": "stalls",
+          "direction": "download",
+          "browserMbps": 14.89255395412959,
+          "rustMbps": 14.985272752768825,
+          "differencePct": 0.6206528978751106
+        },
+        {
+          "repetition": 0,
+          "scenario": "stalls",
+          "direction": "upload",
+          "browserMbps": 14.70469229805886,
+          "rustMbps": 15.50992168514435,
+          "differencePct": 5.330065692933423
+        }
+      ]
+    },
+    {
+      "name": "webkit-release-stalls-followup",
+      "rawSha256": "f0e1a34c33a716c1e63571f9c801c82a4934871c705637e4465711efc31bf989",
+      "archive": "transport-webkit-release-stalls-followup.json.gz",
+      "archiveSha256": "b8a5707d8851dbc4f7a6ca73b3459495d73d26d844ea3fffe0e4b718611ea46a",
+      "recordedRevision": "1977b696219882fa8286136b064bde908c9e9905",
+      "sourceDirty": true,
+      "records": 12,
+      "meanAccountingErrorPct": 0.4964118862280366,
+      "maxAccountingErrorPct": 0.8748547238953575,
+      "maxPairedDifferencePct": 1.317058198090331,
+      "pairs": [
+        {
+          "repetition": 0,
+          "scenario": "stalls",
+          "direction": "download",
+          "browserMbps": 15.102286574654956,
+          "rustMbps": 15.041042048164222,
+          "differencePct": 0.4063554311276061
+        },
+        {
+          "repetition": 0,
+          "scenario": "stalls",
+          "direction": "upload",
+          "browserMbps": 14.91140117661785,
+          "rustMbps": 14.868304954918063,
+          "differencePct": 0.2894334921199905
+        },
+        {
+          "repetition": 1,
+          "scenario": "stalls",
+          "direction": "download",
+          "browserMbps": 15.115572932330826,
+          "rustMbps": 15.016960428068044,
+          "differencePct": 0.6545251478415789
+        },
+        {
+          "repetition": 1,
+          "scenario": "stalls",
+          "direction": "upload",
+          "browserMbps": 15.018479819503636,
+          "rustMbps": 14.821971762549333,
+          "differencePct": 1.317058198090331
+        },
+        {
+          "repetition": 2,
+          "scenario": "stalls",
+          "direction": "download",
+          "browserMbps": 14.922094188376754,
+          "rustMbps": 15.048854775663997,
+          "differencePct": 0.8458897143319118
+        },
+        {
+          "repetition": 2,
+          "scenario": "stalls",
+          "direction": "upload",
+          "browserMbps": 15.019897410108122,
+          "rustMbps": 14.85955470730071,
+          "differencePct": 1.0732640088403154
+        }
+      ]
+    }
+  ],
+  "webkitStalledUploadAllFourPairs": {
+    "differencesPct": [
+      5.330065692933423,
+      0.2894334921199905,
+      1.317058198090331,
+      1.0732640088403154
+    ],
+    "medianDifferencePct": 1.1951611034653231,
+    "pairsOver5Percent": 1,
+    "interpretation": "The original 5.33% pair is retained alongside the three predeclared follow-up repetitions. The median is descriptive and does not guarantee future repeatability."
+  }
+}

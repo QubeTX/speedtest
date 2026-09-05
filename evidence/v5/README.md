@@ -2,9 +2,22 @@
 
 Status: implementation candidate. This report separates completed checks from open release gates. Nothing here certifies physical-device accuracy or authorizes skipping an open acceptance check.
 
-## Independently paced HTTP acquisition
+## Optimized Rust acquisition follow-up
 
-The loopback fixture shares a payload pacer across both transfer lanes and records delivered payload independently of the clients. Browser and Rust runs are sequential, with matching profiles and endpoints. Error compares client accounting with server records aligned to the measured time window. The configured ceiling is reported separately; request overhead can make achieved throughput lower.
+The release-build follow-up exercises the same acquisition code with an optimized Rust executable. `release-build-comparison.json` binds that binary's SHA-256, source and harness hashes to the four compressed raw recordings. Browser/Rust pairs run sequentially against the independently paced local server.
+
+| Browser paired with optimized Rust | Directional runs | Mean absolute accounting error | Largest accounting error | Largest paired difference |
+|---|---:|---:|---:|---:|
+| Chrome | 20 | 0.45% | 3.11% | 2.75% |
+| Firefox | 20 | 0.53% | 3.53% | 2.84% |
+| WebKit | 20 | 0.97% | 3.53% | **5.33%** |
+| WebKit stalled-path follow-up | 12 | 0.50% | 0.88% | 1.32% |
+
+The initial matrices cover stable, asymmetric, delayed, bursty and stalled transfers. Every individual accounting error stays within 5% of independently recorded payload. The original WebKit stalled-upload pair differs by 5.33%; it is retained. A fixed three-repetition follow-up alternates browser/Rust order and records upload differences of 0.29%, 1.32% and 1.07%. Including the original pair gives a four-pair median of 1.20%, with one of four pairs still outside 5%. This is scoped evidence, not a guarantee of general repeatability or physical-device performance.
+
+## Original independently paced HTTP acquisition
+
+The loopback fixture shares a payload pacer across both transfer lanes and records delivered payload independently of the clients. These original matrices used the debug Rust example; the optimized follow-up above corrects that validation limitation without replacing the original records. Browser and Rust runs are sequential, with matching profiles and endpoints. Error compares client accounting with server records aligned to the measured time window. The configured ceiling is reported separately; request overhead can make achieved throughput lower.
 
 | Browser paired with Rust | Directional runs | Mean absolute accounting error | Largest error | Largest paired difference |
 | --- | ---: | ---: | ---: | ---: |
@@ -116,4 +129,17 @@ Two subsequent completed CI runs, [33945856594](https://github.com/QubeTX/speedt
 
 These additional recordings confirm that the earlier high-RTT pass does not establish repeatability across hosted runs. They also expose a validation confound: the workflow built the Rust acquisition example in **debug mode**. One affected upload trace reaches its first sample at 651.6 ms, while the browser samples at 503.3 ms. Debug payload generation and other development-build overhead can consume warm-up and affect achieved throughput; these traces cannot qualify release performance. The ordinary paced fixture also defaulted to the debug example, so its low byte-accounting errors remain evidence for the exercised client, not optimized production performance.
 
-The impairment workflow now builds the optimized release example at Rust candidate `635b67b396d5071e090bfffc620233ccadb170da`, records `rustBuildProfile` in each result, and the paced fixture defaults to the release executable. Rust acquisition/example source is unchanged from the earlier pinned revision; the build mode is the relevant change. The optimized follow-up is pending. Earlier failures remain visible and neither the build correction nor an acquisition-integrity pass closes the accuracy target.
+The impairment workflow now builds the optimized release example at Rust candidate `635b67b396d5071e090bfffc620233ccadb170da`, records `rustBuildProfile` in each result, and the paced fixture defaults to the release executable. Rust acquisition/example source is unchanged from the earlier pinned revision; the build mode is the relevant change. Earlier failures remain visible and neither the build correction nor an acquisition-integrity pass closes the accuracy target.
+
+### Optimized packet-shaped follow-up
+
+[Run 33948862496, attempt 2](https://github.com/QubeTX/speedtest/actions/runs/33948862496) completed all acquisition-integrity checks using the optimized Rust candidate. Its 60 records (48 v5 directions and 12 original-v4 runs) are retained in `netem-release-build.json.gz`; `netem-release-build-comparison.json` includes all pairs, exact source revisions, explicit release profile and raw/archive hashes. Attempt 1 failed during development-fixture module loading before any measurements; its original logs are retained.
+
+| Condition | Median download difference, three pairs | Median upload difference, three pairs |
+|---|---:|---:|
+| Clean | 0.006% | 0.42% |
+| Asymmetric | 0.004% | 0.98% |
+| 150 ms added RTT | 0.006% | 3.87% |
+| Random 0.5% loss, 80 ms added RTT | **35.11%** | **11.95%** |
+
+The clean/asymmetric pairs are all within 1.04%. The largest individual high-RTT upload pair differs by 5.32%, despite its median meeting the target. Loss remains a material qualification failure: within-surface download coefficients of variation are 12.0% in Chrome and 24.3% in Rust; upload is 6.9% and 21.6%. Differences change sign between repetitions, and loss histories are independently randomized. This establishes recurring short-run variability, not its complete cause or equivalence between clients. The production application source and uploaded iOS binary were not changed to improve these numbers. Physical/provider qualification and the loss repeatability gate remain open.
