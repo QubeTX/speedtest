@@ -1,6 +1,6 @@
-# SpeedQX v5 candidate validation
+# SpeedQX v5 validation evidence
 
-Status: implementation candidate. This report separates completed checks from open release gates. Nothing here certifies physical-device accuracy or authorizes skipping an open acceptance check.
+Status: release authorized by the owner on September 5, 2026 after disclosure of the missed random-loss repeatability targets and pending physical acceptance. Those checks are deferred follow-ups; this report retains failures and does not certify physical-device accuracy.
 
 ## Optimized Rust acquisition follow-up
 
