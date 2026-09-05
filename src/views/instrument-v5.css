@@ -9,3 +9,26 @@
 .v5-settings{padding:24px;max-width:760px;margin:auto;font:13px/1.7 "IBM Plex Mono",monospace}.v5-settings section+section{border-top:1px solid #999;padding-top:22px;margin-top:22px}.v5-settings h2{font:600 16px "IBM Plex Mono",monospace;margin-bottom:12px}.v5-settings p{margin:14px 0;color:#444}.v5-settings a,.v5-footer a{color:inherit}.v5-setting-toggle{display:flex;align-items:flex-start;gap:12px;min-height:44px;padding:10px 0;cursor:pointer}.v5-setting-toggle input{width:18px;height:18px;flex-shrink:0;margin-top:2px;accent-color:#111}.v5-setting-choices{display:flex;flex-wrap:wrap;gap:8px}.v5-setting-choices button{min-height:44px;padding:10px 14px;border:1px solid #111;border-radius:6px;background:transparent;color:#111;font:inherit;cursor:pointer}.v5-setting-choices [aria-pressed=true]{background:#111;color:#fff}@media(max-width:700px){.v5-settings{padding:20px 18px}}
 
 .v5-details table{table-layout:fixed}.v5-details th,.v5-details td{overflow-wrap:anywhere}.v5-value strong{min-width:0}
+
+/* Keep desktop Settings within a normal-height viewport without clipping
+   content on shorter windows, mobile screens, or enlarged text. */
+@media (min-width: 900px) {
+  .v5-settings section + section { margin-top: 16px; padding-top: 16px; }
+}
+
+.cassette-rewind-rotor { display: block; width: 100%; height: 100%; }
+.v5-reset--rewind .cassette-rewind-rotor { animation: cassette-rewind 420ms cubic-bezier(.45, 0, .2, 1) both; }
+.v5-reset--rewind .v5-readout,
+.v5-reset--rewind #measurement-details { animation: readings-clear 200ms 140ms ease-in both; pointer-events: none; }
+.v5-reset--settle .v5-readout { animation: readings-ready 260ms ease-out both; pointer-events: none; }
+.cassette-transport[aria-disabled=true] { cursor: wait !important; }
+.cassette-transport[aria-disabled=true]:active { transform: none; }
+@keyframes cassette-rewind { to { transform: rotate(-360deg); } }
+@keyframes readings-clear { to { opacity: 0; transform: translateY(-7px); } }
+@keyframes readings-ready { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .v5-reset--rewind .cassette-rewind-rotor,
+  .v5-reset--rewind .v5-readout,
+  .v5-reset--rewind #measurement-details,
+  .v5-reset--settle .v5-readout { animation: none; }
+}

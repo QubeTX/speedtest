@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [4.0.1] - 2026-09-05
+
+### Changed
+
+- Replace the legacy cube favicon with a monochrome cassette mark, with SVG, multi-size ICO, PNG and Apple touch variants. Versioned links refresh browser caches.
+- Start each fresh visit in Quick mode, including browsers with a previously saved Deep selection. Keep the current visit's profile choice and all other saved preferences.
+- Reset completed results with a brief reel rewind, fading readings and an animated panel height. Clear the underlying run immediately, guard repeated presses and clean up on navigation. Honor reduced-motion preferences.
+- Tighten desktop Settings section spacing so the page fits a normal-height desktop viewport without a small unnecessary scroll. Shorter windows and mobile layouts still scroll to all options.
+
 ## [4.0.0] - 2026-09-05
 
 Release authorized on September 5 with the validation limits below.

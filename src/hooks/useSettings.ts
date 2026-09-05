@@ -8,6 +8,9 @@ function loadSettings(): Settings {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const loaded: Settings = { ...DEFAULT_SETTINGS, ...JSON.parse(raw) };
+      // Quick is the starting choice on every fresh visit. Deep is a choice
+      // for this visit, not a lasting preference inherited from an older run.
+      loaded.testProfile = DEFAULT_SETTINGS.testProfile;
       // v4 migrations for settings whose UI no longer exists:
       // - provider picker removed — a stored single-provider mode would silently
       //   constrain the engine with no way to change it back. Force the registry.
