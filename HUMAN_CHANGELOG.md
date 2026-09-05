@@ -2,6 +2,13 @@
 
 A plain-English companion to [CHANGELOG.md](CHANGELOG.md).
 
+## September 5, 2026 — Cassette icon and smoother resets (4.0.1)
+
+- The browser tab now carries a crisp cassette icon that matches the speed test.
+- Each fresh visit starts with Quick selected. Deep remains available for the current visit, and your other settings stay saved.
+- Starting over after a completed test briefly rewinds the cassette and clears the readings smoothly. The panel eases into place instead of snapping, and reduced-motion preferences are respected.
+- Settings fits comfortably on a normal-height desktop screen without an unnecessary tiny scroll. Smaller windows can still scroll to every option.
+
 ## September 5, 2026 — Sustained measurement and a clearer instrument
 
 This release includes the testing limits described below.
