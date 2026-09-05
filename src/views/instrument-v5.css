@@ -13,7 +13,10 @@
 /* Keep desktop Settings within a normal-height viewport without clipping
    content on shorter windows, mobile screens, or enlarged text. */
 @media (min-width: 900px) {
-  .v5-settings section + section { margin-top: 16px; padding-top: 16px; }
+  .v5-settings { --v5-settings-gap: clamp(8px, calc((100dvh - 760px) / 8), 16px); }
+  .v5-settings section + section { margin-top: var(--v5-settings-gap); padding-top: var(--v5-settings-gap); }
+  .v5-settings h2 { margin-bottom: 10px; }
+  .v5-settings p { margin-block: min(14px, var(--v5-settings-gap)); }
 }
 
 .cassette-rewind-rotor { display: block; width: 100%; height: 100%; }
