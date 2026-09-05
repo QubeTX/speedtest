@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## [4.0.0] - 2026-09-04
+
+Implementation candidate; release acceptance and publication are pending.
+
+### Changed
+
+- **Methodology v5 sustained throughput:** new runs calculate decimal Mbps from receiver-accounted byte counters and elapsed measurement time after an explicit two-second warm-up. Real stalls and partial final intervals remain; fastest-half upload selection, retrospective plateau selection, and confidence-driven early stopping are removed from the active engine. Historical records retain their methodology.
+- **Common provider evidence:** Quick is the default, capped at 90 seconds; Deep repeats the same primary comparison and is capped at five minutes. Cloudflare and consenting M-Lab MSAK contribute one sustained estimate per primary network to the median. NDT7 is separately labeled single-stream evidence; supplementary providers do not change the headline. Single-source, provisional, missing and interrupted results are explicit.
+- **Repeatable ceilings and honest uncertainty:** an estimated ceiling needs two non-overlapping three-second windows within 10%. Provider disagreement can withhold it. Chronological window ranges describe estimated repeatability without a nominal 95% accuracy guarantee.
+- **Latency and loss semantics:** ping is median idle HTTP RTT to the common Cloudflare endpoint, with separate download-loaded/upload-loaded probes. Minimum HTTP RTT, server TCP minimum RTT and HTTP probe failure rate remain distinct. UDP loss and TCP retransmission rates are unavailable unless directly measured.
+- **Resource ownership and provenance:** configurable synthetic-payload ceilings, bounded requests/sockets/memory, acquisition traces, actual confirmed bytes and conservative budget accounting survive cancellation and limits. Background/network transitions stop comparable collection. M-Lab consent discloses publication of measurements and IP addresses.
+
+### Validation
+
+- Added counter-reset, stall, irregular-time, buffering, cancellation and provider-failure regressions, complete TypeScript/Rust trace replay, and independent loopback payload comparisons. These validate specific behavior; physical network accuracy, device acceptance and animation overhead remain separate release gates, documented in the validation evidence.
+
+### Interface and portability
+
+- Rebuilt the vector cassette with shared housing, guides, tape packs and radius-aware reel speeds. Transfer drives motion, stalls brake it, upload reverses it, and discovery/latency use a restrained probe pulse. Reduced motion freezes continuous movement. Download/upload lead, ceilings sit beneath them, and provider evidence plus inspectable traces are one interaction away.
+- The website owns the canonical TypeScript acquisition, contract, result text and methodology guide. The app consumes generated copies with normalized SHA-256 hashes, a source commit pin and CI source verification.
+
 ## [3.0.11] — 2026-07-06
 
 ### Changed

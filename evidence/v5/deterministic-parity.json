@@ -1,0 +1,124 @@
+{
+  "kind": "deterministic-estimator-and-full-trace-parity",
+  "limitations": "Synthetic counter traces validate estimators, not physical network accuracy. Transport and device acceptance are separate.",
+  "traces": 26,
+  "compared": "Every estimate field, both primary aggregations, warnings, qualifications, ranges, ceilings and provider identities",
+  "comparisons": [
+    {
+      "name": "fixed-download",
+      "truthMbps": 60,
+      "v4Mbps": 60,
+      "v5Mbps": 60,
+      "v4ErrorPct": 0,
+      "v5ErrorPct": 0
+    },
+    {
+      "name": "fixed-upload",
+      "truthMbps": 60,
+      "v4Mbps": 60,
+      "v5Mbps": 60,
+      "v4ErrorPct": 0,
+      "v5ErrorPct": 0
+    },
+    {
+      "name": "asymmetric-download",
+      "truthMbps": 120,
+      "v4Mbps": 120,
+      "v5Mbps": 120,
+      "v4ErrorPct": 0,
+      "v5ErrorPct": 0
+    },
+    {
+      "name": "asymmetric-upload",
+      "truthMbps": 8,
+      "v4Mbps": 8,
+      "v5Mbps": 8,
+      "v4ErrorPct": 0,
+      "v5ErrorPct": 0
+    },
+    {
+      "name": "alternating-download",
+      "truthMbps": 60,
+      "v4Mbps": 92,
+      "v5Mbps": 60,
+      "v4ErrorPct": 53.33333333333334,
+      "v5ErrorPct": 0
+    },
+    {
+      "name": "alternating-upload",
+      "truthMbps": 60,
+      "v4Mbps": 100,
+      "v5Mbps": 60,
+      "v4ErrorPct": 66.66666666666667,
+      "v5ErrorPct": 0
+    },
+    {
+      "name": "stalls-download",
+      "truthMbps": 45,
+      "v4Mbps": 60,
+      "v5Mbps": 45,
+      "v4ErrorPct": 33.33333333333333,
+      "v5ErrorPct": 0
+    },
+    {
+      "name": "stalls-upload",
+      "truthMbps": 45,
+      "v4Mbps": 60,
+      "v5Mbps": 45,
+      "v4ErrorPct": 33.33333333333333,
+      "v5ErrorPct": 0
+    },
+    {
+      "name": "ramp-download",
+      "truthMbps": 68.5,
+      "v4Mbps": 83.5,
+      "v5Mbps": 68.5,
+      "v4ErrorPct": 21.897810218978098,
+      "v5ErrorPct": 0
+    },
+    {
+      "name": "ramp-upload",
+      "truthMbps": 68.5,
+      "v4Mbps": 100,
+      "v5Mbps": 68.5,
+      "v4ErrorPct": 45.98540145985402,
+      "v5ErrorPct": 0
+    },
+    {
+      "name": "correlated-download",
+      "truthMbps": 63.0563645,
+      "v4Mbps": 60.550038240000006,
+      "v5Mbps": 63.0563645,
+      "v4ErrorPct": 3.9747395522619966,
+      "v5ErrorPct": 0
+    },
+    {
+      "name": "correlated-upload",
+      "truthMbps": 58.786752,
+      "v4Mbps": 63.10297919999999,
+      "v5Mbps": 58.786752,
+      "v4ErrorPct": 7.342176686339119,
+      "v5ErrorPct": 0
+    },
+    {
+      "name": "irregular-download",
+      "truthMbps": 56.8,
+      "v4Mbps": 20.8,
+      "v5Mbps": 56.8,
+      "v4ErrorPct": 63.38028169014085,
+      "v5ErrorPct": 0
+    },
+    {
+      "name": "irregular-upload",
+      "truthMbps": 56.8,
+      "v4Mbps": 46,
+      "v5Mbps": 56.8,
+      "v4ErrorPct": 19.01408450704225,
+      "v5ErrorPct": 0
+    }
+  ],
+  "meanAbsoluteErrorPct": {
+    "v4": 24.875797198663072,
+    "v5": 0
+  }
+}

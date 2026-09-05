@@ -1,0 +1,24 @@
+# Human Changelog
+
+A plain-English companion to [CHANGELOG.md](CHANGELOG.md).
+
+## September 4, 2026 — Sustained measurement and a clearer instrument
+
+This is a release candidate. Validation and publication are still in progress.
+
+**Changed**
+
+- Speed results now describe the data the tested device sustained over the measurement period. Slow stretches and brief stalls count, including during uploads. This describes the tested device and route, not the physical capacity promised by an internet plan.
+- Quick is the starting choice everywhere. Deep spends longer checking the same main networks and adds supporting tests. A result based on only one main source says so, and extra tests cannot silently raise the headline.
+- An estimated ceiling appears only when a higher speed repeats for long enough. The details expose disagreement and variation instead of presenting a precise-looking accuracy guarantee.
+- Ping now describes a typical idle web request. Delay during downloads, delay during uploads, failed web probes and server connection signals have distinct labels; missing packet-loss evidence stays unavailable.
+- You can choose a data ceiling, see transferred data, and stop a run while retaining usable partial results. Backgrounding the app or changing networks ends comparable collection. The choice to use M-Lab includes its publication policy.
+
+**Validation**
+
+- New automated cases reproduce stalls, changing speed, incomplete transfers, provider failures and cancellation. Controlled local comparisons check the bytes actually delivered. Physical devices and real network conditions need their own acceptance checks before an accuracy claim or release.
+
+**Instrument and details**
+
+- The redrawn cassette shows measured transfer activity, slows for a stall and reverses for uploads. A small pulse distinguishes initial connection checks from data transfer, and reduced-motion preferences are respected. The two speed results lead the screen, with ceilings underneath and technical detail close at hand.
+- The website and app share their measurement code and explanations, with automated checks to catch drift.

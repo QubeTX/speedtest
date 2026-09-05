@@ -1,0 +1,10 @@
+{
+  "note": "Normalized source hashes collected after the paced comparisons. These measurement files were unchanged throughout the final matrices; repository base revisions and dirty-source status remain in individual reports. UI and test harness fixes continued separately.",
+  "files": {
+    "src/services/acquisition-v5.ts": "8f761fe047acc6d79f4d7a2aaa4fb959913947cbf37e77b84fba1a4533688b97",
+    "src/services/engine-v5.ts": "a2ed20409b4a71938b23a5897be7f2e0bfa49b9b9ef1fe2826392ecce6ddc381",
+    "src/services/measurement-v5.ts": "2be74714d0d261262035c3762b1eb3ef847ad6254937b121ab245bf6092e3693",
+    "src/services/measurement-contract-v5.json": "74fab5e9631d18bec2314ed3a43e0ebed344b7a61143a7687d503d377784a776",
+    "scripts/controlled-reference.mjs": "ae01f5a00b5f66482477d96a8358b496af3477dc6a00c8f0442188c8911c16f9"
+  }
+}

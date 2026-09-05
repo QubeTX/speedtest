@@ -1,0 +1,3972 @@
+{
+  "capturedAt": "2026-09-05T02:54:26.977Z",
+  "browserVersion": "152.0.7977.76",
+  "kind": "paired cassette component with real acquisition and independent loopback delivery",
+  "limitations": "Alternating pair order; same mounted production component and live metric updates, with transfer motion enabled or idle static geometry. Chromium CPU throttling models a constrained browser, not a physical iPhone/Android. Application pacer, no physical line-capacity or native animation claim.",
+  "comparisons": [
+    {
+      "cpuRate": 1,
+      "direction": "download",
+      "pairs": [
+        {
+          "pair": 0,
+          "regressionPct": -0.32033415327377135
+        },
+        {
+          "pair": 1,
+          "regressionPct": 0.1235654569957334
+        },
+        {
+          "pair": 2,
+          "regressionPct": 0.30756763768988726
+        },
+        {
+          "pair": 3,
+          "regressionPct": -0.30495124333553836
+        }
+      ],
+      "medianRegressionPct": -0.09069289316990248
+    },
+    {
+      "cpuRate": 1,
+      "direction": "upload",
+      "pairs": [
+        {
+          "pair": 0,
+          "regressionPct": -0.5250021252056536
+        },
+        {
+          "pair": 1,
+          "regressionPct": 0.06995507333894535
+        },
+        {
+          "pair": 2,
+          "regressionPct": -0.027945790079009214
+        },
+        {
+          "pair": 3,
+          "regressionPct": -0.2828585604103706
+        }
+      ],
+      "medianRegressionPct": -0.1554021752446899
+    },
+    {
+      "cpuRate": 4,
+      "direction": "download",
+      "pairs": [
+        {
+          "pair": 0,
+          "regressionPct": 0.05804959236280771
+        },
+        {
+          "pair": 1,
+          "regressionPct": 0.3202972651257796
+        },
+        {
+          "pair": 2,
+          "regressionPct": -0.1695651363733175
+        },
+        {
+          "pair": 3,
+          "regressionPct": 0.08648597971689931
+        }
+      ],
+      "medianRegressionPct": 0.07226778603985351
+    },
+    {
+      "cpuRate": 4,
+      "direction": "upload",
+      "pairs": [
+        {
+          "pair": 0,
+          "regressionPct": -0.2803371223293105
+        },
+        {
+          "pair": 1,
+          "regressionPct": -0.05372492690594033
+        },
+        {
+          "pair": 2,
+          "regressionPct": 0.036584215467250214
+        },
+        {
+          "pair": 3,
+          "regressionPct": -0.149884118790089
+        }
+      ],
+      "medianRegressionPct": -0.10180452284801467
+    }
+  ],
+  "errors": [],
+  "rows": [
+    {
+      "cpuRate": 1,
+      "direction": "download",
+      "pair": 0,
+      "motion": false,
+      "deliveredMbps": 19.961711138923658,
+      "trace": {
+        "provider": "cloudflare",
+        "endpoint": "http://127.0.0.1:51358/test",
+        "transport": "https",
+        "streams": 2,
+        "direction": "download",
+        "accounting": "received",
+        "warmupMs": 2000,
+        "points": [
+          {
+            "t": 0,
+            "bytes": 0
+          },
+          {
+            "t": 502.7999999523163,
+            "bytes": 1179648
+          },
+          {
+            "t": 1002.7999999523163,
+            "bytes": 2393216
+          },
+          {
+            "t": 1500.7000000476837,
+            "bytes": 3703936
+          },
+          {
+            "t": 2012.6000000238419,
+            "bytes": 4949120
+          },
+          {
+            "t": 2514.2000000476837,
+            "bytes": 6196608
+          },
+          {
+            "t": 3012.100000023842,
+            "bytes": 7441792
+          },
+          {
+            "t": 3512,
+            "bytes": 8686976
+          },
+          {
+            "t": 4012.7000000476837,
+            "bytes": 9932160
+          },
+          {
+            "t": 4502.100000023842,
+            "bytes": 11196713
+          },
+          {
+            "t": 5004.299999952316,
+            "bytes": 12441897
+          },
+          {
+            "t": 5503.299999952316,
+            "bytes": 13687081
+          },
+          {
+            "t": 6001.799999952316,
+            "bytes": 14932265
+          },
+          {
+            "t": 6501.899999976158,
+            "bytes": 16195201
+          },
+          {
+            "t": 7004.899999976158,
+            "bytes": 17438081
+          },
+          {
+            "t": 7500.600000023842,
+            "bytes": 18686337
+          },
+          {
+            "t": 8008.5,
+            "bytes": 19931521
+          },
+          {
+            "t": 8510.5,
+            "bytes": 21215863
+          },
+          {
+            "t": 9010.299999952316,
+            "bytes": 22461047
+          },
+          {
+            "t": 9514.200000047684,
+            "bytes": 23706231
+          },
+          {
+            "t": 10002.600000023842,
+            "bytes": 24951415
+          }
+        ],
+        "stopReason": "complete"
+      },
+      "estimate": {
+        "sustainedMbps": 20.027329161451817,
+        "ceilingMbps": 20.025693414338768,
+        "measuredBytes": 20002295,
+        "measuredMs": 7990,
+        "samples": 16,
+        "repeatability": {
+          "lower": 19.928834132008657,
+          "upper": 20.078963273166867
+        },
+        "qualification": "measured",
+        "warnings": []
+      },
+      "startedAt": 1788576506673.6,
+      "rotations": []
+    },
+    {
+      "cpuRate": 1,
+      "direction": "download",
+      "pair": 0,
+      "motion": true,
+      "deliveredMbps": 20.025655317279483,
+      "trace": {
+        "provider": "cloudflare",
+        "endpoint": "http://127.0.0.1:51358/test",
+        "transport": "https",
+        "streams": 2,
+        "direction": "download",
+        "accounting": "received",
+        "warmupMs": 2000,
+        "points": [
+          {
+            "t": 0,
+            "bytes": 0
+          },
+          {
+            "t": 501.2000000476837,
+            "bytes": 1179648
+          },
+          {
+            "t": 1000.7000000476837,
+            "bytes": 2393216
+          },
+          {
+            "t": 1512.8000000715256,
+            "bytes": 3703936
+          },
+          {
+            "t": 2012.7000000476837,
+            "bytes": 4949120
+          },
+          {
+            "t": 2505.3000000715256,
+            "bytes": 6195840
+          },
+          {
+            "t": 3008,
+            "bytes": 7441792
+          },
+          {
+            "t": 3512,
+            "bytes": 8686976
+          },
+          {
+            "t": 4001.2000000476837,
+            "bytes": 9924224
+          },
+          {
+            "t": 4505.399999976158,
+            "bytes": 11206157
+          },
+          {
+            "t": 5007.399999976158,
+            "bytes": 12451341
+          },
+          {
+            "t": 5510.399999976158,
+            "bytes": 13696525
+          },
+          {
+            "t": 6012.5,
+            "bytes": 14941709
+          },
+          {
+            "t": 6512,
+            "bytes": 16178414
+          },
+          {
+            "t": 7011.600000023842,
+            "bytes": 17423598
+          },
+          {
+            "t": 7512.600000023842,
+            "bytes": 18734318
+          },
+          {
+            "t": 8012.700000047684,
+            "bytes": 19979502
+          },
+          {
+            "t": 8512.5,
+            "bytes": 21225706
+          },
+          {
+            "t": 9001.300000071526,
+            "bytes": 22405354
+          },
+          {
+            "t": 9500,
+            "bytes": 23650538
+          },
+          {
+            "t": 10007.300000071526,
+            "bytes": 24953322
+          }
+        ],
+        "stopReason": "complete"
+      },
+      "estimate": {
+        "sustainedMbps": 20.017713956861225,
+        "ceilingMbps": 20.007216171035548,
+        "measuredBytes": 20004202,
+        "measuredMs": 7994.600000023842,
+        "samples": 16,
+        "repeatability": {
+          "lower": 19.929242625722544,
+          "upper": 20.08390238278931
+        },
+        "qualification": "measured",
+        "warnings": []
+      },
+      "startedAt": 1788576517689.6,
+      "rotations": [
+        "rotate(61.419deg)",
+        "rotate(60.225deg)"
+      ]
+    },
+    {
+      "cpuRate": 1,
+      "direction": "download",
+      "pair": 1,
+      "motion": true,
+      "deliveredMbps": 19.98137246556926,
+      "trace": {
+        "provider": "cloudflare",
+        "endpoint": "http://127.0.0.1:51358/test",
+        "transport": "https",
+        "streams": 2,
+        "direction": "download",
+        "accounting": "received",
+        "warmupMs": 2000,
+        "points": [
+          {
+            "t": 0,
+            "bytes": 0
+          },
+          {
+            "t": 511.7000000476837,
+            "bytes": 1179648
+          },
+          {
+            "t": 1000.3999999761581,
+            "bytes": 2458752
+          },
+          {
+            "t": 1500.3999999761581,
+            "bytes": 3703936
+          },
+          {
+            "t": 2000.5,
+            "bytes": 4949120
+          },
+          {
+            "t": 2501,
+            "bytes": 6196608
+          },
+          {
+            "t": 3001.5,
+            "bytes": 7441792
+          },
+          {
+            "t": 3500.5,
+            "bytes": 8681344
+          },
+          {
+            "t": 4000.2000000476837,
+            "bytes": 9924224
+          },
+          {
+            "t": 4500.200000047684,
+            "bytes": 11172581
+          },
+          {
+            "t": 5000.399999976158,
+            "bytes": 12483813
+          },
+          {
+            "t": 5502.399999976158,
+            "bytes": 13663461
+          },
+          {
+            "t": 6000.700000047684,
+            "bytes": 14908645
+          },
+          {
+            "t": 6501.200000047684,
+            "bytes": 16151374
+          },
+          {
+            "t": 7005.600000023842,
+            "bytes": 17462094
+          },
+          {
+            "t": 7500.299999952316,
+            "bytes": 18707278
+          },
+          {
+            "t": 8012.600000023842,
+            "bytes": 19952462
+          },
+          {
+            "t": 8513.399999976158,
+            "bytes": 21195440
+          },
+          {
+            "t": 9000.200000047684,
+            "bytes": 22440624
+          },
+          {
+            "t": 9500.299999952316,
+            "bytes": 23685808
+          },
+          {
+            "t": 10000.700000047684,
+            "bytes": 24930992
+          }
+        ],
+        "stopReason": "complete"
+      },
+      "estimate": {
+        "sustainedMbps": 19.98137246556926,
+        "ceilingMbps": 19.91543306530155,
+        "measuredBytes": 19981872,
+        "measuredMs": 8000.200000047684,
+        "samples": 16,
+        "repeatability": {
+          "lower": 19.835732022792033,
+          "upper": 20.091855605451855
+        },
+        "qualification": "measured",
+        "warnings": []
+      },
+      "startedAt": 1788576528702.3,
+      "rotations": [
+        "rotate(338.409deg)",
+        "rotate(248.913deg)"
+      ]
+    },
+    {
+      "cpuRate": 1,
+      "direction": "download",
+      "pair": 1,
+      "motion": false,
+      "deliveredMbps": 20.00609308591787,
+      "trace": {
+        "provider": "cloudflare",
+        "endpoint": "http://127.0.0.1:51358/test",
+        "transport": "https",
+        "streams": 2,
+        "direction": "download",
+        "accounting": "received",
+        "warmupMs": 2000,
+        "points": [
+          {
+            "t": 0,
+            "bytes": 0
+          },
+          {
+            "t": 501.7999999523163,
+            "bytes": 1179648
+          },
+          {
+            "t": 1001.0999999046326,
+            "bytes": 2458752
+          },
+          {
+            "t": 1502.8999999761581,
+            "bytes": 3703936
+          },
+          {
+            "t": 2005.0999999046326,
+            "bytes": 4949120
+          },
+          {
+            "t": 2503.899999976158,
+            "bytes": 6195840
+          },
+          {
+            "t": 3004.2999999523163,
+            "bytes": 7441792
+          },
+          {
+            "t": 3506.399999976158,
+            "bytes": 8686976
+          },
+          {
+            "t": 4002.5999999046326,
+            "bytes": 9932160
+          },
+          {
+            "t": 4500.199999928474,
+            "bytes": 11202239
+          },
+          {
+            "t": 5001.599999904633,
+            "bytes": 12447423
+          },
+          {
+            "t": 5500.399999976158,
+            "bytes": 13692607
+          },
+          {
+            "t": 6006.199999928474,
+            "bytes": 14937791
+          },
+          {
+            "t": 6506.299999952316,
+            "bytes": 16179252
+          },
+          {
+            "t": 7008,
+            "bytes": 17424436
+          },
+          {
+            "t": 7507.899999976158,
+            "bytes": 18669620
+          },
+          {
+            "t": 8006.799999952316,
+            "bytes": 19914804
+          },
+          {
+            "t": 8505.799999952316,
+            "bytes": 21157126
+          },
+          {
+            "t": 9003.599999904633,
+            "bytes": 22402310
+          },
+          {
+            "t": 9505.399999976158,
+            "bytes": 23713030
+          },
+          {
+            "t": 10006.299999952316,
+            "bytes": 24958214
+          }
+        ],
+        "stopReason": "complete"
+      },
+      "estimate": {
+        "sustainedMbps": 20.00609308591787,
+        "ceilingMbps": 20.011986381303075,
+        "measuredBytes": 20009094,
+        "measuredMs": 8001.200000047684,
+        "samples": 16,
+        "repeatability": {
+          "lower": 19.86203677196958,
+          "upper": 20.066198857142854
+        },
+        "qualification": "measured",
+        "warnings": []
+      },
+      "startedAt": 1788576539712.4001,
+      "rotations": [
+        "rotate(136.884deg)",
+        "rotate(113.961deg)"
+      ]
+    },
+    {
+      "cpuRate": 1,
+      "direction": "download",
+      "pair": 2,
+      "motion": false,
+      "deliveredMbps": 20.035572542026088,
+      "trace": {
+        "provider": "cloudflare",
+        "endpoint": "http://127.0.0.1:51358/test",
+        "transport": "https",
+        "streams": 2,
+        "direction": "download",
+        "accounting": "received",
+        "warmupMs": 2000,
+        "points": [
+          {
+            "t": 0,
+            "bytes": 0
+          },
+          {
+            "t": 502.5,
+            "bytes": 1179648
+          },
+          {
+            "t": 1006.2999999523163,
+            "bytes": 2458752
+          },
+          {
+            "t": 1508.5,
+            "bytes": 3679360
+          },
+          {
+            "t": 2004.6999999284744,
+            "bytes": 4949120
+          },
+          {
+            "t": 2506.1999999284744,
+            "bytes": 6196608
+          },
+          {
+            "t": 3005.6999999284744,
+            "bytes": 7441792
+          },
+          {
+            "t": 3503,
+            "bytes": 8686976
+          },
+          {
+            "t": 4004.899999976158,
+            "bytes": 9924224
+          },
+          {
+            "t": 4508,
+            "bytes": 11215272
+          },
+          {
+            "t": 5006.299999952316,
+            "bytes": 12460456
+          },
+          {
+            "t": 5504.799999952316,
+            "bytes": 13705640
+          },
+          {
+            "t": 6010.5,
+            "bytes": 14950824
+          },
+          {
+            "t": 6509.399999976158,
+            "bytes": 16208915
+          },
+          {
+            "t": 7008.799999952316,
+            "bytes": 17448211
+          },
+          {
+            "t": 7505.299999952316,
+            "bytes": 18671635
+          },
+          {
+            "t": 8003.099999904633,
+            "bytes": 19944467
+          },
+          {
+            "t": 8503,
+            "bytes": 21199633
+          },
+          {
+            "t": 9008.5,
+            "bytes": 22444817
+          },
+          {
+            "t": 9506.099999904633,
+            "bytes": 23684369
+          },
+          {
+            "t": 10011.099999904633,
+            "bytes": 24935185
+          }
+        ],
+        "stopReason": "complete"
+      },
+      "estimate": {
+        "sustainedMbps": 19.970088928916383,
+        "ceilingMbps": 19.994113306559502,
+        "measuredBytes": 19986065,
+        "measuredMs": 8006.399999976158,
+        "samples": 16,
+        "repeatability": {
+          "lower": 19.93607676312247,
+          "upper": 20.037916042637153
+        },
+        "qualification": "measured",
+        "warnings": []
+      },
+      "startedAt": 1788576550731.9001,
+      "rotations": [
+        "rotate(136.884deg)",
+        "rotate(113.961deg)"
+      ]
+    },
+    {
+      "cpuRate": 1,
+      "direction": "download",
+      "pair": 2,
+      "motion": true,
+      "deliveredMbps": 19.973949604860934,
+      "trace": {
+        "provider": "cloudflare",
+        "endpoint": "http://127.0.0.1:51358/test",
+        "transport": "https",
+        "streams": 2,
+        "direction": "download",
+        "accounting": "received",
+        "warmupMs": 2000,
+        "points": [
+          {
+            "t": 0,
+            "bytes": 0
+          },
+          {
+            "t": 503,
+            "bytes": 1177088
+          },
+          {
+            "t": 1001.6000000238419,
+            "bytes": 2458752
+          },
+          {
+            "t": 1501.3999999761581,
+            "bytes": 3703936
+          },
+          {
+            "t": 2000.5,
+            "bytes": 4921984
+          },
+          {
+            "t": 2501.3000000715256,
+            "bytes": 6196608
+          },
+          {
+            "t": 3001.399999976158,
+            "bytes": 7441792
+          },
+          {
+            "t": 3501.5,
+            "bytes": 8686976
+          },
+          {
+            "t": 4001.2000000476837,
+            "bytes": 9932160
+          },
+          {
+            "t": 4501.300000071526,
+            "bytes": 11162361
+          },
+          {
+            "t": 5001.300000071526,
+            "bytes": 12407545
+          },
+          {
+            "t": 5501.399999976158,
+            "bytes": 13652729
+          },
+          {
+            "t": 6001.399999976158,
+            "bytes": 14963449
+          },
+          {
+            "t": 6501.200000047684,
+            "bytes": 16200697
+          },
+          {
+            "t": 7001.200000047684,
+            "bytes": 17460729
+          },
+          {
+            "t": 7501.100000023842,
+            "bytes": 18705913
+          },
+          {
+            "t": 8001.300000071526,
+            "bytes": 19951097
+          },
+          {
+            "t": 8501.200000047684,
+            "bytes": 21189515
+          },
+          {
+            "t": 9001.399999976158,
+            "bytes": 22434699
+          },
+          {
+            "t": 9501.100000023842,
+            "bytes": 23679883
+          },
+          {
+            "t": 10001.300000071526,
+            "bytes": 24925067
+          }
+        ],
+        "stopReason": "complete"
+      },
+      "estimate": {
+        "sustainedMbps": 20.001082891532022,
+        "ceilingMbps": 19.956174353030068,
+        "measuredBytes": 20003083,
+        "measuredMs": 8000.800000071526,
+        "samples": 16,
+        "repeatability": {
+          "lower": 19.882326589745716,
+          "upper": 20.116138666666668
+        },
+        "qualification": "measured",
+        "warnings": []
+      },
+      "startedAt": 1788576561750.1,
+      "rotations": [
+        "rotate(198.285deg)",
+        "rotate(174.282deg)"
+      ]
+    },
+    {
+      "cpuRate": 1,
+      "direction": "download",
+      "pair": 3,
+      "motion": true,
+      "deliveredMbps": 20.005270934053705,
+      "trace": {
+        "provider": "cloudflare",
+        "endpoint": "http://127.0.0.1:51358/test",
+        "transport": "https",
+        "streams": 2,
+        "direction": "download",
+        "accounting": "received",
+        "warmupMs": 2000,
+        "points": [
+          {
+            "t": 0,
+            "bytes": 0
+          },
+          {
+            "t": 502,
+            "bytes": 1179648
+          },
+          {
+            "t": 1003,
+            "bytes": 2436480
+          },
+          {
+            "t": 1503,
+            "bytes": 3679360
+          },
+          {
+            "t": 2002.8999999761581,
+            "bytes": 4949120
+          },
+          {
+            "t": 2503.0999999046326,
+            "bytes": 6196608
+          },
+          {
+            "t": 3001.1999999284744,
+            "bytes": 7441792
+          },
+          {
+            "t": 3503.0999999046326,
+            "bytes": 8686976
+          },
+          {
+            "t": 4003.2999999523163,
+            "bytes": 9932160
+          },
+          {
+            "t": 4502.799999952316,
+            "bytes": 11221183
+          },
+          {
+            "t": 5003.199999928474,
+            "bytes": 12466367
+          },
+          {
+            "t": 5502.899999976158,
+            "bytes": 13711551
+          },
+          {
+            "t": 6002.799999952316,
+            "bytes": 14956735
+          },
+          {
+            "t": 6502.899999976158,
+            "bytes": 16221022
+          },
+          {
+            "t": 7002.699999928474,
+            "bytes": 17466206
+          },
+          {
+            "t": 7503,
+            "bytes": 18711390
+          },
+          {
+            "t": 8003,
+            "bytes": 19956574
+          },
+          {
+            "t": 8501.299999952316,
+            "bytes": 21219089
+          },
+          {
+            "t": 9002.899999976158,
+            "bytes": 22464273
+          },
+          {
+            "t": 9502.899999976158,
+            "bytes": 23703825
+          },
+          {
+            "t": 10003,
+            "bytes": 24954641
+          }
+        ],
+        "stopReason": "complete"
+      },
+      "estimate": {
+        "sustainedMbps": 20.005270934053705,
+        "ceilingMbps": 20.019434018706946,
+        "measuredBytes": 20005521,
+        "measuredMs": 8000.100000023842,
+        "samples": 16,
+        "repeatability": {
+          "lower": 19.954141333333332,
+          "upper": 20.06910504043934
+        },
+        "qualification": "measured",
+        "warnings": []
+      },
+      "startedAt": 1788576572765,
+      "rotations": [
+        "rotate(117.08deg)",
+        "rotate(6.484deg)"
+      ]
+    },
+    {
+      "cpuRate": 1,
+      "direction": "download",
+      "pair": 3,
+      "motion": false,
+      "deliveredMbps": 19.94445008554141,
+      "trace": {
+        "provider": "cloudflare",
+        "endpoint": "http://127.0.0.1:51358/test",
+        "transport": "https",
+        "streams": 2,
+        "direction": "download",
+        "accounting": "received",
+        "warmupMs": 2000,
+        "points": [
+          {
+            "t": 0,
+            "bytes": 0
+          },
+          {
+            "t": 509.89999997615814,
+            "bytes": 1179648
+          },
+          {
+            "t": 1000.2000000476837,
+            "bytes": 2393216
+          },
+          {
+            "t": 1505.3000000715256,
+            "bytes": 3703936
+          },
+          {
+            "t": 2007.5,
+            "bytes": 4949120
+          },
+          {
+            "t": 2508.8000000715256,
+            "bytes": 6196608
+          },
+          {
+            "t": 3009.899999976158,
+            "bytes": 7441792
+          },
+          {
+            "t": 3509.8000000715256,
+            "bytes": 8686976
+          },
+          {
+            "t": 4009.8000000715256,
+            "bytes": 9932160
+          },
+          {
+            "t": 4503.300000071526,
+            "bytes": 11182118
+          },
+          {
+            "t": 5006.100000023842,
+            "bytes": 12427302
+          },
+          {
+            "t": 5505.600000023842,
+            "bytes": 13672486
+          },
+          {
+            "t": 6009.800000071526,
+            "bytes": 14917670
+          },
+          {
+            "t": 6510,
+            "bytes": 16214415
+          },
+          {
+            "t": 7007.300000071526,
+            "bytes": 17459599
+          },
+          {
+            "t": 7505.300000071526,
+            "bytes": 18704783
+          },
+          {
+            "t": 8005.800000071526,
+            "bytes": 19949967
+          },
+          {
+            "t": 8505.800000071526,
+            "bytes": 21215327
+          },
+          {
+            "t": 9004.899999976158,
+            "bytes": 22460511
+          },
+          {
+            "t": 9503.100000023842,
+            "bytes": 23705695
+          },
+          {
+            "t": 10004.200000047684,
+            "bytes": 24950879
+          }
+        ],
+        "stopReason": "complete"
+      },
+      "estimate": {
+        "sustainedMbps": 20.01001313029698,
+        "ceilingMbps": 20.002207085755316,
+        "measuredBytes": 20001759,
+        "measuredMs": 7996.700000047684,
+        "samples": 16,
+        "repeatability": {
+          "lower": 19.928162239360184,
+          "upper": 20.12544012852021
+        },
+        "qualification": "measured",
+        "warnings": []
+      },
+      "startedAt": 1788576583774.7002,
+      "rotations": [
+        "rotate(275.193deg)",
+        "rotate(231.002deg)"
+      ]
+    },
+    {
+      "cpuRate": 1,
+      "direction": "upload",
+      "pair": 0,
+      "motion": false,
+      "deliveredMbps": 19.904954817213984,
+      "trace": {
+        "provider": "cloudflare",
+        "endpoint": "http://127.0.0.1:51358/test",
+        "transport": "https",
+        "streams": 2,
+        "direction": "upload",
+        "accounting": "completed-request",
+        "warmupMs": 2000,
+        "points": [
+          {
+            "t": 0,
+            "bytes": 0
+          },
+          {
+            "t": 504,
+            "bytes": 1046528
+          },
+          {
+            "t": 1007,
+            "bytes": 2264150
+          },
+          {
+            "t": 1509.3999999761581,
+            "bytes": 3517794
+          },
+          {
+            "t": 2012.8999999761581,
+            "bytes": 4800337
+          },
+          {
+            "t": 2512.2999999523163,
+            "bytes": 6051566
+          },
+          {
+            "t": 3016.5,
+            "bytes": 7320350
+          },
+          {
+            "t": 3516.600000023842,
+            "bytes": 8565072
+          },
+          {
+            "t": 4015.600000023842,
+            "bytes": 9799216
+          },
+          {
+            "t": 4511.899999976158,
+            "bytes": 11061805
+          },
+          {
+            "t": 5011.899999976158,
+            "bytes": 12339994
+          },
+          {
+            "t": 5518.5,
+            "bytes": 13583161
+          },
+          {
+            "t": 6016.899999976158,
+            "bytes": 14823390
+          },
+          {
+            "t": 6518,
+            "bytes": 16076346
+          },
+          {
+            "t": 7007.200000047684,
+            "bytes": 17322203
+          },
+          {
+            "t": 7508.100000023842,
+            "bytes": 18534164
+          },
+          {
+            "t": 8003.399999976158,
+            "bytes": 19861525
+          },
+          {
+            "t": 8507.399999976158,
+            "bytes": 21136394
+          },
+          {
+            "t": 9010.100000023842,
+            "bytes": 22375095
+          },
+          {
+            "t": 9515.200000047684,
+            "bytes": 23622528
+          },
+          {
+            "t": 10002.700000047684,
+            "bytes": 24876521
+          }
+        ],
+        "stopReason": "complete"
+      },
+      "estimate": {
+        "sustainedMbps": 20.101813812431125,
+        "ceilingMbps": 20.04295755349217,
+        "measuredBytes": 20076184,
+        "measuredMs": 7989.800000071526,
+        "samples": 16,
+        "repeatability": {
+          "lower": 20.00543927492233,
+          "upper": 20.20300169283917
+        },
+        "qualification": "measured",
+        "warnings": []
+      },
+      "startedAt": 1788576594791.2002,
+      "rotations": [
+        "rotate(275.193deg)",
+        "rotate(231.002deg)"
+      ]
+    },
+    {
+      "cpuRate": 1,
+      "direction": "upload",
+      "pair": 0,
+      "motion": true,
+      "deliveredMbps": 20.009456253025583,
+      "trace": {
+        "provider": "cloudflare",
+        "endpoint": "http://127.0.0.1:51358/test",
+        "transport": "https",
+        "streams": 2,
+        "direction": "upload",
+        "accounting": "completed-request",
+        "warmupMs": 2000,
+        "points": [
+          {
+            "t": 0,
+            "bytes": 0
+          },
+          {
+            "t": 518.7000000476837,
+            "bytes": 1046528
+          },
+          {
+            "t": 1007.2999999523163,
+            "bytes": 2238428
+          },
+          {
+            "t": 1511.7000000476837,
+            "bytes": 3546746
+          },
+          {
+            "t": 2004.1000000238419,
+            "bytes": 4802763
+          },
+          {
+            "t": 2505.600000023842,
+            "bytes": 6040767
+          },
+          {
+            "t": 3006.600000023842,
+            "bytes": 7310242
+          },
+          {
+            "t": 3511.7000000476837,
+            "bytes": 8550854
+          },
+          {
+            "t": 4003.100000023842,
+            "bytes": 9782511
+          },
+          {
+            "t": 4511.700000047684,
+            "bytes": 11054318
+          },
+          {
+            "t": 5004.600000023842,
+            "bytes": 12313327
+          },
+          {
+            "t": 5509.399999976158,
+            "bytes": 13565085
+          },
+          {
+            "t": 6011.399999976158,
+            "bytes": 14819811
+          },
+          {
+            "t": 6511.799999952316,
+            "bytes": 16078833
+          },
+          {
+            "t": 7006.399999976158,
+            "bytes": 17319587
+          },
+          {
+            "t": 7509.299999952316,
+            "bytes": 18569541
+          },
+          {
+            "t": 8009.5,
+            "bytes": 19831489
+          },
+          {
+            "t": 8510,
+            "bytes": 21071185
+          },
+          {
+            "t": 9008.700000047684,
+            "bytes": 22311893
+          },
+          {
+            "t": 9510,
+            "bytes": 23532521
+          },
+          {
+            "t": 10011.5,
+            "bytes": 24830727
+          }
+        ],
+        "stopReason": "complete"
+      },
+      "estimate": {
+        "sustainedMbps": 20.009455253949728,
+        "ceilingMbps": 20.015739625437522,
+        "measuredBytes": 20027964,
+        "measuredMs": 8007.399999976158,
+        "samples": 16,
+        "repeatability": {
+          "lower": 19.922734808073233,
+          "upper": 20.07678487029512
+        },
+        "qualification": "measured",
+        "warnings": []
+      },
+      "startedAt": 1788576605805.8,
+      "rotations": [
+        "rotate(-127.254deg)",
+        "rotate(-193.886deg)"
+      ]
+    },
+    {
+      "cpuRate": 1,
+      "direction": "upload",
+      "pair": 1,
+      "motion": true,
+      "deliveredMbps": 20.02780698907841,
+      "trace": {
+        "provider": "cloudflare",
+        "endpoint": "http://127.0.0.1:51358/test",
+        "transport": "https",
+        "streams": 2,
+        "direction": "upload",
+        "accounting": "completed-request",
+        "warmupMs": 2000,
+        "points": [
+          {
+            "t": 0,
+            "bytes": 0
+          },
+          {
+            "t": 504.60000002384186,
+            "bytes": 1046528
+          },
+          {
+            "t": 1009.1000000238419,
+            "bytes": 2292502
+          },
+          {
+            "t": 1509.1999999284744,
+            "bytes": 3557885
+          },
+          {
+            "t": 2009,
+            "bytes": 4795608
+          },
+          {
+            "t": 2509,
+            "bytes": 6040216
+          },
+          {
+            "t": 3008.899999976158,
+            "bytes": 7312008
+          },
+          {
+            "t": 3509.1999999284744,
+            "bytes": 8561059
+          },
+          {
+            "t": 4007.7999999523163,
+            "bytes": 9785125
+          },
+          {
+            "t": 4505.5,
+            "bytes": 11066341
+          },
+          {
+            "t": 5006.399999976158,
+            "bytes": 12287377
+          },
+          {
+            "t": 5505.699999928474,
+            "bytes": 13552711
+          },
+          {
+            "t": 6006.299999952316,
+            "bytes": 14799928
+          },
+          {
+            "t": 6509,
+            "bytes": 16041965
+          },
+          {
+            "t": 7009,
+            "bytes": 17344854
+          },
+          {
+            "t": 7508.799999952316,
+            "bytes": 18582629
+          },
+          {
+            "t": 8008.799999952316,
+            "bytes": 19830586
+          },
+          {
+            "t": 8507.399999976158,
+            "bytes": 21085780
+          },
+          {
+            "t": 9008.699999928474,
+            "bytes": 22331636
+          },
+          {
+            "t": 9508.600000023842,
+            "bytes": 23571600
+          },
+          {
+            "t": 10004.399999976158,
+            "bytes": 24843967
+          }
+        ],
+        "stopReason": "complete"
+      },
+      "estimate": {
+        "sustainedMbps": 20.059893438787086,
+        "ceilingMbps": 20.037656478127545,
+        "measuredBytes": 20048359,
+        "measuredMs": 7995.399999976158,
+        "samples": 16,
+        "repeatability": {
+          "lower": 19.95361732508336,
+          "upper": 20.15121684627453
+        },
+        "qualification": "measured",
+        "warnings": []
+      },
+      "startedAt": 1788576616824.8,
+      "rotations": [
+        "rotate(-311.732deg)",
+        "rotate(-106.595deg)"
+      ]
+    },
+    {
+      "cpuRate": 1,
+      "direction": "upload",
+      "pair": 1,
+      "motion": false,
+      "deliveredMbps": 20.041827264039433,
+      "trace": {
+        "provider": "cloudflare",
+        "endpoint": "http://127.0.0.1:51358/test",
+        "transport": "https",
+        "streams": 2,
+        "direction": "upload",
+        "accounting": "completed-request",
+        "warmupMs": 2000,
+        "points": [
+          {
+            "t": 0,
+            "bytes": 0
+          },
+          {
+            "t": 505.89999997615814,
+            "bytes": 1046528
+          },
+          {
+            "t": 1007.2999999523163,
+            "bytes": 2297999
+          },
+          {
+            "t": 1505.8999999761581,
+            "bytes": 3531406
+          },
+          {
+            "t": 2006.7999999523163,
+            "bytes": 4813874
+          },
+          {
+            "t": 2505.5999999046326,
+            "bytes": 6080606
+          },
+          {
+            "t": 3017.1999999284744,
+            "bytes": 7326128
+          },
+          {
+            "t": 3517.1999999284744,
+            "bytes": 8569996
+          },
+          {
+            "t": 4016,
+            "bytes": 9825452
+          },
+          {
+            "t": 4516.899999976158,
+            "bytes": 11082028
+          },
+          {
+            "t": 5006.599999904633,
+            "bytes": 12343045
+          },
+          {
+            "t": 5510.599999904633,
+            "bytes": 13590374
+          },
+          {
+            "t": 6014.399999976158,
+            "bytes": 14835647
+          },
+          {
+            "t": 6513.399999976158,
+            "bytes": 16067196
+          },
+          {
+            "t": 7012.199999928474,
+            "bytes": 17338423
+          },
+          {
+            "t": 7511.299999952316,
+            "bytes": 18592611
+          },
+          {
+            "t": 8013,
+            "bytes": 19858405
+          },
+          {
+            "t": 8514.299999952316,
+            "bytes": 21142571
+          },
+          {
+            "t": 9015.5,
+            "bytes": 22354191
+          },
+          {
+            "t": 9515.5,
+            "bytes": 23618451
+          },
+          {
+            "t": 10014.399999976158,
+            "bytes": 24890423
+          }
+        ],
+        "stopReason": "complete"
+      },
+      "estimate": {
+        "sustainedMbps": 20.057494380278957,
+        "ceilingMbps": 20.070791416309014,
+        "measuredBytes": 20076549,
+        "measuredMs": 8007.600000023842,
+        "samples": 16,
+        "repeatability": {
+          "lower": 19.992726788685523,
+          "upper": 20.123909132982618
+        },
+        "qualification": "measured",
+        "warnings": []
+      },
+      "startedAt": 1788576627833.5,
+      "rotations": [
+        "rotate(-97.681deg)",
+        "rotate(-355.506deg)"
+      ]
+    },
+    {
+      "cpuRate": 1,
+      "direction": "upload",
+      "pair": 2,
+      "motion": false,
+      "deliveredMbps": 20.01218443694703,
+      "trace": {
+        "provider": "cloudflare",
+        "endpoint": "http://127.0.0.1:51358/test",
+        "transport": "https",
+        "streams": 2,
+        "direction": "upload",
+        "accounting": "completed-request",
+        "warmupMs": 2000,
+        "points": [
+          {
+            "t": 0,
+            "bytes": 0
+          },
+          {
+            "t": 517.5,
+            "bytes": 1046528
+          },
+          {
+            "t": 1018.6000000238419,
+            "bytes": 2285017
+          },
+          {
+            "t": 1507.2999999523163,
+            "bytes": 3554326
+          },
+          {
+            "t": 2007.8999999761581,
+            "bytes": 4793828
+          },
+          {
+            "t": 2514.5,
+            "bytes": 6049419
+          },
+          {
+            "t": 3014,
+            "bytes": 7291041
+          },
+          {
+            "t": 3513.6999999284744,
+            "bytes": 8524159
+          },
+          {
+            "t": 4018.100000023842,
+            "bytes": 9813279
+          },
+          {
+            "t": 4517.5,
+            "bytes": 11068030
+          },
+          {
+            "t": 5006.199999928474,
+            "bytes": 12314303
+          },
+          {
+            "t": 5512.5,
+            "bytes": 13546556
+          },
+          {
+            "t": 6014.100000023842,
+            "bytes": 14802719
+          },
+          {
+            "t": 6516,
+            "bytes": 16051867
+          },
+          {
+            "t": 7014,
+            "bytes": 17301882
+          },
+          {
+            "t": 7517.699999928474,
+            "bytes": 18559171
+          },
+          {
+            "t": 8004.5,
+            "bytes": 19818463
+          },
+          {
+            "t": 8505.899999976158,
+            "bytes": 21070076
+          },
+          {
+            "t": 9019.5,
+            "bytes": 22348585
+          },
+          {
+            "t": 9518.100000023842,
+            "bytes": 23614474
+          },
+          {
+            "t": 10006.299999952316,
+            "bytes": 24850460
+          }
+        ],
+        "stopReason": "complete"
+      },
+      "estimate": {
+        "sustainedMbps": 20.060644128885563,
+        "ceilingMbps": 20.058509808668457,
+        "measuredBytes": 20056632,
+        "measuredMs": 7998.399999976158,
+        "samples": 16,
+        "repeatability": {
+          "lower": 19.975044330854185,
+          "upper": 20.152845008334005
+        },
+        "qualification": "measured",
+        "warnings": []
+      },
+      "startedAt": 1788576638865.9001,
+      "rotations": [
+        "rotate(-97.681deg)",
+        "rotate(-355.506deg)"
+      ]
+    },
+    {
+      "cpuRate": 1,
+      "direction": "upload",
+      "pair": 2,
+      "motion": true,
+      "deliveredMbps": 20.017777000000002,
+      "trace": {
+        "provider": "cloudflare",
+        "endpoint": "http://127.0.0.1:51358/test",
+        "transport": "https",
+        "streams": 2,
+        "direction": "upload",
+        "accounting": "completed-request",
+        "warmupMs": 2000,
+        "points": [
+          {
+            "t": 0,
+            "bytes": 0
+          },
+          {
+            "t": 514.6000000238419,
+            "bytes": 1046528
+          },
+          {
+            "t": 1012.5,
+            "bytes": 2307959
+          },
+          {
+            "t": 1508.5,
+            "bytes": 3554111
+          },
+          {
+            "t": 2012.5,
+            "bytes": 4837514
+          },
+          {
+            "t": 2512.5,
+            "bytes": 6064561
+          },
+          {
+            "t": 3009.2000000476837,
+            "bytes": 7327320
+          },
+          {
+            "t": 3513,
+            "bytes": 8588895
+          },
+          {
+            "t": 4010.5,
+            "bytes": 9833290
+          },
+          {
+            "t": 4512.5,
+            "bytes": 11061242
+          },
+          {
+            "t": 5012.800000071526,
+            "bytes": 12356876
+          },
+          {
+            "t": 5512.600000023842,
+            "bytes": 13597135
+          },
+          {
+            "t": 6003.399999976158,
+            "bytes": 14826253
+          },
+          {
+            "t": 6507.300000071526,
+            "bytes": 16078078
+          },
+          {
+            "t": 7012.300000071526,
+            "bytes": 17340477
+          },
+          {
+            "t": 7511.899999976158,
+            "bytes": 18603147
+          },
+          {
+            "t": 8009.399999976158,
+            "bytes": 19847640
+          },
+          {
+            "t": 8509.899999976158,
+            "bytes": 21109841
+          },
+          {
+            "t": 9008.899999976158,
+            "bytes": 22057683
+          },
+          {
+            "t": 9512.600000023842,
+            "bytes": 23289838
+          },
+          {
+            "t": 10012.5,
+            "bytes": 24855291
+          }
+        ],
+        "stopReason": "complete"
+      },
+      "estimate": {
+        "sustainedMbps": 20.017777000000002,
+        "ceilingMbps": 20.038168122602908,
+        "measuredBytes": 20017777,
+        "measuredMs": 8000,
+        "samples": 16,
+        "repeatability": {
+          "lower": 19.19744451499531,
+          "upper": 20.100999170831095
+        },
+        "qualification": "measured",
+        "warnings": []
+      },
+      "startedAt": 1788576649887.1,
+      "rotations": [
+        "rotate(-135.294deg)",
+        "rotate(-51.728deg)"
+      ]
+    },
+    {
+      "cpuRate": 1,
+      "direction": "upload",
+      "pair": 3,
+      "motion": true,
+      "deliveredMbps": 20.01268064808168,
+      "trace": {
+        "provider": "cloudflare",
+        "endpoint": "http://127.0.0.1:51358/test",
+        "transport": "https",
+        "streams": 2,
+        "direction": "upload",
+        "accounting": "completed-request",
+        "warmupMs": 2000,
+        "points": [
+          {
+            "t": 0,
+            "bytes": 0
+          },
+          {
+            "t": 516.8000000715256,
+            "bytes": 1046528
+          },
+          {
+            "t": 1017.1000000238419,
+            "bytes": 2261300
+          },
+          {
+            "t": 1504.2000000476837,
+            "bytes": 3540256
+          },
+          {
+            "t": 2009.4000000953674,
+            "bytes": 4763687
+          },
+          {
+            "t": 2513.3000000715256,
+            "bytes": 6019341
+          },
+          {
+            "t": 3011.3000000715256,
+            "bytes": 7261335
+          },
+          {
+            "t": 3515.4000000953674,
+            "bytes": 8554219
+          },
+          {
+            "t": 4013.4000000953674,
+            "bytes": 9806630
+          },
+          {
+            "t": 4511.200000047684,
+            "bytes": 11032571
+          },
+          {
+            "t": 5011.300000071526,
+            "bytes": 12298844
+          },
+          {
+            "t": 5510.5,
+            "bytes": 13562271
+          },
+          {
+            "t": 6013.800000071526,
+            "bytes": 14799509
+          },
+          {
+            "t": 6516.5,
+            "bytes": 16063270
+          },
+          {
+            "t": 7005.200000047684,
+            "bytes": 17319770
+          },
+          {
+            "t": 7507.800000071526,
+            "bytes": 18560066
+          },
+          {
+            "t": 8004.900000095367,
+            "bytes": 19822491
+          },
+          {
+            "t": 8506.400000095367,
+            "bytes": 21056100
+          },
+          {
+            "t": 9008.800000071526,
+            "bytes": 22300820
+          },
+          {
+            "t": 9511.300000071526,
+            "bytes": 23545089
+          },
+          {
+            "t": 10015.300000071526,
+            "bytes": 24790426
+          }
+        ],
+        "stopReason": "complete"
+      },
+      "estimate": {
+        "sustainedMbps": 20.011980164688183,
+        "ceilingMbps": 20.0446476494298,
+        "measuredBytes": 20026739,
+        "measuredMs": 8005.899999976158,
+        "samples": 16,
+        "repeatability": {
+          "lower": 19.85490448806572,
+          "upper": 20.12747516931627
+        },
+        "qualification": "measured",
+        "warnings": []
+      },
+      "startedAt": 1788576660916.6,
+      "rotations": [
+        "rotate(-314.916deg)",
+        "rotate(-325.344deg)"
+      ]
+    },
+    {
+      "cpuRate": 1,
+      "direction": "upload",
+      "pair": 3,
+      "motion": false,
+      "deliveredMbps": 19.956232735454034,
+      "trace": {
+        "provider": "cloudflare",
+        "endpoint": "http://127.0.0.1:51358/test",
+        "transport": "https",
+        "streams": 2,
+        "direction": "upload",
+        "accounting": "completed-request",
+        "warmupMs": 2000,
+        "points": [
+          {
+            "t": 0,
+            "bytes": 0
+          },
+          {
+            "t": 515.1000000238419,
+            "bytes": 1046528
+          },
+          {
+            "t": 1014.1000000238419,
+            "bytes": 2301715
+          },
+          {
+            "t": 1515,
+            "bytes": 3553497
+          },
+          {
+            "t": 2012.3000000715256,
+            "bytes": 4796913
+          },
+          {
+            "t": 2516.600000023842,
+            "bytes": 6054359
+          },
+          {
+            "t": 3016.5,
+            "bytes": 7264742
+          },
+          {
+            "t": 3516.600000023842,
+            "bytes": 8545651
+          },
+          {
+            "t": 4016.7000000476837,
+            "bytes": 9802607
+          },
+          {
+            "t": 4516.600000023842,
+            "bytes": 11066782
+          },
+          {
+            "t": 5005.800000071526,
+            "bytes": 12304847
+          },
+          {
+            "t": 5510.899999976158,
+            "bytes": 13559160
+          },
+          {
+            "t": 6015,
+            "bytes": 14786239
+          },
+          {
+            "t": 6505.800000071526,
+            "bytes": 16064907
+          },
+          {
+            "t": 7006,
+            "bytes": 17317038
+          },
+          {
+            "t": 7519.200000047684,
+            "bytes": 18545979
+          },
+          {
+            "t": 8016.100000023842,
+            "bytes": 19788638
+          },
+          {
+            "t": 8516.200000047684,
+            "bytes": 21077007
+          },
+          {
+            "t": 9012.800000071526,
+            "bytes": 22315804
+          },
+          {
+            "t": 9511.200000047684,
+            "bytes": 23573223
+          },
+          {
+            "t": 10012.800000071526,
+            "bytes": 24819929
+          }
+        ],
+        "stopReason": "complete"
+      },
+      "estimate": {
+        "sustainedMbps": 20.021764639710018,
+        "ceilingMbps": 20.036007546421647,
+        "measuredBytes": 20023016,
+        "measuredMs": 8000.5,
+        "samples": 16,
+        "repeatability": {
+          "lower": 19.888492177174488,
+          "upper": 20.176344825196136
+        },
+        "qualification": "measured",
+        "warnings": []
+      },
+      "startedAt": 1788576671949.7002,
+      "rotations": [
+        "rotate(-100.754deg)",
+        "rotate(-213.853deg)"
+      ]
+    },
+    {
+      "cpuRate": 4,
+      "direction": "download",
+      "pair": 0,
+      "motion": false,
+      "deliveredMbps": 19.9925293583005,
+      "trace": {
+        "provider": "cloudflare",
+        "endpoint": "http://127.0.0.1:51358/test",
+        "transport": "https",
+        "streams": 2,
+        "direction": "download",
+        "accounting": "received",
+        "warmupMs": 2000,
+        "points": [
+          {
+            "t": 0,
+            "bytes": 0
+          },
+          {
+            "t": 516.8999999761581,
+            "bytes": 1245184
+          },
+          {
+            "t": 1003.8999999761581,
+            "bytes": 2436480
+          },
+          {
+            "t": 1519.3999999761581,
+            "bytes": 3744640
+          },
+          {
+            "t": 2022.3000000715256,
+            "bytes": 5014656
+          },
+          {
+            "t": 2505.899999976158,
+            "bytes": 6196608
+          },
+          {
+            "t": 3004.399999976158,
+            "bytes": 7441792
+          },
+          {
+            "t": 3506.8000000715256,
+            "bytes": 8752512
+          },
+          {
+            "t": 4006,
+            "bytes": 9997696
+          },
+          {
+            "t": 4521.200000047684,
+            "bytes": 11245178
+          },
+          {
+            "t": 5017.399999976158,
+            "bytes": 12449146
+          },
+          {
+            "t": 5519.300000071526,
+            "bytes": 13759866
+          },
+          {
+            "t": 6020.5,
+            "bytes": 15005050
+          },
+          {
+            "t": 6522.200000047684,
+            "bytes": 16256332
+          },
+          {
+            "t": 7008.399999976158,
+            "bytes": 17501516
+          },
+          {
+            "t": 7506.600000023842,
+            "bytes": 18746700
+          },
+          {
+            "t": 8009.600000023842,
+            "bytes": 19991884
+          },
+          {
+            "t": 8510.100000023842,
+            "bytes": 21247039
+          },
+          {
+            "t": 9008.200000047684,
+            "bytes": 22507071
+          },
+          {
+            "t": 9517.5,
+            "bytes": 23686719
+          },
+          {
+            "t": 10018.399999976158,
+            "bytes": 24997439
+          }
+        ],
+        "stopReason": "complete"
+      },
+      "estimate": {
+        "sustainedMbps": 19.9925293583005,
+        "ceilingMbps": 20.057221473954026,
+        "measuredBytes": 19982783,
+        "measuredMs": 7996.099999904633,
+        "samples": 16,
+        "repeatability": {
+          "lower": 19.860838432942522,
+          "upper": 20.151499985409313
+        },
+        "qualification": "measured",
+        "warnings": []
+      },
+      "startedAt": 1788576684980,
+      "rotations": [
+        "rotate(-100.754deg)",
+        "rotate(-213.853deg)"
+      ]
+    },
+    {
+      "cpuRate": 4,
+      "direction": "download",
+      "pair": 0,
+      "motion": true,
+      "deliveredMbps": 19.980923776504994,
+      "trace": {
+        "provider": "cloudflare",
+        "endpoint": "http://127.0.0.1:51358/test",
+        "transport": "https",
+        "streams": 2,
+        "direction": "download",
+        "accounting": "received",
+        "warmupMs": 2000,
+        "points": [
+          {
+            "t": 0,
+            "bytes": 0
+          },
+          {
+            "t": 506.89999997615814,
+            "bytes": 1245184
+          },
+          {
+            "t": 1014,
+            "bytes": 2458752
+          },
+          {
+            "t": 1501.1000000238419,
+            "bytes": 3679360
+          },
+          {
+            "t": 2011.3999999761581,
+            "bytes": 4949120
+          },
+          {
+            "t": 2506.7000000476837,
+            "bytes": 6196608
+          },
+          {
+            "t": 3014.399999976158,
+            "bytes": 7441792
+          },
+          {
+            "t": 3508.2999999523163,
+            "bytes": 8681344
+          },
+          {
+            "t": 4013.7000000476837,
+            "bytes": 9932160
+          },
+          {
+            "t": 4500.899999976158,
+            "bytes": 11212951
+          },
+          {
+            "t": 5004.600000023842,
+            "bytes": 12458135
+          },
+          {
+            "t": 5500.799999952316,
+            "bytes": 13697687
+          },
+          {
+            "t": 6000.399999976158,
+            "bytes": 14948503
+          },
+          {
+            "t": 6514.799999952316,
+            "bytes": 16175481
+          },
+          {
+            "t": 7000.5,
+            "bytes": 17486201
+          },
+          {
+            "t": 7501.200000047684,
+            "bytes": 18665849
+          },
+          {
+            "t": 8005.399999976158,
+            "bytes": 19976569
+          },
+          {
+            "t": 8500.799999952316,
+            "bytes": 21203964
+          },
+          {
+            "t": 9013.899999976158,
+            "bytes": 22449916
+          },
+          {
+            "t": 9514,
+            "bytes": 23695100
+          },
+          {
+            "t": 10015.5,
+            "bytes": 24940284
+          }
+        ],
+        "stopReason": "complete"
+      },
+      "estimate": {
+        "sustainedMbps": 19.980923776504994,
+        "ceilingMbps": 20.029829462406063,
+        "measuredBytes": 19991164,
+        "measuredMs": 8004.100000023842,
+        "samples": 16,
+        "repeatability": {
+          "lower": 19.778661359867332,
+          "upper": 20.057470052295013
+        },
+        "qualification": "measured",
+        "warnings": []
+      },
+      "startedAt": 1788576698386.8,
+      "rotations": [
+        "rotate(327.265deg)",
+        "rotate(211.427deg)"
+      ]
+    },
+    {
+      "cpuRate": 4,
+      "direction": "download",
+      "pair": 1,
+      "motion": true,
+      "deliveredMbps": 19.973859822190956,
+      "trace": {
+        "provider": "cloudflare",
+        "endpoint": "http://127.0.0.1:51358/test",
+        "transport": "https",
+        "streams": 2,
+        "direction": "download",
+        "accounting": "received",
+        "warmupMs": 2000,
+        "points": [
+          {
+            "t": 0,
+            "bytes": 0
+          },
+          {
+            "t": 500.89999997615814,
+            "bytes": 1177088
+          },
+          {
+            "t": 1000.2000000476837,
+            "bytes": 2458752
+          },
+          {
+            "t": 1500.8000000715256,
+            "bytes": 3703936
+          },
+          {
+            "t": 2000.3999999761581,
+            "bytes": 4949120
+          },
+          {
+            "t": 2500.8000000715256,
+            "bytes": 6196608
+          },
+          {
+            "t": 3000.3000000715256,
+            "bytes": 7441792
+          },
+          {
+            "t": 3500.5,
+            "bytes": 8686976
+          },
+          {
+            "t": 4001.100000023842,
+            "bytes": 9932160
+          },
+          {
+            "t": 4504,
+            "bytes": 11184868
+          },
+          {
+            "t": 5003.100000023842,
+            "bytes": 12462820
+          },
+          {
+            "t": 5502.300000071526,
+            "bytes": 13708004
+          },
+          {
+            "t": 6005.800000071526,
+            "bytes": 14949860
+          },
+          {
+            "t": 6500.300000071526,
+            "bytes": 16212441
+          },
+          {
+            "t": 7000.700000047684,
+            "bytes": 17457625
+          },
+          {
+            "t": 7501.200000047684,
+            "bytes": 18702809
+          },
+          {
+            "t": 8001.700000047684,
+            "bytes": 19947993
+          },
+          {
+            "t": 8500.5,
+            "bytes": 21194169
+          },
+          {
+            "t": 9010.5,
+            "bytes": 22439353
+          },
+          {
+            "t": 9500.100000023842,
+            "bytes": 23684537
+          },
+          {
+            "t": 10003.100000023842,
+            "bytes": 24929721
+          }
+        ],
+        "stopReason": "complete"
+      },
+      "estimate": {
+        "sustainedMbps": 19.973859822190956,
+        "ceilingMbps": 19.972205638610447,
+        "measuredBytes": 19980601,
+        "measuredMs": 8002.700000047684,
+        "samples": 16,
+        "repeatability": {
+          "lower": 19.90928400164136,
+          "upper": 20.0466249534362
+        },
+        "qualification": "measured",
+        "warnings": []
+      },
+      "startedAt": 1788576709417,
+      "rotations": [
+        "rotate(243.244deg)",
+        "rotate(39.266deg)"
+      ]
+    },
+    {
+      "cpuRate": 4,
+      "direction": "download",
+      "pair": 1,
+      "motion": false,
+      "deliveredMbps": 20.03804111988272,
+      "trace": {
+        "provider": "cloudflare",
+        "endpoint": "http://127.0.0.1:51358/test",
+        "transport": "https",
+        "streams": 2,
+        "direction": "download",
+        "accounting": "received",
+        "warmupMs": 2000,
+        "points": [
+          {
+            "t": 0,
+            "bytes": 0
+          },
+          {
+            "t": 506.39999997615814,
+            "bytes": 1179648
+          },
+          {
+            "t": 1003.5999999046326,
+            "bytes": 2458752
+          },
+          {
+            "t": 1502.3999999761581,
+            "bytes": 3703936
+          },
+          {
+            "t": 2002.0999999046326,
+            "bytes": 4949120
+          },
+          {
+            "t": 2502.7999999523163,
+            "bytes": 6196608
+          },
+          {
+            "t": 3002.7999999523163,
+            "bytes": 7441792
+          },
+          {
+            "t": 3502.6999999284744,
+            "bytes": 8686976
+          },
+          {
+            "t": 4001.5999999046326,
+            "bytes": 9932160
+          },
+          {
+            "t": 4503.299999952316,
+            "bytes": 11218580
+          },
+          {
+            "t": 5001.099999904633,
+            "bytes": 12398228
+          },
+          {
+            "t": 5501.599999904633,
+            "bytes": 13704596
+          },
+          {
+            "t": 6003,
+            "bytes": 14954132
+          },
+          {
+            "t": 6501,
+            "bytes": 16191069
+          },
+          {
+            "t": 7005.5,
+            "bytes": 17464413
+          },
+          {
+            "t": 7502.399999976158,
+            "bytes": 18709597
+          },
+          {
+            "t": 8017.799999952316,
+            "bytes": 20020317
+          },
+          {
+            "t": 8501.899999976158,
+            "bytes": 21212874
+          },
+          {
+            "t": 9000.899999976158,
+            "bytes": 22441418
+          },
+          {
+            "t": 9514.399999976158,
+            "bytes": 23703242
+          },
+          {
+            "t": 10012.799999952316,
+            "bytes": 25013962
+          }
+        ],
+        "stopReason": "complete"
+      },
+      "estimate": {
+        "sustainedMbps": 20.03804111988272,
+        "ceilingMbps": 20.059930090244997,
+        "measuredBytes": 20064842,
+        "measuredMs": 8010.700000047684,
+        "samples": 16,
+        "repeatability": {
+          "lower": 19.93304095246205,
+          "upper": 20.213051347179423
+        },
+        "qualification": "measured",
+        "warnings": []
+      },
+      "startedAt": 1788576720433.8,
+      "rotations": [
+        "rotate(41.796deg)",
+        "rotate(264.419deg)"
+      ]
+    },
+    {
+      "cpuRate": 4,
+      "direction": "download",
+      "pair": 2,
+      "motion": false,
+      "deliveredMbps": 20.011197855947064,
+      "trace": {
+        "provider": "cloudflare",
+        "endpoint": "http://127.0.0.1:51358/test",
+        "transport": "https",
+        "streams": 2,
+        "direction": "download",
+        "accounting": "received",
+        "warmupMs": 2000,
+        "points": [
+          {
+            "t": 0,
+            "bytes": 0
+          },
+          {
+            "t": 504.3000000715256,
+            "bytes": 1179648
+          },
+          {
+            "t": 1027.2000000476837,
+            "bytes": 2524288
+          },
+          {
+            "t": 1506.1000000238419,
+            "bytes": 3703936
+          },
+          {
+            "t": 2025,
+            "bytes": 5014656
+          },
+          {
+            "t": 2501.2000000476837,
+            "bytes": 6195840
+          },
+          {
+            "t": 3012.5,
+            "bytes": 7507328
+          },
+          {
+            "t": 3508.9000000953674,
+            "bytes": 8752512
+          },
+          {
+            "t": 4008.2000000476837,
+            "bytes": 9932160
+          },
+          {
+            "t": 4525.200000047684,
+            "bytes": 11282704
+          },
+          {
+            "t": 5028,
+            "bytes": 12497936
+          },
+          {
+            "t": 5502.5,
+            "bytes": 13707536
+          },
+          {
+            "t": 6025.600000023842,
+            "bytes": 15018256
+          },
+          {
+            "t": 6509.200000047684,
+            "bytes": 16202455
+          },
+          {
+            "t": 7008.200000047684,
+            "bytes": 17447639
+          },
+          {
+            "t": 7506.600000023842,
+            "bytes": 18692823
+          },
+          {
+            "t": 8007.700000047684,
+            "bytes": 20003543
+          },
+          {
+            "t": 8508.700000047684,
+            "bytes": 21231015
+          },
+          {
+            "t": 9010.900000095367,
+            "bytes": 22498215
+          },
+          {
+            "t": 9511.200000047684,
+            "bytes": 23716775
+          },
+          {
+            "t": 10010.100000023842,
+            "bytes": 24988583
+          }
+        ],
+        "stopReason": "complete"
+      },
+      "estimate": {
+        "sustainedMbps": 20.011197855947064,
+        "ceilingMbps": 20.041277333333333,
+        "measuredBytes": 19973927,
+        "measuredMs": 7985.100000023842,
+        "samples": 16,
+        "repeatability": {
+          "lower": 19.864528214160988,
+          "upper": 20.09645624453817
+        },
+        "qualification": "measured",
+        "warnings": []
+      },
+      "startedAt": 1788576731843,
+      "rotations": [
+        "rotate(41.796deg)",
+        "rotate(264.419deg)"
+      ]
+    },
+    {
+      "cpuRate": 4,
+      "direction": "download",
+      "pair": 2,
+      "motion": true,
+      "deliveredMbps": 20.045129870881436,
+      "trace": {
+        "provider": "cloudflare",
+        "endpoint": "http://127.0.0.1:51358/test",
+        "transport": "https",
+        "streams": 2,
+        "direction": "download",
+        "accounting": "received",
+        "warmupMs": 2000,
+        "points": [
+          {
+            "t": 0,
+            "bytes": 0
+          },
+          {
+            "t": 514.8999999761581,
+            "bytes": 1245184
+          },
+          {
+            "t": 1008.7000000476837,
+            "bytes": 2458752
+          },
+          {
+            "t": 1503.1000000238419,
+            "bytes": 3703936
+          },
+          {
+            "t": 2003.3999999761581,
+            "bytes": 4921984
+          },
+          {
+            "t": 2501.8000000715256,
+            "bytes": 6196608
+          },
+          {
+            "t": 3007.2000000476837,
+            "bytes": 7441792
+          },
+          {
+            "t": 3514.3000000715256,
+            "bytes": 8686976
+          },
+          {
+            "t": 4014.3000000715256,
+            "bytes": 9932160
+          },
+          {
+            "t": 4511,
+            "bytes": 11225528
+          },
+          {
+            "t": 5014,
+            "bytes": 12470712
+          },
+          {
+            "t": 5513.300000071526,
+            "bytes": 13715896
+          },
+          {
+            "t": 6013.5,
+            "bytes": 14961080
+          },
+          {
+            "t": 6508.100000023842,
+            "bytes": 16217259
+          },
+          {
+            "t": 7013.899999976158,
+            "bytes": 17462443
+          },
+          {
+            "t": 7504.899999976158,
+            "bytes": 18707627
+          },
+          {
+            "t": 8014.399999976158,
+            "bytes": 19952811
+          },
+          {
+            "t": 8501.200000047684,
+            "bytes": 21203435
+          },
+          {
+            "t": 9006.800000071526,
+            "bytes": 22448619
+          },
+          {
+            "t": 9504.399999976158,
+            "bytes": 23693803
+          },
+          {
+            "t": 10007.5,
+            "bytes": 25004523
+          }
+        ],
+        "stopReason": "complete"
+      },
+      "estimate": {
+        "sustainedMbps": 20.072251970805144,
+        "ceilingMbps": 20.05906596675804,
+        "measuredBytes": 20082539,
+        "measuredMs": 8004.100000023842,
+        "samples": 16,
+        "repeatability": {
+          "lower": 19.92871610449139,
+          "upper": 20.112225978891324
+        },
+        "qualification": "measured",
+        "warnings": []
+      },
+      "startedAt": 1788576743369.5,
+      "rotations": [
+        "rotate(101.452deg)",
+        "rotate(321.225deg)"
+      ]
+    },
+    {
+      "cpuRate": 4,
+      "direction": "download",
+      "pair": 3,
+      "motion": true,
+      "deliveredMbps": 19.98922085717625,
+      "trace": {
+        "provider": "cloudflare",
+        "endpoint": "http://127.0.0.1:51358/test",
+        "transport": "https",
+        "streams": 2,
+        "direction": "download",
+        "accounting": "received",
+        "warmupMs": 2000,
+        "points": [
+          {
+            "t": 0,
+            "bytes": 0
+          },
+          {
+            "t": 509,
+            "bytes": 1245184
+          },
+          {
+            "t": 1000,
+            "bytes": 2436480
+          },
+          {
+            "t": 1501.9000000953674,
+            "bytes": 3679360
+          },
+          {
+            "t": 2000.3000000715256,
+            "bytes": 4949120
+          },
+          {
+            "t": 2501.3000000715256,
+            "bytes": 6196608
+          },
+          {
+            "t": 3000.100000023842,
+            "bytes": 7441792
+          },
+          {
+            "t": 3500.100000023842,
+            "bytes": 8686976
+          },
+          {
+            "t": 4014.4000000953674,
+            "bytes": 9989504
+          },
+          {
+            "t": 4502.600000023842,
+            "bytes": 11224354
+          },
+          {
+            "t": 5001.400000095367,
+            "bytes": 12469538
+          },
+          {
+            "t": 5516.300000071526,
+            "bytes": 13714722
+          },
+          {
+            "t": 6013,
+            "bytes": 14959906
+          },
+          {
+            "t": 6502.700000047684,
+            "bytes": 16201946
+          },
+          {
+            "t": 7001.200000047684,
+            "bytes": 17447130
+          },
+          {
+            "t": 7513.400000095367,
+            "bytes": 18757850
+          },
+          {
+            "t": 8012.700000047684,
+            "bytes": 19987162
+          },
+          {
+            "t": 8505.400000095367,
+            "bytes": 21224777
+          },
+          {
+            "t": 9000.100000023842,
+            "bytes": 22456137
+          },
+          {
+            "t": 9506.600000023842,
+            "bytes": 23715145
+          },
+          {
+            "t": 10009.100000023842,
+            "bytes": 24960329
+          }
+        ],
+        "stopReason": "complete"
+      },
+      "estimate": {
+        "sustainedMbps": 19.98922085717625,
+        "ceilingMbps": 20.047097397461613,
+        "measuredBytes": 20011209,
+        "measuredMs": 8008.799999952316,
+        "samples": 16,
+        "repeatability": {
+          "lower": 19.948561194029853,
+          "upper": 20.073287789470456
+        },
+        "qualification": "measured",
+        "warnings": []
+      },
+      "startedAt": 1788576754399.9001,
+      "rotations": [
+        "rotate(19.095deg)",
+        "rotate(150.049deg)"
+      ]
+    },
+    {
+      "cpuRate": 4,
+      "direction": "download",
+      "pair": 3,
+      "motion": false,
+      "deliveredMbps": 20.006523695201338,
+      "trace": {
+        "provider": "cloudflare",
+        "endpoint": "http://127.0.0.1:51358/test",
+        "transport": "https",
+        "streams": 2,
+        "direction": "download",
+        "accounting": "received",
+        "warmupMs": 2000,
+        "points": [
+          {
+            "t": 0,
+            "bytes": 0
+          },
+          {
+            "t": 504.89999997615814,
+            "bytes": 1245184
+          },
+          {
+            "t": 1001.7999999523163,
+            "bytes": 2458752
+          },
+          {
+            "t": 1501.8999999761581,
+            "bytes": 3703936
+          },
+          {
+            "t": 2000.7999999523163,
+            "bytes": 4949120
+          },
+          {
+            "t": 2500.7999999523163,
+            "bytes": 6195840
+          },
+          {
+            "t": 3002.100000023842,
+            "bytes": 7441792
+          },
+          {
+            "t": 3501.899999976158,
+            "bytes": 8686976
+          },
+          {
+            "t": 4001.2000000476837,
+            "bytes": 9924224
+          },
+          {
+            "t": 4502.399999976158,
+            "bytes": 11209940
+          },
+          {
+            "t": 5001.700000047684,
+            "bytes": 12455124
+          },
+          {
+            "t": 5501.899999976158,
+            "bytes": 13700308
+          },
+          {
+            "t": 6002.299999952316,
+            "bytes": 14945492
+          },
+          {
+            "t": 6501.399999976158,
+            "bytes": 16194483
+          },
+          {
+            "t": 7012.200000047684,
+            "bytes": 17505203
+          },
+          {
+            "t": 7511,
+            "bytes": 18745779
+          },
+          {
+            "t": 8013.200000047684,
+            "bytes": 19995571
+          },
+          {
+            "t": 8503,
+            "bytes": 21224093
+          },
+          {
+            "t": 9026.399999976158,
+            "bytes": 22534813
+          },
+          {
+            "t": 9526.100000023842,
+            "bytes": 23779997
+          },
+          {
+            "t": 10002.399999976158,
+            "bytes": 24959645
+          }
+        ],
+        "stopReason": "complete"
+      },
+      "estimate": {
+        "sustainedMbps": 20.006523695201338,
+        "ceilingMbps": 20.010007663731447,
+        "measuredBytes": 20010525,
+        "measuredMs": 8001.600000023842,
+        "samples": 16,
+        "repeatability": {
+          "lower": 20.004579653967895,
+          "upper": 20.14208967120558
+        },
+        "qualification": "measured",
+        "warnings": []
+      },
+      "startedAt": 1788576765433.1,
+      "rotations": [
+        "rotate(178.705deg)",
+        "rotate(13.187deg)"
+      ]
+    },
+    {
+      "cpuRate": 4,
+      "direction": "upload",
+      "pair": 0,
+      "motion": false,
+      "deliveredMbps": 19.997396206134038,
+      "trace": {
+        "provider": "cloudflare",
+        "endpoint": "http://127.0.0.1:51358/test",
+        "transport": "https",
+        "streams": 2,
+        "direction": "upload",
+        "accounting": "completed-request",
+        "warmupMs": 2000,
+        "points": [
+          {
+            "t": 0,
+            "bytes": 0
+          },
+          {
+            "t": 539.2999999523163,
+            "bytes": 1025325
+          },
+          {
+            "t": 1053.7999999523163,
+            "bytes": 2339977
+          },
+          {
+            "t": 1554.5,
+            "bytes": 3601398
+          },
+          {
+            "t": 2049.399999976158,
+            "bytes": 4832186
+          },
+          {
+            "t": 2544.2000000476837,
+            "bytes": 6088504
+          },
+          {
+            "t": 3029,
+            "bytes": 7303662
+          },
+          {
+            "t": 3574.899999976158,
+            "bytes": 8612393
+          },
+          {
+            "t": 4062.2000000476837,
+            "bytes": 9882351
+          },
+          {
+            "t": 4580.5,
+            "bytes": 11140842
+          },
+          {
+            "t": 5020.5,
+            "bytes": 12111334
+          },
+          {
+            "t": 5554.299999952316,
+            "bytes": 13603131
+          },
+          {
+            "t": 6070.799999952316,
+            "bytes": 14878545
+          },
+          {
+            "t": 6608.100000023842,
+            "bytes": 16224707
+          },
+          {
+            "t": 7086.200000047684,
+            "bytes": 17268151
+          },
+          {
+            "t": 7608.5,
+            "bytes": 18545817
+          },
+          {
+            "t": 8065.600000023842,
+            "bytes": 19405077
+          },
+          {
+            "t": 8642.5,
+            "bytes": 21333720
+          },
+          {
+            "t": 9106.799999952316,
+            "bytes": 22376987
+          },
+          {
+            "t": 9606.100000023842,
+            "bytes": 23620487
+          },
+          {
+            "t": 10120.700000047684,
+            "bytes": 24905068
+          }
+        ],
+        "stopReason": "complete"
+      },
+      "estimate": {
+        "sustainedMbps": 19.895562796399215,
+        "ceilingMbps": 20.077315046499617,
+        "measuredBytes": 20072882,
+        "measuredMs": 8071.300000071526,
+        "samples": 16,
+        "repeatability": {
+          "lower": 19.161913894303357,
+          "upper": 20.13357587740979
+        },
+        "qualification": "measured",
+        "warnings": []
+      },
+      "startedAt": 1788576776549.5,
+      "rotations": [
+        "rotate(178.705deg)",
+        "rotate(13.187deg)"
+      ]
+    },
+    {
+      "cpuRate": 4,
+      "direction": "upload",
+      "pair": 0,
+      "motion": true,
+      "deliveredMbps": 20.053456331199104,
+      "trace": {
+        "provider": "cloudflare",
+        "endpoint": "http://127.0.0.1:51358/test",
+        "transport": "https",
+        "streams": 2,
+        "direction": "upload",
+        "accounting": "completed-request",
+        "warmupMs": 2000,
+        "points": [
+          {
+            "t": 0,
+            "bytes": 0
+          },
+          {
+            "t": 525.6999999284744,
+            "bytes": 1046528
+          },
+          {
+            "t": 1019,
+            "bytes": 2276236
+          },
+          {
+            "t": 1517.8999999761581,
+            "bytes": 3522530
+          },
+          {
+            "t": 2029.3999999761581,
+            "bytes": 4772371
+          },
+          {
+            "t": 2555.5,
+            "bytes": 6079785
+          },
+          {
+            "t": 3052,
+            "bytes": 7340605
+          },
+          {
+            "t": 3571,
+            "bytes": 8615049
+          },
+          {
+            "t": 4066.1999999284744,
+            "bytes": 9889363
+          },
+          {
+            "t": 4549.399999976158,
+            "bytes": 11068401
+          },
+          {
+            "t": 5069.100000023842,
+            "bytes": 12361572
+          },
+          {
+            "t": 5574,
+            "bytes": 13611757
+          },
+          {
+            "t": 6091,
+            "bytes": 14938036
+          },
+          {
+            "t": 6523.600000023842,
+            "bytes": 15902042
+          },
+          {
+            "t": 7016.799999952316,
+            "bytes": 17125499
+          },
+          {
+            "t": 7540.5,
+            "bytes": 18454252
+          },
+          {
+            "t": 8061,
+            "bytes": 19758676
+          },
+          {
+            "t": 8552.600000023842,
+            "bytes": 20996255
+          },
+          {
+            "t": 9015.799999952316,
+            "bytes": 21937731
+          },
+          {
+            "t": 9515.899999976158,
+            "bytes": 23193858
+          },
+          {
+            "t": 10072.899999976158,
+            "bytes": 24782651
+          }
+        ],
+        "stopReason": "complete"
+      },
+      "estimate": {
+        "sustainedMbps": 19.90206253496612,
+        "ceilingMbps": 19.99981836130306,
+        "measuredBytes": 20010280,
+        "measuredMs": 8043.5,
+        "samples": 16,
+        "repeatability": {
+          "lower": 19.284234868305578,
+          "upper": 20.044244625346717
+        },
+        "qualification": "measured",
+        "warnings": []
+      },
+      "startedAt": 1788576788132.7002,
+      "rotations": [
+        "rotate(-111.511deg)",
+        "rotate(-294.888deg)"
+      ]
+    },
+    {
+      "cpuRate": 4,
+      "direction": "upload",
+      "pair": 1,
+      "motion": true,
+      "deliveredMbps": 20.012240993943934,
+      "trace": {
+        "provider": "cloudflare",
+        "endpoint": "http://127.0.0.1:51358/test",
+        "transport": "https",
+        "streams": 2,
+        "direction": "upload",
+        "accounting": "completed-request",
+        "warmupMs": 2000,
+        "points": [
+          {
+            "t": 0,
+            "bytes": 0
+          },
+          {
+            "t": 534.5,
+            "bytes": 1046528
+          },
+          {
+            "t": 1038.4000000953674,
+            "bytes": 2294655
+          },
+          {
+            "t": 1551.2000000476837,
+            "bytes": 3578228
+          },
+          {
+            "t": 2048.600000023842,
+            "bytes": 4811036
+          },
+          {
+            "t": 2574.5,
+            "bytes": 6123716
+          },
+          {
+            "t": 3113.3000000715256,
+            "bytes": 7442796
+          },
+          {
+            "t": 3608.100000023842,
+            "bytes": 8707595
+          },
+          {
+            "t": 4085.2000000476837,
+            "bytes": 9596080
+          },
+          {
+            "t": 4528.600000023842,
+            "bytes": 10551348
+          },
+          {
+            "t": 5019.200000047684,
+            "bytes": 11960061
+          },
+          {
+            "t": 5601,
+            "bytes": 13641037
+          },
+          {
+            "t": 6032.100000023842,
+            "bytes": 14644281
+          },
+          {
+            "t": 6531.400000095367,
+            "bytes": 15974828
+          },
+          {
+            "t": 7041,
+            "bytes": 17287356
+          },
+          {
+            "t": 7545.700000047684,
+            "bytes": 18559021
+          },
+          {
+            "t": 8048.800000071526,
+            "bytes": 19814704
+          },
+          {
+            "t": 8529.900000095367,
+            "bytes": 21013142
+          },
+          {
+            "t": 9037.5,
+            "bytes": 22284029
+          },
+          {
+            "t": 9545.300000071526,
+            "bytes": 23534062
+          },
+          {
+            "t": 10057.100000023842,
+            "bytes": 24828156
+          }
+        ],
+        "stopReason": "complete"
+      },
+      "estimate": {
+        "sustainedMbps": 19.995874383467566,
+        "ceilingMbps": 19.99419965640616,
+        "measuredBytes": 20017120,
+        "measuredMs": 8008.5,
+        "samples": 16,
+        "repeatability": {
+          "lower": 19.870665124731538,
+          "upper": 21.232767889527615
+        },
+        "qualification": "measured",
+        "warnings": []
+      },
+      "startedAt": 1788576799232.8,
+      "rotations": [
+        "rotate(-165.598deg)",
+        "rotate(-87.432deg)"
+      ]
+    },
+    {
+      "cpuRate": 4,
+      "direction": "upload",
+      "pair": 1,
+      "motion": false,
+      "deliveredMbps": 20.00149520526481,
+      "trace": {
+        "provider": "cloudflare",
+        "endpoint": "http://127.0.0.1:51358/test",
+        "transport": "https",
+        "streams": 2,
+        "direction": "upload",
+        "accounting": "completed-request",
+        "warmupMs": 2000,
+        "points": [
+          {
+            "t": 0,
+            "bytes": 0
+          },
+          {
+            "t": 556.5,
+            "bytes": 1046528
+          },
+          {
+            "t": 1059.1999999284744,
+            "bytes": 2319478
+          },
+          {
+            "t": 1524,
+            "bytes": 3405760
+          },
+          {
+            "t": 2150.5,
+            "bytes": 5035601
+          },
+          {
+            "t": 2644.6999999284744,
+            "bytes": 6283408
+          },
+          {
+            "t": 3019.1999999284744,
+            "bytes": 7010718
+          },
+          {
+            "t": 3519.100000023842,
+            "bytes": 8263084
+          },
+          {
+            "t": 4018.2999999523163,
+            "bytes": 9553520
+          },
+          {
+            "t": 4519.100000023842,
+            "bytes": 10806455
+          },
+          {
+            "t": 5114.699999928474,
+            "bytes": 12387133
+          },
+          {
+            "t": 5534,
+            "bytes": 13480613
+          },
+          {
+            "t": 6078.799999952316,
+            "bytes": 14835542
+          },
+          {
+            "t": 6647.899999976158,
+            "bytes": 16202749
+          },
+          {
+            "t": 7021.5,
+            "bytes": 16747609
+          },
+          {
+            "t": 7518.5,
+            "bytes": 18097820
+          },
+          {
+            "t": 8122.100000023842,
+            "bytes": 19816826
+          },
+          {
+            "t": 8598.699999928474,
+            "bytes": 21075596
+          },
+          {
+            "t": 9069.899999976158,
+            "bytes": 22327328
+          },
+          {
+            "t": 9547.699999928474,
+            "bytes": 23357132
+          },
+          {
+            "t": 10128,
+            "bytes": 24921430
+          }
+        ],
+        "stopReason": "complete"
+      },
+      "estimate": {
+        "sustainedMbps": 19.94191563773112,
+        "ceilingMbps": 20.459730683590077,
+        "measuredBytes": 19885829,
+        "measuredMs": 7977.5,
+        "samples": 16,
+        "repeatability": {
+          "lower": 19.16379595068134,
+          "upper": 21.049595364558183
+        },
+        "qualification": "measured",
+        "warnings": []
+      },
+      "startedAt": 1788576810314.7002,
+      "rotations": [
+        "rotate(-319.498deg)",
+        "rotate(-349.131deg)"
+      ]
+    },
+    {
+      "cpuRate": 4,
+      "direction": "upload",
+      "pair": 2,
+      "motion": false,
+      "deliveredMbps": 19.986969072164946,
+      "trace": {
+        "provider": "cloudflare",
+        "endpoint": "http://127.0.0.1:51358/test",
+        "transport": "https",
+        "streams": 2,
+        "direction": "upload",
+        "accounting": "completed-request",
+        "warmupMs": 2000,
+        "points": [
+          {
+            "t": 0,
+            "bytes": 0
+          },
+          {
+            "t": 538.9000000953674,
+            "bytes": 1028194
+          },
+          {
+            "t": 1024.2000000476837,
+            "bytes": 2277880
+          },
+          {
+            "t": 1542.9000000953674,
+            "bytes": 3572167
+          },
+          {
+            "t": 2016.5,
+            "bytes": 4678033
+          },
+          {
+            "t": 2610.600000023842,
+            "bytes": 6221232
+          },
+          {
+            "t": 3109.100000023842,
+            "bytes": 7498784
+          },
+          {
+            "t": 3613.2000000476837,
+            "bytes": 8744030
+          },
+          {
+            "t": 4105,
+            "bytes": 9970437
+          },
+          {
+            "t": 4615.700000047684,
+            "bytes": 11230287
+          },
+          {
+            "t": 5105.200000047684,
+            "bytes": 12484602
+          },
+          {
+            "t": 5626.900000095367,
+            "bytes": 13755616
+          },
+          {
+            "t": 6097.900000095367,
+            "bytes": 14974426
+          },
+          {
+            "t": 6623.400000095367,
+            "bytes": 16242705
+          },
+          {
+            "t": 7115.100000023842,
+            "bytes": 17500231
+          },
+          {
+            "t": 7577.800000071526,
+            "bytes": 18504458
+          },
+          {
+            "t": 8118.5,
+            "bytes": 20002536
+          },
+          {
+            "t": 8625.800000071526,
+            "bytes": 21255623
+          },
+          {
+            "t": 9041.300000071526,
+            "bytes": 22236183
+          },
+          {
+            "t": 9558.400000095367,
+            "bytes": 23504375
+          },
+          {
+            "t": 10067.5,
+            "bytes": 24809505
+          }
+        ],
+        "stopReason": "complete"
+      },
+      "estimate": {
+        "sustainedMbps": 20.003946838902003,
+        "ceilingMbps": 19.959337603607917,
+        "measuredBytes": 20131472,
+        "measuredMs": 8051,
+        "samples": 16,
+        "repeatability": {
+          "lower": 19.719575783846267,
+          "upper": 20.21968854179294
+        },
+        "qualification": "measured",
+        "warnings": []
+      },
+      "startedAt": 1788576822023.5,
+      "rotations": [
+        "rotate(-319.498deg)",
+        "rotate(-349.131deg)"
+      ]
+    },
+    {
+      "cpuRate": 4,
+      "direction": "upload",
+      "pair": 2,
+      "motion": true,
+      "deliveredMbps": 19.979656996334214,
+      "trace": {
+        "provider": "cloudflare",
+        "endpoint": "http://127.0.0.1:51358/test",
+        "transport": "https",
+        "streams": 2,
+        "direction": "upload",
+        "accounting": "completed-request",
+        "warmupMs": 2000,
+        "points": [
+          {
+            "t": 0,
+            "bytes": 0
+          },
+          {
+            "t": 535.6000000238419,
+            "bytes": 1046528
+          },
+          {
+            "t": 1040.6999999284744,
+            "bytes": 2339850
+          },
+          {
+            "t": 1545.8999999761581,
+            "bytes": 3578965
+          },
+          {
+            "t": 2048.399999976158,
+            "bytes": 4818590
+          },
+          {
+            "t": 2540.399999976158,
+            "bytes": 6080247
+          },
+          {
+            "t": 3041,
+            "bytes": 7327716
+          },
+          {
+            "t": 3543.6999999284744,
+            "bytes": 8577490
+          },
+          {
+            "t": 4030.100000023842,
+            "bytes": 9777806
+          },
+          {
+            "t": 4563.100000023842,
+            "bytes": 11086933
+          },
+          {
+            "t": 5053.199999928474,
+            "bytes": 12357991
+          },
+          {
+            "t": 5563.399999976158,
+            "bytes": 13581340
+          },
+          {
+            "t": 6057,
+            "bytes": 14850279
+          },
+          {
+            "t": 6578.600000023842,
+            "bytes": 16142753
+          },
+          {
+            "t": 7095.699999928474,
+            "bytes": 17419337
+          },
+          {
+            "t": 7605.600000023842,
+            "bytes": 18700242
+          },
+          {
+            "t": 8119.5,
+            "bytes": 20000725
+          },
+          {
+            "t": 8616.399999976158,
+            "bytes": 21209653
+          },
+          {
+            "t": 9117.199999928474,
+            "bytes": 22495041
+          },
+          {
+            "t": 9600.199999928474,
+            "bytes": 23711946
+          },
+          {
+            "t": 10007.5,
+            "bytes": 24433957
+          }
+        ],
+        "stopReason": "complete"
+      },
+      "estimate": {
+        "sustainedMbps": 19.716165898095255,
+        "ceilingMbps": 20.040225046965578,
+        "measuredBytes": 19615367,
+        "measuredMs": 7959.100000023842,
+        "samples": 16,
+        "repeatability": {
+          "lower": 19.85072576910354,
+          "upper": 20.07295260947722
+        },
+        "qualification": "measured",
+        "warnings": []
+      },
+      "startedAt": 1788576834775.2002,
+      "rotations": [
+        "rotate(-256.935deg)",
+        "rotate(-306.771deg)"
+      ]
+    },
+    {
+      "cpuRate": 4,
+      "direction": "upload",
+      "pair": 3,
+      "motion": true,
+      "deliveredMbps": 20.026732003850512,
+      "trace": {
+        "provider": "cloudflare",
+        "endpoint": "http://127.0.0.1:51358/test",
+        "transport": "https",
+        "streams": 2,
+        "direction": "upload",
+        "accounting": "completed-request",
+        "warmupMs": 2000,
+        "points": [
+          {
+            "t": 0,
+            "bytes": 0
+          },
+          {
+            "t": 532.1000000238419,
+            "bytes": 1046528
+          },
+          {
+            "t": 1048.7000000476837,
+            "bytes": 2344522
+          },
+          {
+            "t": 1548,
+            "bytes": 3581844
+          },
+          {
+            "t": 2048.899999976158,
+            "bytes": 4837336
+          },
+          {
+            "t": 2555,
+            "bytes": 6103232
+          },
+          {
+            "t": 3068.5,
+            "bytes": 7371221
+          },
+          {
+            "t": 3566.2000000476837,
+            "bytes": 8639199
+          },
+          {
+            "t": 4046.2000000476837,
+            "bytes": 9821591
+          },
+          {
+            "t": 4563.200000047684,
+            "bytes": 11144267
+          },
+          {
+            "t": 5072,
+            "bytes": 12384373
+          },
+          {
+            "t": 5557.700000047684,
+            "bytes": 13510600
+          },
+          {
+            "t": 6015.100000023842,
+            "bytes": 14480851
+          },
+          {
+            "t": 6559.100000023842,
+            "bytes": 16041626
+          },
+          {
+            "t": 7073.899999976158,
+            "bytes": 17328253
+          },
+          {
+            "t": 7522.700000047684,
+            "bytes": 18292703
+          },
+          {
+            "t": 8022.300000071526,
+            "bytes": 19513095
+          },
+          {
+            "t": 8521.899999976158,
+            "bytes": 20783956
+          },
+          {
+            "t": 9022.399999976158,
+            "bytes": 22020055
+          },
+          {
+            "t": 9522.100000023842,
+            "bytes": 23219114
+          },
+          {
+            "t": 10007.600000023842,
+            "bytes": 24564772
+          }
+        ],
+        "stopReason": "complete"
+      },
+      "estimate": {
+        "sustainedMbps": 19.829807380483555,
+        "ceilingMbps": 19.97165029258835,
+        "measuredBytes": 19727436,
+        "measuredMs": 7958.700000047684,
+        "samples": 16,
+        "repeatability": {
+          "lower": 19.354925847630465,
+          "upper": 20.05574169552633
+        },
+        "qualification": "measured",
+        "warnings": []
+      },
+      "startedAt": 1788576845791.8,
+      "rotations": [
+        "rotate(-356.265deg)",
+        "rotate(-132.561deg)"
+      ]
+    },
+    {
+      "cpuRate": 4,
+      "direction": "upload",
+      "pair": 3,
+      "motion": false,
+      "deliveredMbps": 19.99676003628356,
+      "trace": {
+        "provider": "cloudflare",
+        "endpoint": "http://127.0.0.1:51358/test",
+        "transport": "https",
+        "streams": 2,
+        "direction": "upload",
+        "accounting": "completed-request",
+        "warmupMs": 2000,
+        "points": [
+          {
+            "t": 0,
+            "bytes": 0
+          },
+          {
+            "t": 542,
+            "bytes": 1046528
+          },
+          {
+            "t": 1085.3000000715256,
+            "bytes": 2347902
+          },
+          {
+            "t": 1594,
+            "bytes": 3661946
+          },
+          {
+            "t": 2099.600000023842,
+            "bytes": 4913432
+          },
+          {
+            "t": 2597.2000000476837,
+            "bytes": 6217567
+          },
+          {
+            "t": 3096.8000000715256,
+            "bytes": 7419646
+          },
+          {
+            "t": 3598.899999976158,
+            "bytes": 8660297
+          },
+          {
+            "t": 4017.399999976158,
+            "bytes": 9285201
+          },
+          {
+            "t": 4517.800000071526,
+            "bytes": 10533388
+          },
+          {
+            "t": 5073.300000071526,
+            "bytes": 12305542
+          },
+          {
+            "t": 5562.700000047684,
+            "bytes": 13537620
+          },
+          {
+            "t": 6073.899999976158,
+            "bytes": 14813649
+          },
+          {
+            "t": 6517.700000047684,
+            "bytes": 15755819
+          },
+          {
+            "t": 7017.700000047684,
+            "bytes": 16956619
+          },
+          {
+            "t": 7596.200000047684,
+            "bytes": 18246342
+          },
+          {
+            "t": 8024.100000023842,
+            "bytes": 19633432
+          },
+          {
+            "t": 8547.100000023842,
+            "bytes": 20913247
+          },
+          {
+            "t": 9027.200000047684,
+            "bytes": 22177724
+          },
+          {
+            "t": 9523.5,
+            "bytes": 23528876
+          },
+          {
+            "t": 10010.800000071526,
+            "bytes": 24754465
+          }
+        ],
+        "stopReason": "complete"
+      },
+      "estimate": {
+        "sustainedMbps": 20.06374051964851,
+        "ceilingMbps": 19.922469463638073,
+        "measuredBytes": 19841033,
+        "measuredMs": 7911.200000047684,
+        "samples": 16,
+        "repeatability": {
+          "lower": 19.41341289300674,
+          "upper": 20.688154900853846
+        },
+        "qualification": "measured",
+        "warnings": []
+      },
+      "startedAt": 1788576856815.2002,
+      "rotations": [
+        "rotate(-141.409deg)",
+        "rotate(-19.98deg)"
+      ]
+    }
+  ]
+}

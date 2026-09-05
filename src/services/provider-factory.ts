@@ -7,6 +7,7 @@ import { FastcomProvider } from './fastcom-provider';
 import { CacheFlyProvider } from './cachefly-provider';
 import { VultrProvider } from './vultr-provider';
 import { AggregatedProvider } from './aggregated-provider';
+import { V5Provider } from './engine-v5';
 
 /**
  * Registry order — the canonical construction/draw order the v4 statistical
@@ -67,6 +68,7 @@ export function resolveProviderPlan(profile: TestProfile, consent: boolean): Res
 }
 
 export interface CreateProviderOptions {
+  maxBytes?: number;
   /** v4 test mode for the aggregated (`'both'`) path. Default `'full'`. */
   profile?: TestProfile;
   /** M-Lab data-policy consent (gates NDT7 + MSAK). Default `false`. */
@@ -104,8 +106,9 @@ export function createProvider(mode: ProviderMode, opts: CreateProviderOptions =
       return new VultrProvider();
     case 'both':
     default:
-      return new AggregatedProvider({
-        profile: opts.profile ?? 'full',
+      return new V5Provider({
+        maxBytes: opts.maxBytes,
+        profile: opts.profile ?? 'fast',
         consent: opts.consent ?? false,
       });
   }
