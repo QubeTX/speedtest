@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [4.0.3] - 2026-09-05
+
+### Changed
+
+- Match the native app's supplied font pairing: Makira for headings and body text, Gail Rock for instrument labels, numeric readings and data tables. Bundle the supplied Gail Rock webfonts and update the preload and measurement tokens.
+- Fit Gail Rock readouts to their actual metric column and digit count, keeping long values beside their units. Preserve desktop Settings fit and the existing cassette animation, Quick default and reset transition.
+
 ## [4.0.2] - 2026-09-05
 
 ### Changed

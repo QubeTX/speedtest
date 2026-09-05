@@ -11,7 +11,7 @@ export interface TextEntryConfig {
 /**
  * Font family matching the text these entries measure. Everything registered
  * here (SysInfo meta, status strings, DNS lines, tooltip metrics) renders in
- * the instrument voice (IBM Plex Mono) under the v4 type system — imported
+ * the instrument voice (Gail Rock) under the v4 type system — imported
  * from tokens so measurement can never drift from rendering again.
  */
 const FONT_FAMILY = fontFamilies.instrument;

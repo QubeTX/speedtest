@@ -1,0 +1,30 @@
+[
+  {
+    "file": "Gail-Rock-Regular.woff2",
+    "sha256": "acc19a5524b3f8530877b0d2602dd80ea41aa38135cd1feec0057da4ec641bf0",
+    "numericAdvance": 650,
+    "unitsPerEm": 1000,
+    "nativeAdvancesAndCmapMatch": true
+  },
+  {
+    "file": "Gail-Rock-Medium.woff2",
+    "sha256": "d2eb2c255ad5e693246638dc5bc796569732bdc45d6b3cd9e544171c2ad59742",
+    "numericAdvance": 650,
+    "unitsPerEm": 1000,
+    "nativeAdvancesAndCmapMatch": true
+  },
+  {
+    "file": "Gail-Rock-Semibold.woff2",
+    "sha256": "88b72e2e3238ab6c9288488b057e5fd4befc925dc8faa2370985fbdb9acdfeaa",
+    "numericAdvance": 650,
+    "unitsPerEm": 1000,
+    "nativeAdvancesAndCmapMatch": true
+  },
+  {
+    "file": "Gail-Rock-Bold.woff2",
+    "sha256": "3b2357486231d6e482ff40dc19138fcaab28ecbbab5462a45bbffaed030d76b9",
+    "numericAdvance": 650,
+    "unitsPerEm": 1000,
+    "nativeAdvancesAndCmapMatch": true
+  }
+]

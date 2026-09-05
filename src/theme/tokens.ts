@@ -19,7 +19,7 @@ export const borders = {
 //
 // Two voices:
 //   • DISPLAY  — Makira Sans Serif. Hero numerals, headings, buttons, the stamp.
-//   • INSTRUMENT — IBM Plex Mono. Units, metric values, percentile ladders,
+//   • INSTRUMENT — Gail Rock. Units, metric values, percentile ladders,
 //                  micro-labels, timestamps. Inherently monospaced → tabular.
 //
 // IMPORTANT (verified 2026-07 with fontTools on Makira-Medium.woff2):
@@ -27,22 +27,21 @@ export const borders = {
 //   (10 distinct advance widths) and it ships NO `tnum`/`lnum` OpenType feature
 //   (GSUB tags present: aalt case frac liga locl ordn salt sups). So
 //   `font-variant-numeric: tabular-nums` is a NO-OP on Makira. We keep it on the
-//   hero token anyway (per spec — it still helps the Guton/system fallback while
+//   hero token anyway (per spec — it still helps the system fallback while
 //   the webfont loads) but it does NOT make Makira digits equal-width.
 //   → For ANIMATING numerals (live count-ups / odometers) prefer the INSTRUMENT
-//     voice (`textStyles.instrumentNumber`, IBM Plex Mono — genuinely monospaced,
+//     voice (`textStyles.instrumentNumber`, Gail Rock — genuinely monospaced,
 //     zero horizontal jitter). Reserve the Makira `hero` token for the single
 //     flagship readout where the display voice matters most; if its digits jitter
 //     while animating, swap that one readout to the instrument numeral too.
 
 export const fontFamilies = {
-  /** Makira — display voice. Guton kept in the stack as a metrics-close fallback
-   *  during the migration; system sans as the final fallback. */
-  display: "'Makira', 'Guton', -apple-system, BlinkMacSystemFont, sans-serif",
-  /** IBM Plex Mono — instrument voice. Monospaced → tabular by construction. */
-  instrument: "'IBM Plex Mono', ui-monospace, 'SF Mono', 'Roboto Mono', Menlo, Consolas, monospace",
-  /** Guton — legacy body voice, retained during the Makira roll-out. */
-  body: "'Guton', -apple-system, BlinkMacSystemFont, sans-serif",
+  /** Makira — display voice, shared with the native app. */
+  display: "'Makira', -apple-system, BlinkMacSystemFont, sans-serif",
+  /** Gail Rock — instrument voice. Monospaced → tabular by construction. */
+  instrument: "'Gail Rock', ui-monospace, 'SF Mono', 'Roboto Mono', Menlo, Consolas, monospace",
+  /** Makira — body/prose voice, shared with the native app. */
+  body: "'Makira', -apple-system, BlinkMacSystemFont, sans-serif",
 } as const;
 
 export const fontWeights = {
@@ -50,7 +49,7 @@ export const fontWeights = {
   medium: 500,
   semibold: 600,
   bold: 700,
-  extrabold: 800, // Makira only (Plex Mono tops out at bold/700)
+  extrabold: 800, // Makira only (Gail Rock tops out at bold/700)
   black: 900, // Makira only
 } as const;
 
@@ -74,7 +73,7 @@ export const textStyles = {
     letterSpacing: '-0.028em',
     fontVariantNumeric: 'tabular-nums' as const,
   },
-  /** Secondary metric numeral — INSTRUMENT voice (Plex Mono). Genuinely
+  /** Secondary metric numeral — INSTRUMENT voice (Gail Rock). Genuinely
    *  monospaced, so safe to animate. NEVER negative-tracked. */
   instrumentNumber: {
     fontFamily: fontFamilies.instrument,
@@ -133,7 +132,7 @@ export const textStyles = {
 // Existing consumers import `typography.{fontFamily,numberLarge,numberMedium,
 // unit,metaLabel,metaValue}`. Keep those keys (same shape) but re-voiced onto
 // the new type system so the tree keeps compiling while callers migrate to
-// `textStyles`. `numberLarge` → Makira hero; `numberMedium` → Plex instrument
+// `textStyles`. `numberLarge` → Makira hero; `numberMedium` → Gail Rock instrument
 // numeral; labels/values → instrument voice.
 export const typography = {
   fontFamily: fontFamilies.display,

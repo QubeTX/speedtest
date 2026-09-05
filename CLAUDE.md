@@ -57,7 +57,7 @@ Viewport height uses `100svh` (small viewport height) for mobile browser chrome 
 ### Layout
 - `MainTestView` and `instrument-v5.css` provide the current cassette/measurement layout; older apparatus/data panels are retained historical components.
 - `TapeMechanism` renders a canonical normalized 100-unit-viewBox SVG reel (`src/components/mechanism/reel-geometry.ts` + `TapeReel.tsx`) driven by `useReelDrive` — a self-suspending RAF integrator writing transforms imperatively (no more CSS `transform: scale()` sizing wrapper or keyframe-restart stutter); spin speed eases toward a log-scaled ω(Mbps) with asymmetric motor inertia, and tape visibly winds supply→take-up on download / rewinds on upload
-- `PretextProvider` + `PretextBlock` use `@chenglou/pretext` for layout-shift prevention; text measurement imports the rendered font stack from `theme/tokens.ts` (Makira/Plex Mono aware, not hard-coded to Guton)
+- `PretextProvider` + `PretextBlock` use `@chenglou/pretext` for layout-shift prevention; text measurement imports the rendered font stack from `theme/tokens.ts` (Makira/Gail Rock aware, not hard-coded to Guton)
 
 ## Types
 
@@ -115,7 +115,7 @@ The headline means sustained application throughput on this device/path, not ISP
 - `public/question-mark.svg` — help icon in TopBar
 - `public/favicon.svg` — browser tab icon
 - `public/app-store-badge.svg` — official Apple "Download on the App Store" black lockup. **Do not modify or optimize this file** — Apple Marketing Guidelines forbid recoloring, resizing below 40px height, or altering the SVG.
-- `public/fonts/` — self-hosted typefaces: **Makira Sans** (display voice — heroes, headings, buttons, the stamp) + **IBM Plex Mono** (instrument voice — units, metric values, percentile ladders, micro-labels), both preloaded in `index.html`; **Guton** retained as a metrics-close fallback only.
+- `public/fonts/` — self-hosted typefaces: **Makira Sans** (display voice — heroes, headings, buttons, the stamp) + **Gail Rock** (instrument voice — units, metric values, percentile ladders, micro-labels), both preloaded in `index.html`; Makira also supplies body text. Gail Rock weights come from the same supplied family as the native app.
 - `public/ndt7-*-worker.js` — M-Lab NDT7 worker scripts, copied from `node_modules/@m-lab/ndt7` into `public/` by the `postinstall` script
 
 ## Native Companion App

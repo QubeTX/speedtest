@@ -68,7 +68,7 @@ export default function DataRow({
     backgroundColor: isActive ? colors.paper : 'transparent',
   };
 
-  // All readouts use the instrument voice (IBM Plex Mono — genuinely monospaced,
+  // All readouts use the instrument voice (Gail Rock — genuinely monospaced,
   // so count-ups don't jitter). Large = hero scale; small = ping/jitter scale.
   const numberStyle: CSSProperties = isSmall
     ? { ...textStyles.instrumentNumber }
