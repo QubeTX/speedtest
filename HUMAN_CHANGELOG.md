@@ -2,6 +2,11 @@
 
 A plain-English companion to [CHANGELOG.md](CHANGELOG.md).
 
+## September 5, 2026 — Matching fonts across web and iPhone
+
+- The website uses the same Makira and Gail Rock pairing as the phone app. Headings and paragraphs use Makira; readings and instrument labels use Gail Rock.
+- Longer readings adjust to their available space so every digit and its unit stay together. Desktop Settings still fits its window, and the cassette keeps its existing animation and smooth reset.
+
 ## September 5, 2026 — A clearer icon in small tabs (4.0.2)
 
 - Simplified the cassette icon so its shape and two reel openings remain easier to distinguish in a small browser tab. Removed the extra surrounding square and fine details that blurred together.
