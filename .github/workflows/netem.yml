@@ -1,0 +1,44 @@
+name: Isolated packet impairment comparisons
+on:
+  pull_request:
+    paths: ['scripts/*netem*', 'scripts/controlled-reference.mjs', '.github/workflows/netem.yml']
+permissions:
+  contents: read
+jobs:
+  receiver-ingress-netem:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - uses: dtolnay/rust-toolchain@1.97.0
+      - uses: actions/checkout@v4
+        with:
+          repository: QubeTX/qube-network-diagnostics
+          ref: 306611941883228e55b4714cfb171e6d0080160d
+          path: reference-cli
+          persist-credentials: false
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: reference-cli
+      - run: cargo build --locked --example v5-acquire
+        working-directory: reference-cli
+      - run: npm ci
+      - run: npx playwright install chrome
+      - run: sudo apt-get update && sudo apt-get install -y iproute2 ethtool
+      - name: Record CLI revision
+        run: git -C reference-cli rev-parse HEAD > evidence/v5/netem-rust-revision.txt
+      - name: Compare actual acquisition on isolated shaped paths
+        run: bash scripts/run-netem-reference.sh
+        env:
+          SPEEDQX_ACQUIRE: ${{ github.workspace }}/reference-cli/target/debug/examples/v5-acquire
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: isolated-netem-evidence
+          path: |
+            evidence/v5/netem*
+            netem-*.log

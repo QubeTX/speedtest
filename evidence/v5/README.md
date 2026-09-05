@@ -72,3 +72,9 @@ node scripts/validate-app-lifecycle.mjs
 ```
 
 The app lifecycle fixture additionally requires the Expo browser server on port 8082. `BROWSER=firefox|webkit`, `SCENARIOS`, `REPEATS`, and `REPORT_SUFFIX` select transport runs. Use `SPEEDQX_REPLAY`/`SPEEDQX_ACQUIRE` to select non-Windows example paths. Do not run multiple measurement benchmarks concurrently. Fixture code is local validation infrastructure and is not deployed as a production measurement service.
+
+## Isolated packet impairment candidate
+
+`run-netem-reference.sh` creates two disposable Linux network namespaces with a veth pair and no default routes. Segmentation/offload is disabled. Netem acts on each receiver ingress through an IFB, as required for realistic TCP queue behavior. Its hosted workflow compares two order-alternating browser/Rust repetitions on clean, asymmetric, high-latency and lossy paths, plus the original v4 Cloudflare acquisition. The workflow pins the Rust harness revision and retains queue statistics and traces.
+
+Configured transport limits include protocol overhead. Under loss and queuing, server write timestamps precede delivery and upload receipt timestamps precede client acknowledgement, so these records cannot support timestamp-exact absolute error claims. This experiment extends impairment coverage; it does not replace delivered-payload, physical-device or real-provider acceptance. Its first hosted result is pending.

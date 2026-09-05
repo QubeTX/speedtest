@@ -33,7 +33,7 @@ class Pacer {
   close() { clearInterval(this.timer); for (const job of this.queue) job.reject(new Error('fixture closed')); this.queue = []; }
 }
 
-export async function startReference({ maxRequestBytes = 8_000_000 } = {}) {
+export async function startReference({ maxRequestBytes = 8_000_000, host = '127.0.0.1', port = 0, diagnostics = false } = {}) {
   const pacers = new Map(), payload = randomBytes(65536);
   const server = createServer(async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*'); res.setHeader('Access-Control-Allow-Headers', '*');
@@ -41,6 +41,10 @@ export async function startReference({ maxRequestBytes = 8_000_000 } = {}) {
     res.setHeader('Cache-Control', 'no-store');
     if (req.method === 'OPTIONS') { res.end(); return; }
     const url = new URL(req.url, 'http://localhost');
+    if (diagnostics && url.pathname === '/__snapshot') {
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify(pacers.get(url.searchParams.get('key'))?.history ?? [])); return;
+    }
     const scenario = scenarios[url.searchParams.get('scenario')] ?? scenarios.steady;
     const direction = req.method === 'POST' ? 'upload' : 'download';
     const key = `${url.searchParams.get('run') ?? 'default'}-${direction}`;
@@ -71,8 +75,8 @@ export async function startReference({ maxRequestBytes = 8_000_000 } = {}) {
       }
     } catch { res.destroy(); }
   });
-  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
-  return { url: `http://127.0.0.1:${server.address().port}`, snapshot: key => pacers.get(key)?.history ?? [], close: async () => {
+  await new Promise(resolve => server.listen(port, host, resolve));
+  return { url: `http://${host}:${server.address().port}`, snapshot: key => pacers.get(key)?.history ?? [], close: async () => {
     for (const p of pacers.values()) p.close(); server.closeAllConnections(); await new Promise(resolve => server.close(resolve));
   } };
 }
