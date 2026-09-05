@@ -43,19 +43,24 @@ V5 lowers aggregate error in the recorded estimator and transport comparisons, w
 
 ## Build and native acceptance
 
-Local candidate checks: website 87 tests and production build; app 38 tests, TypeScript, documentation validation, Expo Doctor 20/20 and both native exports; Rust 332 tests, strict Clippy, release build and dependency audit; homepage documentation lint/build. Exact committed-source CI and final export checks must be attached before release.
+Local candidate checks: website 90 tests and production build; app 38 tests, TypeScript, documentation validation, Expo Doctor 20/20 and both native exports; Rust 332 tests, strict Clippy, release build, isolated package publish dry-run and dependency audit; homepage documentation lint/build. The four repositories also pass the Git workflow's full tracked/nonignored-file regex secret scan; this basic scan is not a substitute for security review.
 
-Expo built candidate iOS simulator and Android emulator binaries successfully. Native UI testing is in progress. Initial failures exposed an unavailable simulator name, deep-link startup/confirmation timing, outdated screenshot output paths and selectors that did not match accessible labels. Their failures are retained in the task record; no failed suite is counted as a pass. Physical iOS/Android acceptance remains open.
+The final measurement correction is verified by Rust [CI 33945471953](https://github.com/QubeTX/qube-network-diagnostics/actions/runs/33945471953), [complete parity 33945471980](https://github.com/QubeTX/qube-network-diagnostics/actions/runs/33945471980), [Windows installer matrix 33945472053](https://github.com/QubeTX/qube-network-diagnostics/actions/runs/33945472053) and [signed native Mac candidate lifecycle 33945472030](https://github.com/QubeTX/qube-network-diagnostics/actions/runs/33945472030), all at `3a1b67146888f550089859b06a7f249eb5e01106`. Website [CI 33945856558](https://github.com/QubeTX/speedtest/actions/runs/33945856558) and [netem acquisition-integrity run 33945856594](https://github.com/QubeTX/speedtest/actions/runs/33945856594) pass at `b192aecd2aaf9e8bea49b50cf032901a1824107e`. A green acquisition-integrity job does not mean every repeatability target passed. Both generated manifests pin canonical product source `08d1c337b977d07e2296fe3a2e57f2983afa298f`.
+
+Expo built candidate iOS simulator and Android emulator binaries successfully. The final app product source is `c6ae33964ebdc66f7906596197edf51eb15d1e78`. Android passes all six native journeys on the first attempt in [workflow 01a06fe6-0b9b-7998-ba99-5d678d745fa4](https://expo.dev/accounts/realemmetts/projects/speedqx/workflows/01a06fe6-0b9b-7998-ba99-5d678d745fa4). Final iPhone sizes are tracked in [workflow 01a06fec-6e49-79bf-b235-451e70a8c255](https://expo.dev/accounts/realemmetts/projects/speedqx/workflows/01a06fec-6e49-79bf-b235-451e70a8c255) and the app's `docs/v5-validation.md`. Initial failures exposed both harness defects and real native tap/consent clipping bugs; their failed evidence is retained. Reviewed native recordings show moving reels. Physical iOS/Android acceptance remains open.
+
+Signed iOS **3.0.0 (16)**, [build cdc16452-50e4-405b-8857-c0c76735e6a8](https://expo.dev/accounts/realemmetts/projects/speedqx/builds/cdc16452-50e4-405b-8857-c0c76735e6a8), successfully [uploaded to App Store Connect](https://expo.dev/accounts/realemmetts/projects/speedqx/submissions/e592005a-2855-4500-99f3-6c4483748b0d) for TestFlight. Apple processing and physical installation require separate confirmation. This is not an App Store release or a production merge. The repository's existing Claude review job fails before producing a substantive review; that service failure remains disclosed.
 
 ## Remaining release gates
 
-- [ ] Final correction pins and hosted checks. The prior candidate passed Rust platform, app/web CI and native installer lifecycle checks; the newest ceiling correction requires its own final checks.
+- [x] Final measurement correction pins, complete recorded-trace parity, hosted platform checks and native installer candidate lifecycle checks.
 - [ ] Successful native simulator/emulator journeys, reviewed screenshots and recordings at the final candidate.
 - [ ] Physical iOS/Android layout, large text, reduced motion, cancellation and animation performance.
-- [ ] Packet-shaped loss/reference coverage and matched real-provider runs.
+- [ ] Lossy-path repeatability qualification and consenting real M-Lab provider acceptance. Paced references, packet impairment coverage and Cloudflare smoke runs are retained above; failed targets remain open.
 - [ ] Physical/device animation overhead; browser proof is scoped above.
-- [ ] CLI package, installer/release checks and production verification.
-- [ ] Push/merge/deploy and new Expo store build/upload. App Store review submission stays with the user.
+- [x] CLI package dry-run and pre-release installer checks.
+- [x] Push all four review branches and build/upload the new Expo TestFlight candidate.
+- [ ] Substantive security/PR review, production merges, immutable CLI release and public deployment verification. App Store review submission stays with the user.
 
 ## Reproduction
 
