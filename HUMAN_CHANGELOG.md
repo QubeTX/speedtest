@@ -2,6 +2,11 @@
 
 A plain-English companion to [CHANGELOG.md](CHANGELOG.md).
 
+## September 6, 2026 — A simpler cassette (4.0.6)
+
+- The web cassette is closer to the original iPhone design, with larger reels, a quiet blue-gray body and a clear black Start control. Cleaner proportions and fewer decorative details give it a restrained Braun/Bauhaus influence.
+- Removed the extra plates, screws, guide lines and small markings. The reels still respond to the test, and starting, stopping and rewinding work as before.
+
 ## September 6, 2026 — One cassette family across web and iPhone (4.0.5)
 
 - The website's cassette now shares the blue-gray housing and darker reel window of the iPhone app's 3.1 update. Softer edges and a recessed control make the instrument feel like the same product on both screens.
