@@ -2,6 +2,11 @@
 
 A plain-English companion to [CHANGELOG.md](CHANGELOG.md).
 
+## September 6, 2026 — A little closer to the iPhone app (4.0.4)
+
+- Lighter borders, softer gray panels and white grouped readings give the website more visual continuity with the iPhone app. Quick and Deep use a familiar inset selection, and headings and supporting text are easier to scan.
+- The website keeps its detailed cassette and black Start control. Settings and result explanations share the quieter finish, with the same speed-test behavior, keyboard controls and reduced-motion support.
+
 ## September 5, 2026 — Matching fonts across web and iPhone
 
 - The website uses the same Makira and Gail Rock pairing as the phone app. Headings and paragraphs use Makira; readings and instrument labels use Gail Rock.

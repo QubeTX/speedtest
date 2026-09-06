@@ -46,3 +46,62 @@
 .v5-value strong{white-space:nowrap;overflow-wrap:normal;font-size:min(clamp(26px,3.5vw,40px),calc((100cqi - 42px) / (var(--reading-digits,1) * .65)))}
 .v5-metric:nth-child(n+3) strong{font-size:min(26px,calc((100cqi - 28px) / (var(--reading-digits,1) * .65)))}
 @media(max-width:700px){.v5-metric:nth-child(-n+2) strong{font-size:min(34px,calc((100cqi - 42px) / (var(--reading-digits,1) * .65)))}}
+
+/* A light native-family finish around the website's mechanical cassette.
+   Keep its geometry, black transport control and measurement layout intact. */
+.v5-instrument {
+  --v5-surface: #f1f2f5;
+  --v5-panel: #e9ebf0;
+  --v5-line: #d5d8df;
+  --v5-muted: #626a78;
+  border: 1px solid var(--v5-line);
+  border-radius: 24px;
+  background: var(--v5-surface);
+  box-shadow: 0 18px 48px #202b3c0a, 0 2px 8px #202b3c05;
+}
+.v5-top { border-bottom: 1px solid var(--v5-line); }
+.v5-brand { font-size: 30px; line-height: 1.15; }
+.v5-top nav { font-size: 13px; font-weight: 500; }
+.v5-top a { border-color: #9ba1ab; padding-block: 4px; }
+.v5-status { text-transform: none; }
+.v5-status strong { font: 600 15px/1.5 Makira, sans-serif; }
+.v5-status span { color: var(--v5-muted); }
+.v5-readout { border-left: 1px solid var(--v5-line); background: var(--v5-panel); }
+.v5-result-label { font: 13px/1.6 Makira, sans-serif; color: var(--v5-muted); }
+.v5-result-label strong { font-size: 20px; font-weight: 600; color: #111; }
+.v5-metrics { border: 1px solid var(--v5-line); border-radius: 18px; background: #fff; }
+.v5-metric { padding: 20px 12px; border-bottom: 1px solid #e7e9ee; }
+.v5-metric:nth-child(odd) { border-right: 1px solid #e7e9ee; }
+.v5-metric:nth-child(n+3) { background: #fff; border-bottom: 0; padding-block: 16px; }
+.v5-metric-label, .v5-value span, .v5-metric small { color: var(--v5-muted); }
+.v5-value { margin-top: 10px; }
+.v5-modes { padding: 4px; gap: 4px; border: 1px solid var(--v5-line); border-radius: 13px; background: #e0e3e9; }
+.v5-modes button { border-radius: 9px; font-family: Makira, sans-serif; font-size: 15px; }
+.v5-modes small { font-family: 'Gail Rock', monospace; color: var(--v5-muted); }
+.v5-modes [aria-checked=true] { background: #fff; color: #111; box-shadow: 0 1px 4px #202b3c1a; }
+.v5-modes button:disabled { opacity: .65; }
+.v5-data-note { font-family: Makira, sans-serif; font-size: 12px; color: var(--v5-muted); }
+.v5-data-note input { accent-color: #111; margin-top: 3px; }
+.v5-details-toggle { border: 1px solid var(--v5-line); border-radius: 12px; background: #fff; }
+.v5-footer { border-top: 1px solid var(--v5-line); color: var(--v5-muted); }
+.v5-details { border-top: 1px solid var(--v5-line); background: #f8f9fb; }
+.v5-help, .v5-settings p { color: var(--v5-muted); }
+.v5-settings section+section { border-top-color: var(--v5-line); }
+.v5-settings h2 { font-size: 17px; }
+.v5-setting-choices button { border-color: #c4c8d1; border-radius: 10px; background: #fff; }
+.v5-setting-choices [aria-pressed=true] { background: #111; border-color: #111; }
+.v5-metric-dialog { border: 1px solid var(--v5-line); border-radius: 20px; background: var(--v5-surface); }
+.v5-metric-dialog button { border-radius: 10px; }
+@media (hover: hover) {
+  .v5-metric:hover { background: #f8f9fb; }
+  .v5-modes button:not(:disabled):not([aria-checked=true]):hover { background: #ffffff70; }
+  .v5-details-toggle:hover { background: #f8f9fb; }
+}
+@media (max-width: 700px) {
+  .v5-instrument { border-radius: 20px; }
+  .v5-brand { font-size: 28px; }
+  .v5-readout { border-left: 0; border-top: 1px solid var(--v5-line); }
+  .v5-metric { padding: 15px 12px; }
+  .v5-metric:nth-child(n+3) { padding-block: 12px; }
+  .v5-result-label strong { font-size: 18px; }
+}
