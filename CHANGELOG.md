@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [4.0.4] - 2026-09-06
+
+### Changed
+
+- Refine the website's native-app continuity with cooler neutral surfaces, lighter panel dividers, white grouped readings, softer corner radii and a white selected segment for Quick/Deep. Keep the detailed cassette, black transport control and existing responsive layout.
+- Use sentence-case Makira status/result headings and clearer supporting text. Carry the same subtle borders into Settings, metric explanations and expanded results; retain keyboard focus and reduced-motion behavior.
+
 ## [4.0.3] - 2026-09-05
 
 ### Changed

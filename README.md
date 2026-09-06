@@ -2,6 +2,8 @@
 
 A responsive cassette instrument for network measurement, built with React and TypeScript. Live at [speedqx.com](https://speedqx.com).
 
+Makira and Gail Rock typography, soft neutral surfaces and grouped readings connect the website to the iPhone app. The website retains its detailed cassette and monochrome transport controls.
+
 ## Measurement
 
 SpeedQX measures sustained application throughput on the device and paths tested. Methodology v5 uses monotonic byte counters, a fixed two-second warm-up, and the median of qualifying Cloudflare and M-Lab MSAK primary estimates. NDT7 remains a separate single-stream comparison. A repeatable ceiling needs two non-overlapping three-second windows within 10%; it does not describe the ISP's physical line capacity.

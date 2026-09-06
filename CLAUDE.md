@@ -55,7 +55,7 @@ Single structural breakpoint (`WIDE_BREAKPOINT` in `src/theme/responsive.ts`): *
 Viewport height uses `100svh` (small viewport height) for mobile browser chrome compatibility.
 
 ### Layout
-- `MainTestView` and `instrument-v5.css` provide the current cassette/measurement layout; older apparatus/data panels are retained historical components.
+- `MainTestView` and `instrument-v5.css` provide the current cassette/measurement layout. The stylesheet's final native-continuity section shares the app's neutral surfaces, white grouped readings and Makira hierarchy while retaining the web cassette and black transport; older apparatus/data panels are retained historical components.
 - `TapeMechanism` renders a canonical normalized 100-unit-viewBox SVG reel (`src/components/mechanism/reel-geometry.ts` + `TapeReel.tsx`) driven by `useReelDrive` — a self-suspending RAF integrator writing transforms imperatively (no more CSS `transform: scale()` sizing wrapper or keyframe-restart stutter); spin speed eases toward a log-scaled ω(Mbps) with asymmetric motor inertia, and tape visibly winds supply→take-up on download / rewinds on upload
 - `PretextProvider` + `PretextBlock` use `@chenglou/pretext` for layout-shift prevention; text measurement imports the rendered font stack from `theme/tokens.ts` (Makira/Gail Rock aware, not hard-coded to Guton)
 
