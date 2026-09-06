@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [4.0.5] - 2026-09-06
+
+### Changed
+
+- Match the cassette housing to the iOS 3.1 palette: blue-gray shell, darker reel window and recessed transport base. Replace heavy black housing outlines and the label bar with soft seams, rounded surfaces and a restrained shadow.
+- Retain the website's engraved label, tape guides, hardware detail and black Start control. Preserve reel geometry, byte-driven motion, reset behavior and the measurement engine.
+
 ## [4.0.4] - 2026-09-06
 
 ### Changed

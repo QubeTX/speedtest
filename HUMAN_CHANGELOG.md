@@ -2,6 +2,11 @@
 
 A plain-English companion to [CHANGELOG.md](CHANGELOG.md).
 
+## September 6, 2026 — One cassette family across web and iPhone (4.0.5)
+
+- The website's cassette now shares the blue-gray housing and darker reel window of the iPhone app's 3.1 update. Softer edges and a recessed control make the instrument feel like the same product on both screens.
+- The web version keeps its extra mechanical details, black Start button and responsive reel animation. Speed measurements and controls work as before.
+
 ## September 6, 2026 — A little closer to the iPhone app (4.0.4)
 
 - Lighter borders, softer gray panels and white grouped readings give the website more visual continuity with the iPhone app. Quick and Deep use a familiar inset selection, and headings and supporting text are easier to scan.
