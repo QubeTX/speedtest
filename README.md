@@ -2,7 +2,7 @@
 
 A responsive cassette instrument for network measurement, built with React and TypeScript. Live at [speedqx.com](https://speedqx.com).
 
-Makira and Gail Rock typography, soft neutral surfaces and grouped readings connect the website to the iPhone app. The cassette shares the iOS 3.1 blue-gray housing, darker reel window and soft edges, with extra mechanical detail and a black transport control on the web.
+Makira and Gail Rock typography, soft neutral surfaces and grouped readings connect the website to the iPhone app. The cassette follows the original iOS silhouette: a rounded blue-gray body, one darker window and two prominent reels. Restrained geometry and a broad black transport control keep the web instrument simple and recognizable.
 
 ## Measurement
 

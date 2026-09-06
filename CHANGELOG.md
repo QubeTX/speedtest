@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [4.0.6] - 2026-09-06
+
+### Changed
+
+- Simplify the web cassette around the iOS silhouette: rounded blue-gray housing, one darker window, larger reels and a broad black transport control. Remove decorative screws, vents, label plates and tape guides.
+- Remove duplicate cassette branding, direction markings and startup text; retain the existing phase summary and probe indicator. Use Makira for the transport label and preserve byte-driven reel motion, reset behavior, accessibility and speed measurements.
+
 ## [4.0.5] - 2026-09-06
 
 ### Changed
