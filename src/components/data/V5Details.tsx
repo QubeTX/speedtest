@@ -1,7 +1,8 @@
 // Copyright (c) 2026 QubeTX - ES Development LLC. All rights reserved.
 import { useState } from 'react';
 import type { SpeedTestResult } from '../../types/speedtest';
-import { estimateTrace, latencyStatistics } from '../../services/measurement-v5';
+import { estimateTrace } from '../../services/measurement-v5';
+import { latencyRows, latencySummary, HTTP_TIMING_DESCRIPTION, DATA_ACCOUNTING_DESCRIPTION, COMPARISON_GUIDANCE } from '../../services/result-v5-text';
 
 export default function V5Details({ result }: { result: SpeedTestResult }) {
   const [traceIndex, setTraceIndex] = useState(0), [sampleIndex, setSampleIndex] = useState(0);
@@ -15,7 +16,7 @@ export default function V5Details({ result }: { result: SpeedTestResult }) {
   const rate = (value: number | null | undefined) => value == null ? 'Unavailable' : `${value.toFixed(1)} Mbps`;
   return <div className="v5-details">
     <h2>Behind the measurement</h2>
-    <p>Sustained throughput describes this device and the tested paths. An estimated ceiling needs two separate, comparable three-second windows.</p>
+    <p>Sustained throughput is confirmed payload divided by measurement time after warm-up. Primary sources run sequentially; the headline is their median, not their sum. Highest repeatable throughput needs two separate, comparable three-second windows and does not establish maximum line capacity.</p>
     {result.warnings?.length ? <ul>{result.warnings.map(w => <li key={w}>{w}</li>)}</ul> : null}
     {measurement && <section><h3>Evidence and observed variation</h3>{(['download', 'upload'] as const).map(direction => {
       const value = measurement[direction], providers = measurement.primaryProviders[direction];
@@ -34,18 +35,23 @@ export default function V5Details({ result }: { result: SpeedTestResult }) {
       <input aria-label="Inspect recorded throughput sample" type="range" min="0" max={Math.max(0, samples.length - 1)} value={Math.min(sampleIndex, Math.max(0, samples.length - 1))} onChange={event => setSampleIndex(Number(event.target.value))} />
       <output>{selected ? `${selected.t.toFixed(2)} s · ${selected.rate.toFixed(1)} Mbps${selected.t <= trace.warmupMs / 1000 ? ' · warm-up' : ''}${!selected.valid ? ' · excluded interval' : ''}` : 'No recorded intervals'}</output>
       <p>{trace.streams} logical stream{trace.streams === 1 ? '' : 's'} · {trace.accounting} bytes · {trace.endpoint}</p>
-      {estimate && <p>Sustained {rate(estimate.sustainedMbps)} · {estimate.qualification} · estimated ceiling {rate(estimate.ceilingMbps)}.</p>}
+      <p>Dashed boundary: warm-up ends; measurement begins. Rates combine this transfer’s streams. Samples show recorded intervals, which may differ in duration.</p>
+      {estimate && <p>Sustained {rate(estimate.sustainedMbps)} · {estimate.qualification} · highest repeatable throughput {estimate.ceilingMbps == null ? 'not established in this run' : rate(estimate.ceilingMbps)}.{estimate.repeatability ? ` Observed three-second-or-longer window range: ${rate(estimate.repeatability.lower)}–${rate(estimate.repeatability.upper)}.` : ''}</p>}
       {trace.serverTcpMinRttMs != null && <p>Server TCP minimum RTT: {trace.serverTcpMinRttMs.toFixed(1)} ms.</p>}
       {estimate?.warnings.length ? <ul>{estimate.warnings.map(warning => <li key={warning}>{warning}</li>)}</ul> : null}
     </section>}
-    {result.httpLatency && <section><h3>HTTP round-trip time</h3><p>Every latency figure below uses the same Cloudflare HTTP reference. HTTP failures are not UDP packet loss or TCP retransmissions.</p><table><thead><tr><th>Condition</th><th>Median / P95</th><th>Failed probes</th></tr></thead><tbody>{(['idle', 'download', 'upload'] as const).map(kind => {
-      const values = result.httpLatency![kind], stats = values.length ? latencyStatistics(values) : null;
-      return <tr key={kind}><th>{kind === 'idle' ? 'Idle' : `${kind}-loaded`}</th><td>{stats ? `${stats.p50.toFixed(1)} / ${stats.p95.toFixed(1)} ms` : 'Unavailable'}</td><td>{result.httpLatency!.failures[kind]} / {result.httpLatency!.attempts[kind]}</td></tr>;
-    })}</tbody></table><p>Minimum idle HTTP RTT: {result.latencyStats ? `${result.latencyStats.min.toFixed(1)} ms` : 'Unavailable'}.</p></section>}
+    {result.httpLatency && <section><h3>Latency under load</h3><p>{latencySummary(result.httpLatency)}</p><table><thead><tr><th>Condition</th><th>Median / change</th><th>P95 / PDV jitter</th></tr></thead><tbody>{latencyRows(result.httpLatency).map(row => <tr key={row.kind}><th>{row.kind}<small>{row.count} successful · {row.failures}/{row.attempts} failed{row.limited ? ' · limited tail sampling' : ''}</small></th><td>{row.stats ? `${row.stats.p50.toFixed(1)} ms` : row.attempts ? 'No successful probes' : 'Not measured'}{row.delta !== null && <small>{row.delta >= 0 ? '+' : ''}{row.delta.toFixed(1)} ms vs idle</small>}</td><td>{row.stats ? `${row.stats.p95.toFixed(1)} / ${row.stats.pdv.toFixed(1)} ms` : '—'}</td></tr>)}</tbody></table>
+      <p>PDV jitter = P95 minus median HTTP latency. Fewer than 20 successful probes are flagged as limited tail sampling; a larger sample still cannot guarantee a precise tail estimate.</p>
+      {(['idle', 'download', 'upload'] as const).map(kind => {
+        const values = result.httpLatency![kind], peak = Math.max(1, ...values);
+        return values.length ? <figure key={kind}><figcaption>{kind} latency · successful probes in collection order · 0–{peak.toFixed(1)} ms</figcaption><svg viewBox="0 0 560 90" role="img" aria-label={`${kind} latency by successful probe, not elapsed time`}><path d={values.map((v, i) => `${i ? 'L' : 'M'}${i * 550 / Math.max(1, values.length - 1) + 5},${85 - v / peak * 75}`).join(' ')} stroke="currentColor" fill="none" strokeWidth="2" /></svg></figure> : null;
+      })}
+      <p>{HTTP_TIMING_DESCRIPTION} Reference: {result.httpLatency.endpoint}</p><p>HTTP failures are request failures, not packet loss. Packet loss and TCP retransmissions were not measured.</p></section>}
     {measurement && <section><h3>Run record</h3><p>{(measurement.bytesTransferred / 1e6).toFixed(1)} MB confirmed payload · {(measurement.budgetBytes / 1e6).toFixed(1)} MB charged against the {(measurement.byteLimit / 1e6).toFixed(0)} MB limit · {(measurement.elapsedMs / 1000).toFixed(1)} seconds · ended: {measurement.stopReason}.</p>
-      <p>The data budget counts received payload and upload payload offered to the transport. Confirmed payload counts received downloads and acknowledged uploads. Protocol overhead is additional.</p>
+      <p>{DATA_ACCOUNTING_DESCRIPTION}</p>
       <p>Observed ranges describe variation in this run. They are not a calibrated 95% accuracy guarantee. UDP loss and TCP retransmissions are unavailable in this profile.</p>
     </section>}
+    <section><h3>What to compare next</h3><p>{COMPARISON_GUIDANCE}</p></section>
     {result.networkMetadata && <section><h3>Connection details</h3><p>{[result.networkMetadata.ispFull, result.networkMetadata.ip, result.networkMetadata.city, result.networkMetadata.country].filter(Boolean).join(' · ')}</p></section>}
     {result.dnsCheck && <section><h3>Browser reachability checks</h3><p>These auxiliary HTTP requests ran after the measurement. Their total time includes more than DNS resolution.</p><ul>{result.dnsCheck.probes.map(probe => <li key={probe.domain}>{probe.domain}: {probe.status === 'pass' ? `${probe.totalMs} ms total${probe.dnsMs == null ? '' : ` · DNS ${probe.dnsMs} ms`}` : 'Request failed'}</li>)}</ul></section>}
   </div>;

@@ -90,3 +90,7 @@ An application-level pacer does not establish physical-device accuracy, TCP pack
 - [NDT7 protocol](https://github.com/m-lab/ndt-server/blob/main/spec/ndt7-protocol.md)
 - [M-Lab MSAK](https://github.com/m-lab/msak)
 - [Time-uniform confidence sequence research](https://arxiv.org/abs/1810.08240)
+
+## Result reporting
+The display name for ceilingMbps is highest repeatable throughput. Its calculation and serialized field remain unchanged. Response-time details report median, empirical P95, P95-minus-median jitter, successful samples, failures and loaded-minus-idle differences. Fewer than 20 successful probes flags limited tail sampling; no sample count guarantees tail accuracy. Latency charts show successful probe order, not elapsed time. Copy reports include all recorded fields and samples without truncation, plus method definitions; endpoint credentials are redacted. Missing fields mean not recorded and null never means zero. Current settings at export are labeled separately from the original run.
+

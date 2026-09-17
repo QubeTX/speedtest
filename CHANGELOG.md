@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [4.0.7] - 2026-09-16
+
+### Changed
+- Show loaded-minus-idle latency, P95, PDV, successful sample counts, limited-tail sampling and chronological probe charts. Clarify repeated throughput, observed ranges, byte accounting and follow-up comparisons without changing Methodology 5 calculations.
+- Export the complete recorded result and measurement definitions after a readable summary, retaining raw samples and future fields while redacting endpoint credentials.
+
 ## [4.0.6] - 2026-09-06
 
 ### Changed
