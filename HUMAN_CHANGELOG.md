@@ -2,6 +2,11 @@
 
 A plain-English companion to [CHANGELOG.md](CHANGELOG.md).
 
+## September 16, 2026 — Understand your connection
+
+- See how much responses slowed while downloading or uploading, and how much speeds varied. Small samples and missing measurements are explained.
+- Reports begin with a readable summary and include every recorded measurement for detailed analysis. Clearer labels explain repeatable speed, data use and what to compare next.
+
 ## September 6, 2026 — A simpler cassette (4.0.6)
 
 - The web cassette is closer to the original iPhone design, with larger reels, a quiet blue-gray body and a clear black Start control. Cleaner proportions and fewer decorative details give it a restrained Braun/Bauhaus influence.
