@@ -29,9 +29,9 @@ export function fullDiagnosticRecord(result: unknown, context?: unknown): string
     '```json', diagnosticJson({ reportSchema: 'speedqx-diagnostic-report/1', context: context ?? null, result }), '```'].join('\n');
 }
 
-export const HTTP_TIMING_DESCRIPTION = 'Elapsed time from starting the HTTP request until its response body is consumed, including client scheduling, server processing and any connection setup. Idle and loaded probes use the same endpoint. Negotiated protocol and connection reuse were not recorded.';
-export const COMPARISON_GUIDANCE = 'To narrow down the cause, repeat on the same device and profile near the Wi-Fi access point, then over Ethernet if available. Keep other traffic similar and compare several runs. This test cannot locate a bottleneck or infer Wi-Fi signal quality.';
-export const DATA_ACCOUNTING_DESCRIPTION = 'Budget counts received downloads and upload payload offered to the transport. Confirmed payload counts received downloads and acknowledged uploads. The difference can include incomplete or unacknowledged uploads; it is not measured protocol overhead. Headers, encryption and unrelated traffic are outside these totals.';
+export const HTTP_TIMING_DESCRIPTION = 'We time each web request from the moment it starts until the app has read the whole response. This includes work by your device and the server, plus connection setup when needed. Quiet and busy checks use the same server address. The test did not record which HTTP version was used or whether a connection was reused.';
+export const COMPARISON_GUIDANCE = 'To find out where a slowdown might come from, repeat with the same device and test mode near your Wi-Fi router, then with an Ethernet cable if available. Keep other network activity similar and compare several runs. This test alone cannot locate the cause or measure Wi-Fi signal strength.';
+export const DATA_ACCOUNTING_DESCRIPTION = 'Your data limit counts downloaded data and all upload data handed off for sending. Confirmed data counts downloads received and uploads confirmed by the receiving service. The gap can include unfinished uploads or data that was sent but not confirmed. It does not measure the extra data used to carry and secure each request; that extra data and other apps’ traffic are outside these totals.';
 
 export function latencyRows(latency: SpeedTestResult['httpLatency']) {
   const idle = latency?.idle.length ? latencyStatistics(latency.idle).p50 : null;
@@ -50,7 +50,7 @@ export function latencySummary(latency: SpeedTestResult['httpLatency']): string 
   const worst = loaded.reduce((a, b) => a.delta! >= b.delta! ? a : b);
   const coverage = loaded.length < 2 ? ' Only one load direction was measured.' : '';
   if (worst.delta! <= 0) return 'No median latency increase was observed in the measured load conditions.' + coverage;
-  return `${worst.kind === 'upload' ? 'Upload' : 'Download'} activity added ${worst.delta!.toFixed(1)} ms of median HTTP delay.${coverage} Calls or games may feel less responsive during heavy traffic; this test cannot locate the bottleneck.`;
+  return `${worst.kind === 'upload' ? 'Upload' : 'Download'} activity added ${worst.delta!.toFixed(1)} ms to the typical web response.${coverage} Game and call response times may differ. This test cannot tell where the delay came from.`;
 }
 
 export function formatV5Result(result: Pick<SpeedTestResult, 'measurement' | 'providerSet' | 'httpLatency' | 'latencyStats' | 'warnings'>, context?: unknown): string {
@@ -83,5 +83,5 @@ export function formatV5Result(result: Pick<SpeedTestResult, 'measurement' | 'pr
   lines.push(COMPARISON_GUIDANCE);
   for (const warning of result.warnings ?? []) lines.push(`Notice: ${warning}`);
   lines.push('', fullDiagnosticRecord(result, context), '', 'Measurement rules and definitions', '```json', diagnosticJson({ contract, guide }), '```');
-  return lines.join('\n');
+  return JSON.parse(diagnosticJson(lines.join('\n'))) as string;
 }
